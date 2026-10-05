@@ -304,6 +304,141 @@
     
     body.dev-wireframe * { outline: 1px solid rgba(46, 204, 113, 0.3) !important; }
 
+    /* Quick Jump Chips Bar */
+    .quick-jump-container {
+        background: var(--card-bg);
+        padding: 10px 14px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        backdrop-filter: blur(5px);
+        margin-bottom: 20px;
+    }
+    .quick-jump-title {
+        font-size: 0.78rem;
+        color: #888;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .quick-jump-bar {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
+    }
+    .jump-chip {
+        background: #222;
+        color: #ccc;
+        border: 1px solid #444;
+        padding: 6px 14px;
+        border-radius: 16px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: 0.2s;
+        flex-shrink: 0;
+        touch-action: manipulation;
+    }
+    .jump-chip:hover {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+    }
+
+    /* Batch Action Button in Section Header */
+    .section-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .batch-btn {
+        background: #222;
+        color: #aaa;
+        border: 1px solid #444;
+        padding: 4px 10px;
+        border-radius: 4px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.2s;
+        white-space: nowrap;
+        touch-action: manipulation;
+    }
+    .batch-btn:hover {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+    }
+
+    /* Results Counter & Empty State */
+    .results-counter {
+        font-size: 0.82rem;
+        color: #888;
+        margin-bottom: 10px;
+        text-align: right;
+        font-weight: 500;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 45px 20px;
+        background: var(--card-bg);
+        border-radius: 8px;
+        border: 1px dashed #444;
+        margin: 20px 0;
+    }
+
+    /* In Progress Button & Badge */
+    .btn-inprogress {
+        border-color: #f39c12;
+        color: #f39c12;
+    }
+    .btn-inprogress:hover, .btn-inprogress.active {
+        background-color: #f39c12 !important;
+        border-color: #f39c12 !important;
+        color: #000 !important;
+        font-weight: bold;
+    }
+    .inprogress-btn {
+        cursor: pointer;
+        font-size: 1.15rem;
+        opacity: 0.45;
+        transition: 0.2s;
+        user-select: none;
+        padding: 4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .inprogress-btn:hover {
+        opacity: 0.8;
+    }
+    .inprogress-btn.active {
+        opacity: 1;
+        color: #f39c12;
+        filter: drop-shadow(0 0 5px rgba(243, 156, 18, 0.7));
+    }
+    .badge-inprogress {
+        background: rgba(243, 156, 18, 0.2);
+        border: 1px solid #f39c12;
+        color: #f39c12;
+        font-size: 0.72rem;
+        font-weight: bold;
+        padding: 2px 6px;
+        border-radius: 4px;
+        margin-left: 8px;
+        vertical-align: middle;
+        white-space: nowrap;
+        display: inline-block;
+    }
+
     /* Mobile Enhancements (Screens <= 650px) */
     @media (max-width: 650px) {
         body { padding: 12px 10px; }
@@ -432,6 +567,18 @@
             </div>
             <div class="progress-bar-container" id="main-progress-bar"></div>
         </div>
+        <div class="quick-jump-container" id="quick-jump-container">
+            <div class="quick-jump-title">
+                <span>⚡ Quick-Jump to Phase</span>
+                <span style="font-size: 0.7rem; color: #666;">Scroll horizontally →</span>
+            </div>
+            <div class="quick-jump-bar" id="quick-jump-bar"></div>
+        </div>
+        <div id="empty-state" class="empty-state" style="display: none;">
+            <div style="font-size: 2.2rem; margin-bottom: 8px;">🔍</div>
+            <h3 style="color: var(--accent); margin: 0 0 5px 0;">No Titles Found</h3>
+            <p style="color: #888; font-size: 0.9rem; margin: 0;">Try adjusting your search terms or clearing active filters.</p>
+        </div>
         <div id="content"></div>
     </div>
 
@@ -439,7 +586,9 @@
         <div class="panel panel-search">
             <h3>🔍 Search &amp; Filter</h3>
             <input type="text" id="search-input" class="search-input" placeholder="Search for a title..." onkeyup="applyFilterToDOM()">
+            <div class="results-counter" id="results-counter">Showing 0 titles</div>
             <button class="filter-btn active" id="btn-filter-all" onclick="setFilter('all')">Show All</button>
+            <button class="filter-btn btn-inprogress" id="btn-filter-inprogress" onclick="setFilter('inprogress')">⏳ In Progress (<span id="count-inprogress">0</span>)</button>
             <button class="filter-btn" id="btn-filter-watched" onclick="setFilter('watched')">Watched Only</button>
             <button class="filter-btn" id="btn-filter-unwatched" onclick="setFilter('unwatched')">Unwatched Only</button>
             <button class="filter-btn btn-doomsday" id="btn-filter-doomsday" onclick="setFilter('doomsday')">⚠ Doomsday Prep</button>
@@ -454,6 +603,7 @@
         <div class="panel panel-stats">
             <h3>📊 Nerd Stats</h3>
             <div class="stat-row"><span>Titles Watched:</span><span class="stat-val" id="stat-count">0</span></div>
+            <div class="stat-row"><span>In Progress:</span><span class="stat-val" id="stat-inprogress">0</span></div>
             <div class="stat-row"><span>Total Watch Time:</span><span class="stat-val" id="stat-time">0d 0h 0m</span></div>
             <div class="stat-row"><span>Average Rating:</span><span class="stat-val" id="stat-avg">0/10</span></div>
             <div class="stat-row"><span>Favorite Phase:</span><span class="stat-val" id="stat-phase">None</span></div>
@@ -768,12 +918,88 @@ let isChronoMode = false;
 let isDevOffline = false;
 const allDbItems = db.flatMap(s => s.items.map(i => ({...i, sectionColor: s.color, excludeProgress: s.excludeProgress, category: s.category})));
 
+function isItemInProgress(title) {
+    const data = userData[title];
+    if (!data) return false;
+    if (data.watched) return false;
+    if (data.inProgress) return true;
+    const dbItem = allDbItems.find(i => i.title === title);
+    if (dbItem && dbItem.episodes && data.watchedEps) {
+        const epWatched = data.watchedEps.filter(Boolean).length;
+        return epWatched > 0 && epWatched < dbItem.episodes;
+    }
+    return false;
+}
+
+function toggleInProgress(title) {
+    if (!userData[title]) userData[title] = { watched: false, rating: 0, note: "", inProgress: false };
+    const current = isItemInProgress(title);
+    userData[title].inProgress = !current;
+    if (userData[title].inProgress) {
+        userData[title].watched = false;
+    }
+    save();
+    render();
+}
+
+function toggleBatchSection(secIdx) {
+    const section = db[secIdx];
+    if (!section) return;
+    const allWatched = section.items.every(i => userData[i.title] && userData[i.title].watched);
+    const newStatus = !allWatched;
+    section.items.forEach(item => {
+        if (!userData[item.title]) userData[item.title] = { watched: false, rating: 0, note: "", inProgress: false };
+        userData[item.title].watched = newStatus;
+        if (newStatus) {
+            userData[item.title].inProgress = false;
+        }
+        if (item.episodes) {
+            userData[item.title].watchedEps.fill(newStatus);
+        }
+    });
+    save();
+    render();
+}
+
+function renderQuickJumpBar() {
+    const container = document.getElementById('quick-jump-container');
+    const bar = document.getElementById('quick-jump-bar');
+    if (!bar || !container) return;
+    if (isChronoMode) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'block';
+    let html = '';
+    db.forEach((sec, idx) => {
+        if (!showNonCanon && (sec.category === "Multiverse Legacy & Standalones" || sec.category === "Marvel Animated Legacy")) return;
+        const shortName = sec.category
+            .replace("The Infinity Saga - ", "")
+            .replace("The Multiverse Saga - ", "")
+            .replace("Universe", "")
+            .replace("Legacy", "")
+            .trim();
+        html += `<button class="jump-chip" onclick="scrollToSection(${idx})" style="border-left: 3px solid ${sec.color};">${shortName}</button>`;
+    });
+    bar.innerHTML = html;
+}
+
+function scrollToSection(secIdx) {
+    const el = document.getElementById('section-' + secIdx);
+    if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const origBg = el.style.backgroundColor;
+        el.style.backgroundColor = 'rgba(230, 36, 41, 0.2)';
+        el.style.transition = 'background-color 0.4s ease';
+        setTimeout(() => el.style.backgroundColor = origBg, 1200);
+    }
+
 function initializeData() {
     totalMainMCUItems = 0;
     db.forEach(sec => {
         sec.items.forEach(item => {
             if (!sec.excludeProgress) totalMainMCUItems++;
-            if (!userData[item.title]) userData[item.title] = { watched: false, rating: 0, note: "" };
+            if (!userData[item.title]) userData[item.title] = { watched: false, rating: 0, note: "", inProgress: false };
             if (item.episodes && !userData[item.title].watchedEps) userData[item.title].watchedEps = new Array(item.episodes).fill(userData[item.title].watched ? true : false);
             if(userData[item.title].note === undefined) userData[item.title].note = "";
         });
@@ -878,6 +1104,16 @@ function updateNerdStats() {
         });
     });
     
+    let inProgressCount = allDbItems.filter(i => isItemInProgress(i.title)).length;
+    const statProgressEl = document.getElementById('stat-inprogress');
+    if (statProgressEl) statProgressEl.innerText = inProgressCount;
+    const countProgressEl = document.getElementById('count-inprogress');
+    if (countProgressEl) countProgressEl.innerText = inProgressCount;
+                phaseStats[sec.category].total += userData[item.title].rating; phaseStats[sec.category].count++;
+            }
+        });
+    });
+    
     document.getElementById('stat-count').innerText = watchedCount;
     document.getElementById('stat-time').innerText = `${Math.floor(totalMinutes/1440)}d ${Math.floor((totalMinutes%1440)/60)}h ${Math.round(totalMinutes%60)}m`;
     document.getElementById('stat-avg').innerText = countScore > 0 ? (totalScore / countScore).toFixed(1) + '/10' : '0/10';
@@ -911,7 +1147,24 @@ function applyFilterToDOM() {
         if (currentFilter === 'unwatched' && isWatched) show = false;
         if (currentFilter === 'doomsday' && !dbItem?.dd) show = false;
         if (query !== '' && !titleText.toLowerCase().includes(query)) show = false;
+        if (currentFilter === 'inprogress' && !isItemInProgress(titleText)) show = false;
+        if (query !== '' && !titleText.toLowerCase().includes(query)) show = false;
         
+        wrapper.style.display = show ? 'block' : 'none';
+    });
+    
+    let totalVisible = 0;
+    document.querySelectorAll('.section').forEach(sec => {
+        const visibleItems = sec.querySelectorAll('.item-wrapper[style="display: block;"], .item-wrapper:not([style*="none"])');
+        sec.style.display = visibleItems.length === 0 ? 'none' : 'block';
+        totalVisible += visibleItems.length;
+    });
+    
+    const counterEl = document.getElementById('results-counter');
+    if (counterEl) counterEl.innerText = `Showing ${totalVisible} title${totalVisible === 1 ? '' : 's'}`;
+    
+    const emptyEl = document.getElementById('empty-state');
+    if (emptyEl) emptyEl.style.display = totalVisible === 0 ? 'block' : 'none';
         wrapper.style.display = show ? 'block' : 'none';
     });
     
@@ -1145,10 +1398,11 @@ function generateItemHTML(item, sectionColor) {
                     ${expanderHTML}
                     <input type="checkbox" class="main-checkbox" style="accent-color: ${sectionColor};" ${data.watched ? 'checked' : ''}>
                     <img class="poster-img" alt="Poster">
-                    <span class="title">${cleanTitle}</span>
+                    <span class="title">${cleanTitle}${isItemInProgress(title) ? '<span class="badge-inprogress">Watching</span>' : ''}</span>
                 </div>
                 <div class="rating-container">
                     <span class="info-icon" title="View Info" onclick="openInfo('${title.replace(/'/g, "\\'")}')">ℹ️</span>
+                    <span class="inprogress-btn ${isItemInProgress(title) ? 'active' : ''}" title="Toggle In-Progress Status" onclick="toggleInProgress('${title.replace(/'/g, "\\'")}')">⏳</span>
                     <span class="note-icon ${data.note ? 'active' : ''}" title="Review Notes">📝</span>
                     <div class="star-rating">${starsHTML}</div>
                     <span class="rating-value">${data.rating > 0 ? data.rating + '/10' : '-/10'}</span>
@@ -1240,7 +1494,10 @@ function render() {
                 return;
             }
 
-            const secDiv = document.createElement('div'); secDiv.className = 'section';
+            const secDiv = document.createElement('div'); secDiv.className = 'section'; secDiv.id = `section-${secIdx}`;
+            const allWatched = section.items.every(i => userData[i.title] && userData[i.title].watched);
+            let miniProg = section.excludeProgress ? '' : `<div class="mini-progress-wrapper"><span class="mini-progress-text" id="mini-pct-${secIdx}" style="color: ${section.color};">0%</span><div class="mini-progress-container"><div class="mini-progress-fill" id="mini-prog-${secIdx}" style="background-color: ${section.color};"></div></div></div>`;
+            secDiv.innerHTML = `<div class="section-header" style="border-bottom: 2px solid ${section.color};"><h2>${section.category}</h2><div class="section-actions"><button class="batch-btn" onclick="toggleBatchSection(${secIdx})">${allWatched ? '✕ Unmark All' : '✓ Mark All'}</button>${miniProg}</div></div>`;
             let miniProg = section.excludeProgress ? '' : `<div class="mini-progress-wrapper"><span class="mini-progress-text" id="mini-pct-${secIdx}" style="color: ${section.color};">0%</span><div class="mini-progress-container"><div class="mini-progress-fill" id="mini-prog-${secIdx}" style="background-color: ${section.color};"></div></div></div>`;
             secDiv.innerHTML = `<div class="section-header" style="border-bottom: 2px solid ${section.color};"><h2>${section.category}</h2>${miniProg}</div>`;
             
@@ -1253,6 +1510,8 @@ function render() {
             container.appendChild(secDiv);
         });
     }
+    updateDashboards();
+    renderQuickJumpBar();
     updateDashboards();
 }
 
