@@ -358,7 +358,7 @@ const db = [
         {title: "Captain America: The First Avenger (2011)", r: 124, c: 1, pc: 1, dd: true}, 
         {title: "The Avengers (2012)", r: 143, c: 7, pc: 2, dd: true}
     ] },
-    { category: "The Infinity Saga - Phase 2", color: "#f1c40f", excludeProgress: false, items: [
+    { category: "The Infinity Saga - Phase 2", color: "#e67e22", excludeProgress: false, items: [
         {title: "Iron Man 3 (2013)", r: 130, c: 8, pc: 1}, 
         {title: "Thor: The Dark World (2013)", r: 112, c: 9, pc: 2}, 
         {title: "Captain America: The Winter Soldier (2014)", r: 136, c: 10, pc: 2}, 
@@ -366,7 +366,7 @@ const db = [
         {title: "Avengers: Age of Ultron (2015)", r: 141, c: 12, pc: 2}, 
         {title: "Ant-Man (2015)", r: 117, c: 13, pc: 2}
     ] },
-    { category: "The Infinity Saga - Phase 3", color: "#f1c40f", excludeProgress: false, items: [
+    { category: "The Infinity Saga - Phase 3", color: "#e74c3c", excludeProgress: false, items: [
         {title: "Captain America: Civil War (2016)", r: 147, c: 14, pc: 2}, 
         {title: "Doctor Strange (2016)", r: 115, c: 17, pc: 2}, 
         {title: "Guardians of the Galaxy Vol. 2 (2017)", r: 136, c: 11.5, pc: 5}, 
@@ -399,7 +399,7 @@ const db = [
         {title: "Black Panther: Wakanda Forever (2022)", r: 161, c: 35, pc: 1, dd: true}, 
         {title: "The Guardians of the Galaxy Holiday Special (2022)", r: 42, c: 36, pc: 1}
     ] },
-    { category: "The Multiverse Saga - Phase 5", color: "#9b59b6", excludeProgress: false, items: [
+    { category: "The Multiverse Saga - Phase 5", color: "#8e44ad", excludeProgress: false, items: [
         {title: "Ant-Man and the Wasp: Quantumania (2023)", r: 125, c: 37, pc: 2}, 
         {title: "Guardians of the Galaxy Vol. 3 (2023)", r: 150, c: 38, pc: 2}, 
         {title: "Secret Invasion", episodes: 6, r: 220, c: 39}, 
@@ -416,7 +416,7 @@ const db = [
         {title: "Thunderbolts* (2025)", r: 130, c: 49, dd: true}, 
         {title: "Ironheart", episodes: 6, r: 300, c: 50}
     ] },
-    { category: "The Multiverse Saga - Phase 6", color: "#9b59b6", excludeProgress: false, items: [
+    { category: "The Multiverse Saga - Phase 6", color: "#2ecc71", excludeProgress: false, items: [
         {title: "The Fantastic Four: First Steps (2025)", r: 130, c: 51, dd: true}, 
         {title: "Eyes of Wakanda (2025)", episodes: 4, r: 200, c: 51.1},
         {title: "Marvel Zombies (2025)", episodes: 4, r: 200, c: 51.2},
@@ -441,7 +441,7 @@ const db = [
         {title: "The Punisher - Season 2", episodes: 13, r: 650, c: 71},
         {title: "Jessica Jones - Season 3", episodes: 13, r: 650, c: 72}
     ] },
-    { category: "Fox's X-Men Universe", color: "#e67e22", excludeProgress: false, items: [
+    { category: "Fox's X-Men Universe", color: "#d35400", excludeProgress: false, items: [
         {title: "X-Men (2000)", r: 104, c: 100, dd: true}, 
         {title: "X2: X-Men United (2003)", r: 134, c: 101, dd: true}, 
         {title: "X-Men: The Last Stand (2006)", r: 104, c: 102}, 
@@ -462,7 +462,7 @@ const db = [
         {title: "Fantastic Four: Rise of the Silver Surfer (2007)", r: 92, c: 122}, 
         {title: "Fantastic Four (2015)", r: 100, c: 123}
     ] },
-    { category: "Sony's Spider-Man Legacy", color: "#e74c3c", excludeProgress: false, items: [
+    { category: "Sony's Spider-Man Legacy", color: "#ff4757", excludeProgress: false, items: [
         {title: "Spider-Man (2002)", r: 121, c: 130}, 
         {title: "Spider-Man 2 (2004)", r: 127, c: 131}, 
         {title: "Spider-Man 3 (2007)", r: 139, c: 132}, 
@@ -1056,7 +1056,7 @@ function devToggleWireframe() {
 }
 
 function devRunAudit() {
-    console.group("🛠️️ MCU Database Audit");
+    console.group("🛠 MCU Database Audit");
     let cList = {}; let dupes = []; let missingR = [];
     allDbItems.forEach(i => {
         if (i.c) {
