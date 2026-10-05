@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ultimate Marvel Tracker</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <style>
     :root {
@@ -16,6 +17,19 @@
         color: var(--text); margin: 0; padding: 20px; line-height: 1.6;
     }
     
+    /* Screen Edge Glow */
+    .edge-glow {
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        pointer-events: none;
+        z-index: 9998; 
+        box-shadow: inset 0 0 80px rgba(230, 36, 41, 0.25);
+        transition: box-shadow 0.6s ease;
+    }
+    .doomsday-active .edge-glow {
+        box-shadow: inset 0 0 120px rgba(46, 204, 113, 0.4);
+    }
+
     /* Multiverse Animated Background */
     .multiverse-bg {
         position: fixed;
@@ -58,15 +72,40 @@
         100% { transform: translate(-12vw, -5vh) scale(1.2) rotate(135deg); }
     }
 
-    .header { text-align: center; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); position: relative; }
+    .header { text-align: center; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); position: relative; z-index: 10; }
     .header h1 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
     .subtitle { color: #aaa; font-style: italic; letter-spacing: 1px; margin-bottom: 15px; cursor: pointer; user-select: none; }
     
-    .top-controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+    .top-controls { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
     .mode-btn { background: #222; color: #fff; border: 1px solid #555; padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: 0.2s; font-size: 0.9rem; }
     .mode-btn:hover, .mode-btn.active { background: var(--accent); border-color: var(--accent); }
 
-    .dashboard { display: grid; grid-template-columns: 280px 1fr 280px; gap: 25px; max-width: 1400px; margin: 0 auto; align-items: start; }
+    /* Doomsday Countdown Clock */
+    .doomsday-countdown {
+        display: none;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.7);
+        border: 1px solid #2ecc71;
+        color: #2ecc71;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 0 auto 30px auto;
+        max-width: 350px;
+        font-family: 'Courier New', Courier, monospace;
+        backdrop-filter: blur(5px);
+    }
+    .doomsday-active .doomsday-countdown {
+        display: block;
+        animation: pulseGlow 2s infinite;
+    }
+    @keyframes pulseGlow {
+        0% { box-shadow: 0 0 10px rgba(46, 204, 113, 0.2); }
+        50% { box-shadow: 0 0 25px rgba(46, 204, 113, 0.6); }
+        100% { box-shadow: 0 0 10px rgba(46, 204, 113, 0.2); }
+    }
+    #doom-clock { font-size: 2rem; font-weight: bold; margin-top: 5px; color: #fff; text-shadow: 0 0 10px #2ecc71; }
+
+    .dashboard { display: grid; grid-template-columns: 280px 1fr 280px; gap: 25px; max-width: 1400px; margin: 0 auto; align-items: start; position: relative; z-index: 10; }
     @media (max-width: 1050px) { .dashboard { grid-template-columns: 1fr; } }
 
     .sidebar { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 20px; }
@@ -195,6 +234,9 @@
 </head>
 <body>
 
+<!-- Dynamic Screen Edge Glow -->
+<div class="edge-glow"></div>
+
 <!-- Animated Multiverse Background -->
 <div class="multiverse-bg">
     <div class="glow red"></div>
@@ -208,6 +250,12 @@
     <div class="top-controls">
         <button class="mode-btn active" id="btn-release" onclick="setMode('release')">Release Order</button>
         <button class="mode-btn" id="btn-chrono" onclick="setMode('chrono')">Chronological Timeline</button>
+    </div>
+    
+    <!-- Doomsday Ticking Clock (Hidden by Default) -->
+    <div class="doomsday-countdown" id="doomsday-timer">
+        <div style="letter-spacing: 2px;">⚠ DOOMSDAY APPROACHES ⚠</div>
+        <div id="doom-clock">Loading...</div>
     </div>
 </div>
 
@@ -692,6 +740,10 @@ function setFilter(type) {
     currentFilter = type;
     document.querySelectorAll('.filter-btn:not(.btn-random):not(.dev-btn):not(.btn-noncanon)').forEach(b => b.classList.remove('active'));
     document.getElementById('btn-filter-' + type).classList.add('active');
+    
+    // Toggle the immersive green Doomsday screen mode
+    document.body.classList.toggle('doomsday-active', type === 'doomsday');
+    
     applyFilterToDOM();
 }
 
@@ -1051,6 +1103,28 @@ function render() {
     updateDashboards();
 }
 
+function initDoomsdayClock() {
+    const doomDate = new Date("December 18, 2026 00:00:00").getTime();
+    
+    setInterval(() => {
+        const now = new Date().getTime();
+        const distance = doomDate - now;
+        
+        if (distance < 0) {
+            document.getElementById("doom-clock").innerHTML = "DOOM HAS ARRIVED.";
+            return;
+        }
+        
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        document.getElementById("doom-clock").innerHTML = 
+            `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }, 1000);
+}
+
 /* ==============================================================
    DEVELOPER TOOLS SECRETS & LOGIC
 ============================================================== */
@@ -1161,7 +1235,10 @@ function devHardReset() {
     }
 }
 
-window.onload = render;
+window.onload = function() {
+    render();
+    initDoomsdayClock();
+};
 </script>
 </body>
 </html>
