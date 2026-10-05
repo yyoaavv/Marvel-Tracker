@@ -90,6 +90,10 @@
     .btn-doomsday:hover, .btn-doomsday.active { background-color: #27ae60; color: #fff; }
     .btn-random { background: linear-gradient(45deg, #8e44ad, #2980b9); border: none; font-weight: bold; margin-top: 10px; }
 
+    .btn-noncanon { border: 1px solid #f39c12; color: #f39c12; background: rgba(243, 156, 18, 0.08); margin-top: 10px; }
+    .btn-noncanon:hover { background: rgba(243, 156, 18, 0.25); color: #fff; }
+    .btn-noncanon.active { background: #f39c12 !important; border-color: #f39c12 !important; color: #000 !important; font-weight: bold; }
+
     .backup-controls button, .backup-controls label { display: block; width: 100%; text-align: center; background: #333; color: #fff; border: 1px solid #555; padding: 8px; border-radius: 5px; cursor: pointer; margin-top: 10px; font-size: 0.85rem; box-sizing: border-box; }
     .backup-controls input[type="file"] { display: none; }
 
@@ -252,6 +256,7 @@
             <button class="filter-btn" id="btn-filter-watched" onclick="setFilter('watched')">Watched Only</button>
             <button class="filter-btn" id="btn-filter-unwatched" onclick="setFilter('unwatched')">Unwatched Only</button>
             <button class="filter-btn btn-doomsday" id="btn-filter-doomsday" onclick="setFilter('doomsday')">⚠ Doomsday Prep</button>
+            <button class="filter-btn btn-noncanon" id="btn-toggle-noncanon" onclick="toggleNonCanon()">🌌 Non-Canon & Animation: OFF</button>
         </div>
     </div>
 </div>
@@ -347,6 +352,8 @@
    MAIN TRACKER LOGIC
 ============================================================== */
 const TMDB_API_KEY = "768707eae09a474cb47d2dd0de6d559f"; 
+
+let showNonCanon = false;
 
 // Data mapping: c = Chronological order, pc = Post credit scenes, dd = Doomsday Prep
 // Ordered by priority: Main MCU -> Connected Sagas -> Televison -> Standalones/One-Shots at the bottom
@@ -581,6 +588,16 @@ function updateDashboards() {
     applyFilterToDOM();
 }
 
+function toggleNonCanon() {
+    showNonCanon = !showNonCanon;
+    const btn = document.getElementById('btn-toggle-noncanon');
+    if (btn) {
+        btn.innerText = `🌌 Non-Canon & Animation: ${showNonCanon ? 'ON' : 'OFF'}`;
+        btn.classList.toggle('active', showNonCanon);
+    }
+    render();
+}
+
 function exportData() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(userData));
     const a = document.createElement('a'); a.href = dataStr; a.download = "marvel_watchlist_backup.json";
@@ -673,7 +690,7 @@ function updateNerdStats() {
 
 function setFilter(type) {
     currentFilter = type;
-    document.querySelectorAll('.filter-btn:not(.btn-random):not(.dev-btn)').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.filter-btn:not(.btn-random):not(.dev-btn):not(.btn-noncanon)').forEach(b => b.classList.remove('active'));
     document.getElementById('btn-filter-' + type).classList.add('active');
     applyFilterToDOM();
 }
@@ -816,7 +833,6 @@ async function openInfo(title) {
             if (!trailer) trailer = details.videos.results.find(v => v.site === 'YouTube');
             
             if (trailer) {
-                // Bypassing local file block by creating a beautiful link thumbnail instead of a direct iframe
                 trailerHtml = `
                 <div class="video-container" onclick="window.open('https://www.youtube.com/watch?v=${trailer.key}', '_blank')">
                     <img src="https://img.youtube.com/vi/${trailer.key}/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/${trailer.key}/hqdefault.jpg'" alt="Trailer Thumbnail">
@@ -853,7 +869,15 @@ function handleRandomizerSelect(title) {
     openInfo(title);
 }
 
-function openRandomizer() { document.getElementById('random-modal').style.display = "block"; document.getElementById('rand-result').innerHTML = ''; }
+function openRandomizer() { 
+    document.getElementById('random-modal').style.display = "block"; 
+    document.getElementById('rand-result').innerHTML = ''; 
+    const optLegacy = document.querySelector('#rand-pool option[value="Multiverse Legacy & Standalones"]');
+    const optAnimated = document.querySelector('#rand-pool option[value="Marvel Animated Legacy"]');
+    if (optLegacy) optLegacy.style.display = showNonCanon ? 'block' : 'none';
+    if (optAnimated) optAnimated.style.display = showNonCanon ? 'block' : 'none';
+}
+
 function spinWheel() {
     const format = document.getElementById('rand-format').value;
     const poolType = document.getElementById('rand-pool').value;
@@ -861,6 +885,8 @@ function spinWheel() {
 
     allDbItems.forEach(item => {
         if (userData[item.title].watched) return;
+        if (!showNonCanon && (item.category === "Multiverse Legacy & Standalones" || item.category === "Marvel Animated Legacy")) return;
+
         const isShow = !!item.episodes;
         if (format === 'movie' && isShow) return;
         if (format === 'show' && !isShow) return;
@@ -990,7 +1016,12 @@ function render() {
         const secDiv = document.createElement('div'); secDiv.className = 'section';
         secDiv.innerHTML = `<div class="section-header" style="border-bottom: 2px solid #8e44ad;"><h2>The Sacred Timeline (Chronological)</h2></div>`;
         
-        let chronoItems = [...allDbItems].filter(i => i.c !== undefined).sort((a, b) => a.c - b.c);
+        let chronoItems = [...allDbItems].filter(i => i.c !== undefined);
+        if (!showNonCanon) {
+            chronoItems = chronoItems.filter(i => i.category !== "Multiverse Legacy & Standalones" && i.category !== "Marvel Animated Legacy");
+        }
+        chronoItems.sort((a, b) => a.c - b.c);
+
         chronoItems.forEach(item => {
             const wrapperDiv = document.createElement('div');
             wrapperDiv.innerHTML = generateItemHTML(item, item.sectionColor);
@@ -1000,6 +1031,10 @@ function render() {
         container.appendChild(secDiv);
     } else {
         db.forEach((section, secIdx) => {
+            if (!showNonCanon && (section.category === "Multiverse Legacy & Standalones" || section.category === "Marvel Animated Legacy")) {
+                return;
+            }
+
             const secDiv = document.createElement('div'); secDiv.className = 'section';
             let miniProg = section.excludeProgress ? '' : `<div class="mini-progress-wrapper"><span class="mini-progress-text" id="mini-pct-${secIdx}" style="color: ${section.color};">0%</span><div class="mini-progress-container"><div class="mini-progress-fill" id="mini-prog-${secIdx}" style="background-color: ${section.color};"></div></div></div>`;
             secDiv.innerHTML = `<div class="section-header" style="border-bottom: 2px solid ${section.color};"><h2>${section.category}</h2>${miniProg}</div>`;
