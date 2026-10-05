@@ -285,6 +285,7 @@
                 <option value="Fox's X-Men Universe">Fox's X-Men Universe</option>
                 <option value="Sony's Spider-Man Legacy">Sony's Spider-Man Legacy</option>
                 <option value="Legacy Marvel Television">Legacy Marvel Television</option>
+                <option value="Marvel Animated Legacy">Marvel Animated Legacy</option>
                 <option value="Multiverse Legacy & Standalones">Multiverse Legacy & Standalones</option>
                 <option value="Marvel One-Shots">Marvel One-Shots</option>
             </optgroup>
@@ -452,6 +453,8 @@ const db = [
         {title: "Deadpool (2016)", r: 108, c: 107}, 
         {title: "X-Men: Apocalypse (2016)", r: 144, c: 108}, 
         {title: "Logan (2017)", r: 137, c: 109}, 
+        {title: "Legion", episodes: 27, r: 1350, c: 109.1},
+        {title: "The Gifted", episodes: 29, r: 1250, c: 109.2},
         {title: "Deadpool 2 (2018)", r: 119, c: 110}, 
         {title: "X-Men: Dark Phoenix (2019)", r: 114, c: 111},
         {title: "The New Mutants (2020)", r: 94, c: 112}
@@ -496,7 +499,27 @@ const db = [
         {title: "Cloak & Dagger - Season 2", episodes: 10, r: 450, c: 94},
         {title: "Helstrom", episodes: 10, r: 450, c: 95}
     ] },
+    { category: "Marvel Animated Legacy", color: "#f39c12", excludeProgress: true, items: [
+        {title: "X-Men: The Animated Series", episodes: 76, r: 1600, c: 160},
+        {title: "Spider-Man: The Animated Series (1994)", episodes: 65, r: 1350, c: 161},
+        {title: "X-Men: Evolution", episodes: 52, r: 1100, c: 162},
+        {title: "Ultimate Avengers: The Movie (2006)", r: 72, c: 163},
+        {title: "Ultimate Avengers 2 (2006)", r: 73, c: 164},
+        {title: "The Invincible Iron Man (2007)", r: 83, c: 165},
+        {title: "Doctor Strange: The Sorcerer Supreme (2007)", r: 76, c: 166},
+        {title: "The Spectacular Spider-Man", episodes: 26, r: 550, c: 167},
+        {title: "Next Avengers: Heroes of Tomorrow (2008)", r: 78, c: 168},
+        {title: "Wolverine and the X-Men", episodes: 26, r: 550, c: 169},
+        {title: "Hulk Vs. (2009)", r: 82, c: 170},
+        {title: "Planet Hulk (2010)", r: 81, c: 171},
+        {title: "The Avengers: Earth's Mightiest Heroes", episodes: 52, r: 1100, c: 172},
+        {title: "Thor: Tales of Asgard (2011)", r: 77, c: 173},
+        {title: "X-Men '97", episodes: 10, r: 350, c: 174}
+    ] },
     { category: "Multiverse Legacy & Standalones", color: "#95a5a6", excludeProgress: true, items: [
+        {title: "Howard the Duck (1986)", r: 110, c: 148},
+        {title: "The Punisher (1989)", r: 89, c: 149},
+        {title: "Captain America (1990)", r: 97, c: 149.1},
         {title: "Blade (1998)", r: 120, c: 150}, 
         {title: "Blade II (2002)", r: 117, c: 151}, 
         {title: "Daredevil (2003)", r: 103, c: 152}, 
@@ -504,6 +527,7 @@ const db = [
         {title: "Blade: Trinity (2004)", r: 113, c: 154}, 
         {title: "The Punisher (2004)", r: 124, c: 155}, 
         {title: "Elektra (2005)", r: 97, c: 156}, 
+        {title: "Man-Thing (2005)", r: 97, c: 156.1},
         {title: "Ghost Rider (2007)", r: 114, c: 157}, 
         {title: "Punisher: War Zone (2008)", r: 103, c: 158}, 
         {title: "Ghost Rider: Spirit of Vengeance (2011)", r: 95, c: 159}
@@ -756,7 +780,7 @@ async function openInfo(title) {
     if (!cached) { textWrapper.innerHTML = "No data found for this title yet. Check API key."; return; }
 
     try {
-        const mediaType = cached.media_type || (title.includes("Season") || title.includes("Agents") || title.includes("Daredevil") || title.includes("Inhumans") || title.includes("Spider-Noir") ? 'tv' : 'movie');
+        const mediaType = cached.media_type || (title.includes("Season") || title.includes("Agents") || title.includes("Daredevil") || title.includes("Inhumans") || title.includes("Spider-Noir") || title.includes("X-Men: The Animated Series") || title.includes("X-Men: Evolution") || title.includes("Wolverine and the X-Men") || title.includes("The Avengers: Earth's Mightiest Heroes") || title.includes("Spectacular Spider-Man") || title.includes("X-Men '97") || title === "Legion" || title === "The Gifted" ? 'tv' : 'movie');
         const response = await fetch(`https://api.themoviedb.org/3/${mediaType}/${cached.id}?api_key=${TMDB_API_KEY}&append_to_response=videos`);
         const details = await response.json();
 
@@ -1083,7 +1107,7 @@ function devSaveJSON() {
 }
 
 function devHardReset() {
-    if (confirm("⚠️ FACTORY RESET: This will wipe all saved data. Are you sure?")) {
+    if (confirm("⚠️️ FACTORY RESET: This will wipe all saved data. Are you sure?")) {
         localStorage.removeItem('marvelTrackerV6');
         userData = {}; initializeData(); save(); render();
         document.getElementById('dev-json-editor').value = JSON.stringify(userData, null, 2);
