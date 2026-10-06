@@ -578,14 +578,20 @@ function renderProviders(forcedRegion) {
     const region = (forcedRegion && regions.includes(forcedRegion)) ? forcedRegion : getPreferredRegion(regions);
     const options = regions.map(r => `<option value="${r}" ${r === region ? 'selected' : ''}>${escHtml(regionName(r))}</option>`).join('');
 
+    const provNames = l => (l || []).map(p => p.provider_name).sort().join('|');
+    let groups = PROVIDER_GROUPS.map(([key, label]) => ({ key, label, list: data[region][key] || [] })).filter(g => g.list.length);
+    const rentG = groups.find(g => g.key === 'rent'), buyG = groups.find(g => g.key === 'buy');
+    if (rentG && buyG && provNames(rentG.list) === provNames(buyG.list)) {
+        rentG.label = 'Rent / Buy';
+        groups = groups.filter(g => g !== buyG);
+    }
+
     let rows = '';
-    PROVIDER_GROUPS.forEach(([key, label]) => {
-        const list = data[region][key];
-        if (!list || list.length === 0) return;
-        const chips = list.map(p => p.logo_path
+    groups.forEach(g => {
+        const chips = g.list.map(p => p.logo_path
             ? `<img class="prov-logo" src="https://image.tmdb.org/t/p/w92${p.logo_path}" alt="${escHtml(p.provider_name)}" title="${escHtml(p.provider_name)}">`
             : `<span class="prov-chip">${escHtml(p.provider_name)}</span>`).join('');
-        rows += `<div class="prov-row"><span class="prov-label">${label}</span><div class="prov-logos">${chips}</div></div>`;
+        rows += `<div class="prov-row"><span class="prov-label">${g.label}</span><div class="prov-logos">${chips}</div></div>`;
     });
     if (!rows) rows = '<span class="prov-none">Not available in this region.</span>';
 
@@ -683,8 +689,8 @@ async function openInfo(title) {
             <p><strong>Release Date:</strong> ${title.includes("Encore") ? "2026-09-04" : releaseDate}</p>
             <p><strong>Length:</strong> ${exactRuntime > 0 ? exactRuntime + ' mins' : 'N/A'}</p>
             <p class="modal-overview">${details.overview || "No overview available."}</p>
-            <div id="providers-box"></div>
             ${trailerHtml}
+            <div id="providers-box"></div>
         `;
         renderProviders();
     } catch (e) { textWrapper.innerHTML = "Error loading detailed information."; }

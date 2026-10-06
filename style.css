@@ -255,17 +255,17 @@
     body.dev-wireframe * { outline: 1px solid rgba(46, 204, 113, 0.3) !important; }
 
     
-    /* Where to watch */
-    .providers { margin: 14px 0 6px; padding: 12px; background: rgba(255,255,255,0.04); border: 1px solid #333; border-radius: 8px; font-size: 0.9rem; }
-    .prov-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 8px; }
-    .prov-select { background: #111; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 4px 8px; font-size: 0.85rem; max-width: 55%; }
-    .prov-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
-    .prov-label { min-width: 90px; color: #aaa; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-    .prov-logos { display: flex; flex-wrap: wrap; gap: 6px; }
-    .prov-logo { width: 34px; height: 34px; border-radius: 8px; object-fit: cover; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
-    .prov-chip { background: #222; border: 1px solid #444; border-radius: 6px; padding: 4px 8px; font-size: 0.8rem; }
-    .prov-none { color: #999; font-size: 0.85rem; }
-    .prov-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.75rem; color: #777; }
+    /* Where to watch (compact) */
+    .providers { margin: 12px 0 0; padding: 8px 12px; background: transparent; border-top: 1px solid #2a2a2a; font-size: 0.85rem; }
+    .prov-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px; }
+    .prov-select { background: #111; color: #fff; border: 1px solid #444; border-radius: 6px; padding: 3px 6px; font-size: 0.8rem; max-width: 55%; }
+    .prov-row { display: flex; align-items: center; gap: 10px; margin: 5px 0; }
+    .prov-label { min-width: 80px; color: #999; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .prov-logos { display: flex; flex-wrap: wrap; gap: 5px; }
+    .prov-logo { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; box-shadow: 0 1px 4px rgba(0,0,0,0.5); }
+    .prov-chip { background: #222; border: 1px solid #444; border-radius: 6px; padding: 3px 7px; font-size: 0.75rem; }
+    .prov-none { color: #999; font-size: 0.8rem; }
+    .prov-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; font-size: 0.7rem; color: #666; }
     .prov-link { color: var(--accent); text-decoration: none; font-weight: bold; }
     .prov-link:hover { text-decoration: underline; }
 @media (max-width: 600px) {
