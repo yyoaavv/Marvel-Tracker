@@ -141,6 +141,7 @@
             flex-direction: column;
             gap: 18px;
         }
+        /* Using display: contents flattens sidebar panels so we can order them neatly on mobile */
         .sidebar {
             display: contents;
         }
@@ -304,6 +305,7 @@
     
     body.dev-wireframe * { outline: 1px solid rgba(46, 204, 113, 0.3) !important; }
 
+    
     /* Quick Jump Chips Bar */
     .quick-jump-container {
         background: var(--card-bg);
@@ -311,7 +313,6 @@
         border-radius: 8px;
         border: 1px solid #333;
         backdrop-filter: blur(5px);
-        margin-bottom: 20px;
     }
     .quick-jump-title {
         font-size: 0.78rem;
@@ -584,7 +585,7 @@
 
     <div class="sidebar sidebar-right">
         <div class="panel panel-search">
-            <h3>🔍 Search &amp; Filter</h3>
+            <h3>🔍 Search & Filter</h3>
             <input type="text" id="search-input" class="search-input" placeholder="Search for a title..." onkeyup="applyFilterToDOM()">
             <div class="results-counter" id="results-counter">Showing 0 titles</div>
             <button class="filter-btn active" id="btn-filter-all" onclick="setFilter('all')">Show All</button>
@@ -592,7 +593,7 @@
             <button class="filter-btn" id="btn-filter-watched" onclick="setFilter('watched')">Watched Only</button>
             <button class="filter-btn" id="btn-filter-unwatched" onclick="setFilter('unwatched')">Unwatched Only</button>
             <button class="filter-btn btn-doomsday" id="btn-filter-doomsday" onclick="setFilter('doomsday')">⚠ Doomsday Prep</button>
-            <button class="filter-btn btn-noncanon" id="btn-toggle-noncanon" onclick="toggleNonCanon()">🌌 Non-Canon &amp; Animation: OFF</button>
+            <button class="filter-btn btn-noncanon" id="btn-toggle-noncanon" onclick="toggleNonCanon()">🌌 Non-Canon & Animation: OFF</button>
         </div>
         <div class="panel panel-up-next">
             <h3>🎯 Up Next</h3>
@@ -706,7 +707,6 @@ const TMDB_API_KEY = "768707eae09a474cb47d2dd0de6d559f";
 let showNonCanon = false;
 
 // Data mapping: c = Chronological order, pc = Post credit scenes, dd = Doomsday Prep
-// Ordered by priority: Main MCU -> Connected Sagas -> Televison -> Standalones/One-Shots at the bottom
 const db = [
     { category: "The Infinity Saga - Phase 1", color: "#f1c40f", excludeProgress: false, items: [
         {title: "Iron Man (2008)", r: 126, c: 3, pc: 1}, 
@@ -918,6 +918,7 @@ let isChronoMode = false;
 let isDevOffline = false;
 const allDbItems = db.flatMap(s => s.items.map(i => ({...i, sectionColor: s.color, excludeProgress: s.excludeProgress, category: s.category})));
 
+
 function isItemInProgress(title) {
     const data = userData[title];
     if (!data) return false;
@@ -993,6 +994,7 @@ function scrollToSection(secIdx) {
         el.style.transition = 'background-color 0.4s ease';
         setTimeout(() => el.style.backgroundColor = origBg, 1200);
     }
+}
 
 function initializeData() {
     totalMainMCUItems = 0;
@@ -1000,6 +1002,7 @@ function initializeData() {
         sec.items.forEach(item => {
             if (!sec.excludeProgress) totalMainMCUItems++;
             if (!userData[item.title]) userData[item.title] = { watched: false, rating: 0, note: "", inProgress: false };
+            if (userData[item.title].inProgress === undefined) userData[item.title].inProgress = false;
             if (item.episodes && !userData[item.title].watchedEps) userData[item.title].watchedEps = new Array(item.episodes).fill(userData[item.title].watched ? true : false);
             if(userData[item.title].note === undefined) userData[item.title].note = "";
         });
@@ -1104,16 +1107,14 @@ function updateNerdStats() {
         });
     });
     
-    let inProgressCount = allDbItems.filter(i => isItemInProgress(i.title)).length;
-    const statProgressEl = document.getElementById('stat-inprogress');
-    if (statProgressEl) statProgressEl.innerText = inProgressCount;
-    const countProgressEl = document.getElementById('count-inprogress');
-    if (countProgressEl) countProgressEl.innerText = inProgressCount;
-                phaseStats[sec.category].total += userData[item.title].rating; phaseStats[sec.category].count++;
-            }
-        });
+    let inProgressCount = 0;
+    allDbItems.forEach(item => {
+        if (isItemInProgress(item.title)) inProgressCount++;
     });
-    
+    const inProgEl = document.getElementById('stat-inprogress');
+    if (inProgEl) inProgEl.innerText = inProgressCount;
+    const countInProgBtn = document.getElementById('count-inprogress');
+    if (countInProgBtn) countInProgBtn.innerText = inProgressCount;
     document.getElementById('stat-count').innerText = watchedCount;
     document.getElementById('stat-time').innerText = `${Math.floor(totalMinutes/1440)}d ${Math.floor((totalMinutes%1440)/60)}h ${Math.round(totalMinutes%60)}m`;
     document.getElementById('stat-avg').innerText = countScore > 0 ? (totalScore / countScore).toFixed(1) + '/10' : '0/10';
@@ -1137,36 +1138,35 @@ function setFilter(type) {
 
 function applyFilterToDOM() {
     const query = document.getElementById('search-input').value.toLowerCase();
+    let visibleCount = 0;
+    let totalCount = 0;
     document.querySelectorAll('.item-wrapper').forEach(wrapper => {
         const titleText = wrapper.getAttribute('data-full-title');
         const isWatched = wrapper.querySelector('.main-checkbox').checked;
         const dbItem = allDbItems.find(i => i.title === titleText);
         
+        const inProgress = isItemInProgress(titleText);
         let show = true;
         if (currentFilter === 'watched' && !isWatched) show = false;
         if (currentFilter === 'unwatched' && isWatched) show = false;
+        if (currentFilter === 'inprogress' && !inProgress) show = false;
         if (currentFilter === 'doomsday' && !dbItem?.dd) show = false;
-        if (query !== '' && !titleText.toLowerCase().includes(query)) show = false;
-        if (currentFilter === 'inprogress' && !isItemInProgress(titleText)) show = false;
         if (query !== '' && !titleText.toLowerCase().includes(query)) show = false;
         
         wrapper.style.display = show ? 'block' : 'none';
-    });
-    
-    let totalVisible = 0;
-    document.querySelectorAll('.section').forEach(sec => {
-        const visibleItems = sec.querySelectorAll('.item-wrapper[style="display: block;"], .item-wrapper:not([style*="none"])');
-        sec.style.display = visibleItems.length === 0 ? 'none' : 'block';
-        totalVisible += visibleItems.length;
+        if (show) visibleCount++;
+        totalCount++;
     });
     
     const counterEl = document.getElementById('results-counter');
-    if (counterEl) counterEl.innerText = `Showing ${totalVisible} title${totalVisible === 1 ? '' : 's'}`;
-    
-    const emptyEl = document.getElementById('empty-state');
-    if (emptyEl) emptyEl.style.display = totalVisible === 0 ? 'block' : 'none';
-        wrapper.style.display = show ? 'block' : 'none';
-    });
+    if (counterEl) {
+        counterEl.innerText = `Showing ${visibleCount} of ${totalCount} titles`;
+    }
+
+    const emptyStateEl = document.getElementById('empty-state');
+    if (emptyStateEl) {
+        emptyStateEl.style.display = (visibleCount === 0 && totalCount > 0) ? 'block' : 'none';
+    }
     
     document.querySelectorAll('.section').forEach(sec => {
         const visibleItems = sec.querySelectorAll('.item-wrapper[style="display: block;"], .item-wrapper:not([style*="none"])');
@@ -1366,7 +1366,7 @@ function spinWheel() {
             clearInterval(interval);
             const pick = pool[Math.floor(Math.random() * pool.length)];
             const cleanTitle = pick.title.replace(/\s\(\d{4}\)/, '');
-            resEl.innerHTML = `<strong style="color:var(--star-on); font-size:1.4rem;">${cleanTitle}</strong><br><button onclick="handleRandomizerSelect('${pick.title.replace(/'/g, "\\'")}')" class="filter-btn" style="width:auto; padding:5px 20px; margin-top:15px; border-color:${pick.sectionColor}">View Details</button>`;
+            resEl.innerHTML = `<strong style="color:var(--star-on); font-size:1.4rem;">${cleanTitle}</strong><br><button onclick="handleRandomizerSelect('${pick.title.replace(/'/g, "\\'")}')" class="filter-btn" style="width:auto; padding:8px 20px; margin-top:15px; border-color:${pick.sectionColor}">View Details</button>`;
             confetti({particleCount: 80, spread: 60, origin: {y: 0.6}});
         }
     }, 50);
@@ -1398,11 +1398,11 @@ function generateItemHTML(item, sectionColor) {
                     ${expanderHTML}
                     <input type="checkbox" class="main-checkbox" style="accent-color: ${sectionColor};" ${data.watched ? 'checked' : ''}>
                     <img class="poster-img" alt="Poster">
-                    <span class="title">${cleanTitle}${isItemInProgress(title) ? '<span class="badge-inprogress">Watching</span>' : ''}</span>
+                    <span class="title">${cleanTitle}${isItemInProgress(title) ? ' <span class="badge-inprogress">Watching</span>' : ''}</span>
                 </div>
                 <div class="rating-container">
+                    <span class="inprogress-btn ${isItemInProgress(title) ? 'active' : ''}" title="${isItemInProgress(title) ? 'In Progress (Click to remove)' : 'Mark as In Progress'}" onclick="toggleInProgress('${title.replace(/'/g, "\\'")}')">⏳</span>
                     <span class="info-icon" title="View Info" onclick="openInfo('${title.replace(/'/g, "\\'")}')">ℹ️</span>
-                    <span class="inprogress-btn ${isItemInProgress(title) ? 'active' : ''}" title="Toggle In-Progress Status" onclick="toggleInProgress('${title.replace(/'/g, "\\'")}')">⏳</span>
                     <span class="note-icon ${data.note ? 'active' : ''}" title="Review Notes">📝</span>
                     <div class="star-rating">${starsHTML}</div>
                     <span class="rating-value">${data.rating > 0 ? data.rating + '/10' : '-/10'}</span>
@@ -1434,16 +1434,32 @@ function attachItemListeners(wrapperDiv, item, sectionColor) {
             epCheck.addEventListener('change', (e) => {
                 userData[title].watchedEps[parseInt(e.target.getAttribute('data-ep'))] = e.target.checked;
                 const allWatched = userData[title].watchedEps.every(val => val === true);
-                userData[title].watched = allWatched; mainCheckbox.checked = allWatched; itemDiv.classList.toggle('watched', allWatched);
+                userData[title].watched = allWatched; 
+                mainCheckbox.checked = allWatched; 
+                itemDiv.classList.toggle('watched', allWatched);
+                if (allWatched) {
+                    userData[title].inProgress = false;
+                } else if (userData[title].watchedEps.some(val => val === true)) {
+                    userData[title].inProgress = true;
+                }
                 save();
+                render();
             });
         });
     }
 
     mainCheckbox.addEventListener('change', (e) => {
-        userData[title].watched = e.target.checked; itemDiv.classList.toggle('watched', e.target.checked);
-        if (isShow) { userData[title].watchedEps.fill(e.target.checked); epCheckboxes.forEach(cb => cb.checked = e.target.checked); }
+        userData[title].watched = e.target.checked; 
+        itemDiv.classList.toggle('watched', e.target.checked);
+        if (e.target.checked) {
+            userData[title].inProgress = false;
+        }
+        if (isShow) { 
+            userData[title].watchedEps.fill(e.target.checked); 
+            epCheckboxes.forEach(cb => cb.checked = e.target.checked); 
+        }
         save();
+        render();
     });
     
     hitboxes.forEach(hitbox => {
@@ -1494,12 +1510,19 @@ function render() {
                 return;
             }
 
-            const secDiv = document.createElement('div'); secDiv.className = 'section'; secDiv.id = `section-${secIdx}`;
+            const secDiv = document.createElement('div'); 
+            secDiv.className = 'section';
+            secDiv.id = `section-${secIdx}`;
             const allWatched = section.items.every(i => userData[i.title] && userData[i.title].watched);
             let miniProg = section.excludeProgress ? '' : `<div class="mini-progress-wrapper"><span class="mini-progress-text" id="mini-pct-${secIdx}" style="color: ${section.color};">0%</span><div class="mini-progress-container"><div class="mini-progress-fill" id="mini-prog-${secIdx}" style="background-color: ${section.color};"></div></div></div>`;
-            secDiv.innerHTML = `<div class="section-header" style="border-bottom: 2px solid ${section.color};"><h2>${section.category}</h2><div class="section-actions"><button class="batch-btn" onclick="toggleBatchSection(${secIdx})">${allWatched ? '✕ Unmark All' : '✓ Mark All'}</button>${miniProg}</div></div>`;
-            let miniProg = section.excludeProgress ? '' : `<div class="mini-progress-wrapper"><span class="mini-progress-text" id="mini-pct-${secIdx}" style="color: ${section.color};">0%</span><div class="mini-progress-container"><div class="mini-progress-fill" id="mini-prog-${secIdx}" style="background-color: ${section.color};"></div></div></div>`;
-            secDiv.innerHTML = `<div class="section-header" style="border-bottom: 2px solid ${section.color};"><h2>${section.category}</h2>${miniProg}</div>`;
+            secDiv.innerHTML = `
+                <div class="section-header" style="border-bottom: 2px solid ${section.color};">
+                    <h2>${section.category}</h2>
+                    <div class="section-actions">
+                        <button class="batch-btn" onclick="toggleBatchSection(${secIdx})">${allWatched ? '✕ Unmark All' : '✓ Mark All'}</button>
+                        ${miniProg}
+                    </div>
+                </div>`;
             
             section.items.forEach(item => {
                 const wrapperDiv = document.createElement('div');
@@ -1510,7 +1533,6 @@ function render() {
             container.appendChild(secDiv);
         });
     }
-    updateDashboards();
     renderQuickJumpBar();
     updateDashboards();
 }
