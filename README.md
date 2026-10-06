@@ -14,6 +14,7 @@ The Ultimate Marvel Tracker is a comprehensive, privacy-first web dashboard desi
 *   **The Sacred Timeline & Release Order:** Toggle seamlessly between the in-universe chronological timeline and traditional release phases.
 *   **Complete Multiverse Coverage:** Includes the Infinity Saga, Multiverse Saga, Marvel One-Shots, The Defenders, Fox X-Men, Fox's Fantastic Four, Sony's Spider-Man (including Spider-Noir), Legacy Marvel Television, and animated series.
 *   **Deep TMDB Integration:** Click on any title to pull real-time release data, official synopses, high-quality posters, and playable YouTube trailers directly inside the app.
+*   **Where to Watch:** Every title's info window shows which streaming services carry it (plus rent/buy options) in your country, with a country picker. Streaming data provided by JustWatch via TMDB.
 *   **Dynamic Progress Bars:** A main progress bar with an animated gradient built from the colors of the phases you've watched, plus a mini progress bar for every phase. Hover (or tap) a mini bar to see exactly how many you've watched and how many are left, like `6 / 14 watched · 8 left`.
 *   **Started But Not Finished:** Mark anything you've begun watching with the ⏳ icon (it also turns on automatically when you've watched some episodes of a show), and use the **Started / Watching** filter to jump back to it.
 *   **Search & Filter:** Filter your list by All, Watched, Unwatched, Started, Doomsday Prep, and optional Non-Canon & Animation titles.
@@ -48,6 +49,8 @@ If you want to download the code and run this locally:
 2. Keep `index.html`, `style.css`, `script.js` and `favicon.png` together in the same folder.
 3. Open `script.js` and set `TMDB_API_KEY` (near the top) to your own free key from [TMDB](https://www.themoviedb.org/settings/api).
 4. Open `index.html` in any modern web browser. No local server is required for the base functionality.
+
+**Adding new titles:** give every item a unique 3-digit `id` (100-999) in `script.js`. Progress is saved by ID, so you can safely rename a title later without losing anyone's data. The developer audit checks for missing or duplicate IDs.
 
 > **Note:** Your progress is stored in the browser's `localStorage`, which is tied to the address you open the site from. Use **Export Backup File** before moving to a new address or device, then import it there.
 

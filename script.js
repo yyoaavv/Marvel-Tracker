@@ -17,211 +17,211 @@ let showNonCanon = false;
 // Ordered by priority: Main MCU -> Connected Sagas -> Televison -> Standalones/One-Shots at the bottom
 const db = [
     { category: "The Infinity Saga - Phase 1", color: "#f1c40f", excludeProgress: false, items: [
-        {title: "Iron Man (2008)", r: 126, c: 3, pc: 1}, 
-        {title: "The Incredible Hulk (2008)", r: 112, c: 5, pc: 1}, 
-        {title: "Iron Man 2 (2010)", r: 124, c: 4, pc: 1}, 
-        {title: "Thor (2011)", r: 114, c: 6, pc: 1}, 
-        {title: "Captain America: The First Avenger (2011)", r: 124, c: 1, pc: 1, dd: true}, 
-        {title: "The Avengers (2012)", r: 143, c: 7, pc: 2, dd: true}
+        {id: 875, title: "Iron Man (2008)", r: 126, c: 3, pc: 1}, 
+        {id: 544, title: "The Incredible Hulk (2008)", r: 112, c: 5, pc: 1}, 
+        {id: 678, title: "Iron Man 2 (2010)", r: 124, c: 4, pc: 1}, 
+        {id: 935, title: "Thor (2011)", r: 114, c: 6, pc: 1}, 
+        {id: 784, title: "Captain America: The First Avenger (2011)", r: 124, c: 1, pc: 1, dd: true}, 
+        {id: 579, title: "The Avengers (2012)", r: 143, c: 7, pc: 2, dd: true}
     ] },
     { category: "The Infinity Saga - Phase 2", color: "#e67e22", excludeProgress: false, items: [
-        {title: "Iron Man 3 (2013)", r: 130, c: 8, pc: 1}, 
-        {title: "Thor: The Dark World (2013)", r: 112, c: 9, pc: 2}, 
-        {title: "Captain America: The Winter Soldier (2014)", r: 136, c: 10, pc: 2}, 
-        {title: "Guardians of the Galaxy (2014)", r: 121, c: 11, pc: 2}, 
-        {title: "Avengers: Age of Ultron (2015)", r: 141, c: 12, pc: 2}, 
-        {title: "Ant-Man (2015)", r: 117, c: 13, pc: 2}
+        {id: 264, title: "Iron Man 3 (2013)", r: 130, c: 8, pc: 1}, 
+        {id: 529, title: "Thor: The Dark World (2013)", r: 112, c: 9, pc: 2}, 
+        {id: 744, title: "Captain America: The Winter Soldier (2014)", r: 136, c: 10, pc: 2}, 
+        {id: 487, title: "Guardians of the Galaxy (2014)", r: 121, c: 11, pc: 2}, 
+        {id: 956, title: "Avengers: Age of Ultron (2015)", r: 141, c: 12, pc: 2}, 
+        {id: 766, title: "Ant-Man (2015)", r: 117, c: 13, pc: 2}
     ] },
     { category: "The Infinity Saga - Phase 3", color: "#e74c3c", excludeProgress: false, items: [
-        {title: "Captain America: Civil War (2016)", r: 147, c: 14, pc: 2}, 
-        {title: "Doctor Strange (2016)", r: 115, c: 17, pc: 2}, 
-        {title: "Guardians of the Galaxy Vol. 2 (2017)", r: 136, c: 11.5, pc: 5}, 
-        {title: "Spider-Man: Homecoming (2017)", r: 133, c: 16, pc: 2}, 
-        {title: "Thor: Ragnarok (2017)", r: 130, c: 18, pc: 2}, 
-        {title: "Black Panther (2018)", r: 134, c: 15, pc: 2}, 
-        {title: "Avengers: Infinity War (2018)", r: 149, c: 19, pc: 1, dd: true}, 
-        {title: "Ant-Man and the Wasp (2018)", r: 118, c: 20, pc: 2}, 
-        {title: "Captain Marvel (2019)", r: 123, c: 2, pc: 2}, 
-        {title: "Avengers: Endgame (2019)", r: 181, c: 21, pc: 0, dd: true}, 
-        {title: "Spider-Man: Far From Home (2019)", r: 129, c: 22, pc: 2}
+        {id: 748, title: "Captain America: Civil War (2016)", r: 147, c: 14, pc: 2}, 
+        {id: 869, title: "Doctor Strange (2016)", r: 115, c: 17, pc: 2}, 
+        {id: 896, title: "Guardians of the Galaxy Vol. 2 (2017)", r: 136, c: 11.5, pc: 5}, 
+        {id: 536, title: "Spider-Man: Homecoming (2017)", r: 133, c: 16, pc: 2}, 
+        {id: 118, title: "Thor: Ragnarok (2017)", r: 130, c: 18, pc: 2}, 
+        {id: 333, title: "Black Panther (2018)", r: 134, c: 15, pc: 2}, 
+        {id: 965, title: "Avengers: Infinity War (2018)", r: 149, c: 19, pc: 1, dd: true}, 
+        {id: 852, title: "Ant-Man and the Wasp (2018)", r: 118, c: 20, pc: 2}, 
+        {id: 726, title: "Captain Marvel (2019)", r: 123, c: 2, pc: 2}, 
+        {id: 949, title: "Avengers: Endgame (2019)", r: 181, c: 21, pc: 0, dd: true}, 
+        {id: 313, title: "Spider-Man: Far From Home (2019)", r: 129, c: 22, pc: 2}
     ] },
     { category: "The Multiverse Saga - Phase 4", color: "#9b59b6", excludeProgress: false, items: [
-        {title: "WandaVision", episodes: 9, r: 350, c: 23, pc: 2}, 
-        {title: "The Falcon and the Winter Soldier", episodes: 6, r: 270, c: 24, pc: 1}, 
-        {title: "Loki - Season 1", episodes: 6, r: 280, c: 21.5, pc: 1, dd: true}, 
-        {title: "Black Widow (2021)", r: 134, c: 14.5, pc: 1}, 
-        {title: "What If...? - Season 1", episodes: 9, r: 300, c: 21.6, pc: 1}, 
-        {title: "Shang-Chi and the Legend of the Ten Rings (2021)", r: 132, c: 25, pc: 2, dd: true}, 
-        {title: "Eternals (2021)", r: 156, c: 26, pc: 2}, 
-        {title: "Hawkeye", episodes: 6, r: 270, c: 29, pc: 1}, 
-        {title: "Spider-Man: No Way Home (2021)", r: 148, c: 27, pc: 2, dd: true}, 
-        {title: "Moon Knight", episodes: 6, r: 280, c: 30, pc: 1}, 
-        {title: "Doctor Strange in the Multiverse of Madness (2022)", r: 126, c: 28, pc: 2, dd: true}, 
-        {title: "Ms. Marvel", episodes: 6, r: 280, c: 31, pc: 1}, 
-        {title: "Thor: Love and Thunder (2022)", r: 119, c: 32, pc: 2}, 
-        {title: "I Am Groot - Season 1", episodes: 5, r: 20, c: 11.6}, 
-        {title: "She-Hulk: Attorney at Law", episodes: 9, r: 310, c: 33, pc: 1}, 
-        {title: "Werewolf by Night (2022)", r: 53, c: 34}, 
-        {title: "Black Panther: Wakanda Forever (2022)", r: 161, c: 35, pc: 1, dd: true}, 
-        {title: "The Guardians of the Galaxy Holiday Special (2022)", r: 42, c: 36, pc: 1}
+        {id: 212, title: "WandaVision", episodes: 9, r: 350, c: 23, pc: 2}, 
+        {id: 588, title: "The Falcon and the Winter Soldier", episodes: 6, r: 270, c: 24, pc: 1}, 
+        {id: 966, title: "Loki - Season 1", episodes: 6, r: 280, c: 21.5, pc: 1, dd: true}, 
+        {id: 595, title: "Black Widow (2021)", r: 134, c: 14.5, pc: 1}, 
+        {id: 460, title: "What If...? - Season 1", episodes: 9, r: 300, c: 21.6, pc: 1}, 
+        {id: 255, title: "Shang-Chi and the Legend of the Ten Rings (2021)", r: 132, c: 25, pc: 2, dd: true}, 
+        {id: 140, title: "Eternals (2021)", r: 156, c: 26, pc: 2}, 
+        {id: 326, title: "Hawkeye", episodes: 6, r: 270, c: 29, pc: 1}, 
+        {id: 655, title: "Spider-Man: No Way Home (2021)", r: 148, c: 27, pc: 2, dd: true}, 
+        {id: 447, title: "Moon Knight", episodes: 6, r: 280, c: 30, pc: 1}, 
+        {id: 155, title: "Doctor Strange in the Multiverse of Madness (2022)", r: 126, c: 28, pc: 2, dd: true}, 
+        {id: 564, title: "Ms. Marvel", episodes: 6, r: 280, c: 31, pc: 1}, 
+        {id: 632, title: "Thor: Love and Thunder (2022)", r: 119, c: 32, pc: 2}, 
+        {id: 952, title: "I Am Groot - Season 1", episodes: 5, r: 20, c: 11.6}, 
+        {id: 947, title: "She-Hulk: Attorney at Law", episodes: 9, r: 310, c: 33, pc: 1}, 
+        {id: 603, title: "Werewolf by Night (2022)", r: 53, c: 34}, 
+        {id: 415, title: "Black Panther: Wakanda Forever (2022)", r: 161, c: 35, pc: 1, dd: true}, 
+        {id: 895, title: "The Guardians of the Galaxy Holiday Special (2022)", r: 42, c: 36, pc: 1}
     ] },
     { category: "The Multiverse Saga - Phase 5", color: "#8e44ad", excludeProgress: false, items: [
-        {title: "Ant-Man and the Wasp: Quantumania (2023)", r: 125, c: 37, pc: 2}, 
-        {title: "Guardians of the Galaxy Vol. 3 (2023)", r: 150, c: 38, pc: 2}, 
-        {title: "Secret Invasion", episodes: 6, r: 220, c: 39}, 
-        {title: "Loki - Season 2", episodes: 6, r: 280, c: 39.1, dd: true}, 
-        {title: "The Marvels (2023)", r: 105, c: 40, pc: 1}, 
-        {title: "What If...? - Season 2", episodes: 9, r: 300, c: 41}, 
-        {title: "Echo", episodes: 5, r: 220, c: 42}, 
-        {title: "Deadpool & Wolverine (2024)", r: 127, c: 43, pc: 1, dd: true}, 
-        {title: "Agatha All Along", episodes: 9, r: 350, c: 44}, 
-        {title: "What If...? - Season 3", episodes: 8, r: 300, c: 45}, 
-        {title: "Your Friendly Neighborhood Spider-Man", episodes: 10, r: 300, c: 46}, 
-        {title: "Captain America: Brave New World (2025)", r: 135, c: 47, dd: true}, 
-        {title: "Daredevil: Born Again", episodes: 9, r: 400, c: 48}, 
-        {title: "Thunderbolts* (2025)", r: 130, c: 49, dd: true}, 
-        {title: "Ironheart", episodes: 6, r: 300, c: 50}
+        {id: 514, title: "Ant-Man and the Wasp: Quantumania (2023)", r: 125, c: 37, pc: 2}, 
+        {id: 781, title: "Guardians of the Galaxy Vol. 3 (2023)", r: 150, c: 38, pc: 2}, 
+        {id: 314, title: "Secret Invasion", episodes: 6, r: 220, c: 39}, 
+        {id: 546, title: "Loki - Season 2", episodes: 6, r: 280, c: 39.1, dd: true}, 
+        {id: 878, title: "The Marvels (2023)", r: 105, c: 40, pc: 1}, 
+        {id: 812, title: "What If...? - Season 2", episodes: 9, r: 300, c: 41}, 
+        {id: 958, title: "Echo", episodes: 5, r: 220, c: 42}, 
+        {id: 702, title: "Deadpool & Wolverine (2024)", r: 127, c: 43, pc: 1, dd: true}, 
+        {id: 569, title: "Agatha All Along", episodes: 9, r: 350, c: 44}, 
+        {id: 866, title: "What If...? - Season 3", episodes: 8, r: 300, c: 45}, 
+        {id: 689, title: "Your Friendly Neighborhood Spider-Man", episodes: 10, r: 300, c: 46}, 
+        {id: 519, title: "Captain America: Brave New World (2025)", r: 135, c: 47, dd: true}, 
+        {id: 783, title: "Daredevil: Born Again", episodes: 9, r: 400, c: 48}, 
+        {id: 684, title: "Thunderbolts* (2025)", r: 130, c: 49, dd: true}, 
+        {id: 565, title: "Ironheart", episodes: 6, r: 300, c: 50}
     ] },
     { category: "The Multiverse Saga - Phase 6", color: "#2ecc71", excludeProgress: false, items: [
-        {title: "The Fantastic Four: First Steps (2025)", r: 130, c: 51, dd: true}, 
-        {title: "Eyes of Wakanda (2025)", episodes: 4, r: 200, c: 51.1},
-        {title: "Marvel Zombies (2025)", episodes: 4, r: 200, c: 51.2},
-        {title: "Wonder Man (2026)", episodes: 10, r: 300, c: 51.3},
-        {title: "Daredevil: Born Again - Season 2", episodes: 9, r: 400, c: 51.31},
-        {title: "The Punisher: One Last Kill (2026)", r: 50, c: 51.32},
-        {title: "Your Friendly Neighborhood Spider-Man - Season 2", episodes: 10, r: 300, c: 51.33},
-        {title: "Spider-Man: Brand New Day (2026)", r: 135, c: 51.34},
-        {title: "Avengers: Endgame Encore (2026)", r: 185, c: 51.35, pc: 4, dd: true, upcoming: true},
-        {title: "VisionQuest (2026)", episodes: 6, r: 300, c: 51.4, upcoming: true},
-        {title: "Avengers: Doomsday (2026)", r: 150, c: 52, upcoming: true}, 
-        {title: "Daredevil: Born Again - Season 3", episodes: 9, r: 400, c: 52.1, upcoming: true},
-        {title: "Avengers: Secret Wars (2027)", r: 160, c: 53, upcoming: true}
+        {id: 945, title: "The Fantastic Four: First Steps (2025)", r: 130, c: 51, dd: true}, 
+        {id: 559, title: "Eyes of Wakanda (2025)", episodes: 4, r: 200, c: 51.1},
+        {id: 172, title: "Marvel Zombies (2025)", episodes: 4, r: 200, c: 51.2},
+        {id: 357, title: "Wonder Man (2026)", episodes: 10, r: 300, c: 51.3},
+        {id: 774, title: "Daredevil: Born Again - Season 2", episodes: 9, r: 400, c: 51.31},
+        {id: 586, title: "The Punisher: One Last Kill (2026)", r: 50, c: 51.32},
+        {id: 238, title: "Your Friendly Neighborhood Spider-Man - Season 2", episodes: 10, r: 300, c: 51.33},
+        {id: 161, title: "Spider-Man: Brand New Day (2026)", r: 135, c: 51.34},
+        {id: 804, title: "Avengers: Endgame Encore (2026)", r: 185, c: 51.35, pc: 4, dd: true, upcoming: true},
+        {id: 803, title: "VisionQuest (2026)", episodes: 6, r: 300, c: 51.4, upcoming: true},
+        {id: 213, title: "Avengers: Doomsday (2026)", r: 150, c: 52, upcoming: true}, 
+        {id: 312, title: "Daredevil: Born Again - Season 3", episodes: 9, r: 400, c: 52.1, upcoming: true},
+        {id: 942, title: "Avengers: Secret Wars (2027)", r: 160, c: 53, upcoming: true}
     ] },
     { category: "Marvel One-Shots", color: "#3498db", excludeProgress: false, items: [
-        {title: "The Consultant (2011)", r: 4, c: 4.1}, 
-        {title: "A Funny Thing Happened on the Way to Thor's Hammer (2011)", r: 4, c: 4.2}, 
-        {title: "Item 47 (2012)", r: 12, c: 7.1}, 
-        {title: "Agent Carter (2013)", r: 15, c: 1.1}, 
-        {title: "All Hail the King (2014)", r: 14, c: 8.1}
+        {id: 203, title: "The Consultant (2011)", r: 4, c: 4.1}, 
+        {id: 205, title: "A Funny Thing Happened on the Way to Thor's Hammer (2011)", r: 4, c: 4.2}, 
+        {id: 420, title: "Item 47 (2012)", r: 12, c: 7.1}, 
+        {id: 211, title: "Agent Carter (2013)", r: 15, c: 1.1}, 
+        {id: 574, title: "All Hail the King (2014)", r: 14, c: 8.1}
     ] },
     { category: "The Defenders Saga", color: "#c0392b", excludeProgress: false, items: [
-        {title: "Daredevil - Season 1", episodes: 13, r: 700, c: 60}, 
-        {title: "Jessica Jones - Season 1", episodes: 13, r: 650, c: 61}, 
-        {title: "Daredevil - Season 2", episodes: 13, r: 700, c: 62}, 
-        {title: "Luke Cage - Season 1", episodes: 13, r: 650, c: 63}, 
-        {title: "Iron Fist - Season 1", episodes: 13, r: 650, c: 64}, 
-        {title: "The Defenders", episodes: 8, r: 400, c: 65}, 
-        {title: "The Punisher - Season 1", episodes: 13, r: 650, c: 66}, 
-        {title: "Jessica Jones - Season 2", episodes: 13, r: 650, c: 67}, 
-        {title: "Luke Cage - Season 2", episodes: 13, r: 650, c: 68}, 
-        {title: "Iron Fist - Season 2", episodes: 10, r: 500, c: 69}, 
-        {title: "Daredevil - Season 3", episodes: 13, r: 700, c: 70}, 
-        {title: "The Punisher - Season 2", episodes: 13, r: 650, c: 71}, 
-        {title: "Jessica Jones - Season 3", episodes: 13, r: 650, c: 72}
+        {id: 142, title: "Daredevil - Season 1", episodes: 13, r: 700, c: 60}, 
+        {id: 473, title: "Jessica Jones - Season 1", episodes: 13, r: 650, c: 61}, 
+        {id: 793, title: "Daredevil - Season 2", episodes: 13, r: 700, c: 62}, 
+        {id: 401, title: "Luke Cage - Season 1", episodes: 13, r: 650, c: 63}, 
+        {id: 927, title: "Iron Fist - Season 1", episodes: 13, r: 650, c: 64}, 
+        {id: 874, title: "The Defenders", episodes: 8, r: 400, c: 65}, 
+        {id: 162, title: "The Punisher - Season 1", episodes: 13, r: 650, c: 66}, 
+        {id: 889, title: "Jessica Jones - Season 2", episodes: 13, r: 650, c: 67}, 
+        {id: 542, title: "Luke Cage - Season 2", episodes: 13, r: 650, c: 68}, 
+        {id: 165, title: "Iron Fist - Season 2", episodes: 10, r: 500, c: 69}, 
+        {id: 266, title: "Daredevil - Season 3", episodes: 13, r: 700, c: 70}, 
+        {id: 309, title: "The Punisher - Season 2", episodes: 13, r: 650, c: 71}, 
+        {id: 599, title: "Jessica Jones - Season 3", episodes: 13, r: 650, c: 72}
     ] },
     { category: "Fox's X-Men Universe", color: "#d35400", excludeProgress: false, items: [
-        {title: "X-Men (2000)", r: 104, c: 100, dd: true}, 
-        {title: "X2: X-Men United (2003)", r: 134, c: 101, dd: true}, 
-        {title: "X-Men: The Last Stand (2006)", r: 104, c: 102}, 
-        {title: "X-Men Origins: Wolverine (2009)", r: 107, c: 103}, 
-        {title: "X-Men: First Class (2011)", r: 132, c: 104}, 
-        {title: "The Wolverine (2013)", r: 126, c: 105}, 
-        {title: "X-Men: Days of Future Past (2014)", r: 132, c: 106}, 
-        {title: "Deadpool (2016)", r: 108, c: 107}, 
-        {title: "X-Men: Apocalypse (2016)", r: 144, c: 108}, 
-        {title: "Logan (2017)", r: 137, c: 109}, 
-        {title: "Legion", episodes: 27, r: 1350, c: 109.1}, 
-        {title: "The Gifted", episodes: 29, r: 1250, c: 109.2}, 
-        {title: "Deadpool 2 (2018)", r: 119, c: 110}, 
-        {title: "X-Men: Dark Phoenix (2019)", r: 114, c: 111}, 
-        {title: "The New Mutants (2020)", r: 94, c: 112}
+        {id: 235, title: "X-Men (2000)", r: 104, c: 100, dd: true}, 
+        {id: 463, title: "X2: X-Men United (2003)", r: 134, c: 101, dd: true}, 
+        {id: 981, title: "X-Men: The Last Stand (2006)", r: 104, c: 102}, 
+        {id: 823, title: "X-Men Origins: Wolverine (2009)", r: 107, c: 103}, 
+        {id: 922, title: "X-Men: First Class (2011)", r: 132, c: 104}, 
+        {id: 959, title: "The Wolverine (2013)", r: 126, c: 105}, 
+        {id: 133, title: "X-Men: Days of Future Past (2014)", r: 132, c: 106}, 
+        {id: 128, title: "Deadpool (2016)", r: 108, c: 107}, 
+        {id: 508, title: "X-Men: Apocalypse (2016)", r: 144, c: 108}, 
+        {id: 433, title: "Logan (2017)", r: 137, c: 109}, 
+        {id: 854, title: "Legion", episodes: 27, r: 1350, c: 109.1}, 
+        {id: 299, title: "The Gifted", episodes: 29, r: 1250, c: 109.2}, 
+        {id: 189, title: "Deadpool 2 (2018)", r: 119, c: 110}, 
+        {id: 881, title: "X-Men: Dark Phoenix (2019)", r: 114, c: 111}, 
+        {id: 157, title: "The New Mutants (2020)", r: 94, c: 112}
     ] },
     { category: "Fox's Fantastic Four (Legacy)", color: "#2980b9", excludeProgress: false, items: [
-        {title: "Fantastic Four (1994)", r: 90, c: 120}, 
-        {title: "Fantastic Four (2005)", r: 106, c: 121}, 
-        {title: "Fantastic Four: Rise of the Silver Surfer (2007)", r: 92, c: 122}, 
-        {title: "Fantastic Four (2015)", r: 100, c: 123}
+        {id: 776, title: "Fantastic Four (1994)", r: 90, c: 120}, 
+        {id: 483, title: "Fantastic Four (2005)", r: 106, c: 121}, 
+        {id: 749, title: "Fantastic Four: Rise of the Silver Surfer (2007)", r: 92, c: 122}, 
+        {id: 548, title: "Fantastic Four (2015)", r: 100, c: 123}
     ] },
     { category: "Sony's Spider-Man Legacy", color: "#ff4757", excludeProgress: false, items: [
-        {title: "Spider-Man (2002)", r: 121, c: 130}, 
-        {title: "Spider-Man 2 (2004)", r: 127, c: 131}, 
-        {title: "Spider-Man 3 (2007)", r: 139, c: 132}, 
-        {title: "The Amazing Spider-Man (2012)", r: 136, c: 133}, 
-        {title: "The Amazing Spider-Man 2 (2014)", r: 142, c: 134}, 
-        {title: "Venom (2018)", r: 112, c: 135}, 
-        {title: "Spider-Man: Into the Spider-Verse (2018)", r: 117, c: 136}, 
-        {title: "Venom: Let There Be Carnage (2021)", r: 97, c: 137}, 
-        {title: "Morbius (2022)", r: 104, c: 138}, 
-        {title: "Spider-Man: Across the Spider-Verse (2023)", r: 140, c: 139}, 
-        {title: "Madame Web (2024)", r: 116, c: 140}, 
-        {title: "Kraven the Hunter (2024)", r: 120, c: 141}, 
-        {title: "Venom: The Last Dance (2024)", r: 120, c: 142}, 
-        {title: "Spider-Noir", episodes: 8, r: 400, c: 143}
+        {id: 625, title: "Spider-Man (2002)", r: 121, c: 130}, 
+        {id: 176, title: "Spider-Man 2 (2004)", r: 127, c: 131}, 
+        {id: 256, title: "Spider-Man 3 (2007)", r: 139, c: 132}, 
+        {id: 331, title: "The Amazing Spider-Man (2012)", r: 136, c: 133}, 
+        {id: 836, title: "The Amazing Spider-Man 2 (2014)", r: 142, c: 134}, 
+        {id: 436, title: "Venom (2018)", r: 112, c: 135}, 
+        {id: 671, title: "Spider-Man: Into the Spider-Verse (2018)", r: 117, c: 136}, 
+        {id: 296, title: "Venom: Let There Be Carnage (2021)", r: 97, c: 137}, 
+        {id: 719, title: "Morbius (2022)", r: 104, c: 138}, 
+        {id: 120, title: "Spider-Man: Across the Spider-Verse (2023)", r: 140, c: 139}, 
+        {id: 677, title: "Madame Web (2024)", r: 116, c: 140}, 
+        {id: 185, title: "Kraven the Hunter (2024)", r: 120, c: 141}, 
+        {id: 745, title: "Venom: The Last Dance (2024)", r: 120, c: 142}, 
+        {id: 365, title: "Spider-Noir", episodes: 8, r: 400, c: 143}
     ] },
     { category: "Legacy Marvel Television", color: "#1abc9c", excludeProgress: false, items: [
-        {title: "Agents of S.H.I.E.L.D. - Season 1", episodes: 22, r: 950, c: 80}, 
-        {title: "Agents of S.H.I.E.L.D. - Season 2", episodes: 22, r: 950, c: 81}, 
-        {title: "Agents of S.H.I.E.L.D. - Season 3", episodes: 22, r: 950, c: 82}, 
-        {title: "Agents of S.H.I.E.L.D. - Season 4", episodes: 22, r: 950, c: 83}, 
-        {title: "Agents of S.H.I.E.L.D. - Season 5", episodes: 22, r: 950, c: 84}, 
-        {title: "Agents of S.H.I.E.L.D. - Season 6", episodes: 13, r: 550, c: 85}, 
-        {title: "Agents of S.H.I.E.L.D. - Season 7", episodes: 13, r: 550, c: 86}, 
-        {title: "Agent Carter - Season 1", episodes: 8, r: 350, c: 87}, 
-        {title: "Agent Carter - Season 2", episodes: 10, r: 420, c: 88}, 
-        {title: "Inhumans (2017)", episodes: 8, r: 350, c: 89}, 
-        {title: "Runaways - Season 1", episodes: 10, r: 450, c: 90}, 
-        {title: "Runaways - Season 2", episodes: 13, r: 600, c: 91}, 
-        {title: "Runaways - Season 3", episodes: 10, r: 450, c: 92}, 
-        {title: "Cloak & Dagger - Season 1", episodes: 10, r: 450, c: 93}, 
-        {title: "Cloak & Dagger - Season 2", episodes: 10, r: 450, c: 94}, 
-        {title: "Helstrom", episodes: 10, r: 450, c: 95}
+        {id: 233, title: "Agents of S.H.I.E.L.D. - Season 1", episodes: 22, r: 950, c: 80}, 
+        {id: 151, title: "Agents of S.H.I.E.L.D. - Season 2", episodes: 22, r: 950, c: 81}, 
+        {id: 994, title: "Agents of S.H.I.E.L.D. - Season 3", episodes: 22, r: 950, c: 82}, 
+        {id: 408, title: "Agents of S.H.I.E.L.D. - Season 4", episodes: 22, r: 950, c: 83}, 
+        {id: 661, title: "Agents of S.H.I.E.L.D. - Season 5", episodes: 22, r: 950, c: 84}, 
+        {id: 593, title: "Agents of S.H.I.E.L.D. - Season 6", episodes: 13, r: 550, c: 85}, 
+        {id: 446, title: "Agents of S.H.I.E.L.D. - Season 7", episodes: 13, r: 550, c: 86}, 
+        {id: 611, title: "Agent Carter - Season 1", episodes: 8, r: 350, c: 87}, 
+        {id: 512, title: "Agent Carter - Season 2", episodes: 10, r: 420, c: 88}, 
+        {id: 676, title: "Inhumans (2017)", episodes: 8, r: 350, c: 89}, 
+        {id: 321, title: "Runaways - Season 1", episodes: 10, r: 450, c: 90}, 
+        {id: 650, title: "Runaways - Season 2", episodes: 13, r: 600, c: 91}, 
+        {id: 933, title: "Runaways - Season 3", episodes: 10, r: 450, c: 92}, 
+        {id: 338, title: "Cloak & Dagger - Season 1", episodes: 10, r: 450, c: 93}, 
+        {id: 571, title: "Cloak & Dagger - Season 2", episodes: 10, r: 450, c: 94}, 
+        {id: 251, title: "Helstrom", episodes: 10, r: 450, c: 95}
     ] },
     { category: "Multiverse Legacy & Standalones", color: "#95a5a6", excludeProgress: true, items: [
-        {title: "Supaidāman (Japanese Spider-Man)", episodes: 41, r: 1000, c: 147.1}, 
-        {title: "Howard the Duck (1986)", r: 110, c: 148}, 
-        {title: "The Punisher (1989)", r: 89, c: 149}, 
-        {title: "Captain America (1990)", r: 97, c: 149.1}, 
-        {title: "Blade (1998)", r: 120, c: 150}, 
-        {title: "Blade II (2002)", r: 117, c: 151}, 
-        {title: "Daredevil (2003)", r: 103, c: 152}, 
-        {title: "Hulk (2003)", r: 138, c: 153}, 
-        {title: "Blade: Trinity (2004)", r: 113, c: 154}, 
-        {title: "The Punisher (2004)", r: 124, c: 155}, 
-        {title: "Elektra (2005)", r: 97, c: 156}, 
-        {title: "Man-Thing (2005)", r: 97, c: 156.1}, 
-        {title: "Ghost Rider (2007)", r: 114, c: 157}, 
-        {title: "Punisher: War Zone (2008)", r: 103, c: 158}, 
-        {title: "Ghost Rider: Spirit of Vengeance (2011)", r: 95, c: 159}
+        {id: 692, title: "Supaidāman (Japanese Spider-Man)", episodes: 41, r: 1000, c: 147.1}, 
+        {id: 169, title: "Howard the Duck (1986)", r: 110, c: 148}, 
+        {id: 270, title: "The Punisher (1989)", r: 89, c: 149}, 
+        {id: 761, title: "Captain America (1990)", r: 97, c: 149.1}, 
+        {id: 637, title: "Blade (1998)", r: 120, c: 150}, 
+        {id: 648, title: "Blade II (2002)", r: 117, c: 151}, 
+        {id: 894, title: "Daredevil (2003)", r: 103, c: 152}, 
+        {id: 334, title: "Hulk (2003)", r: 138, c: 153}, 
+        {id: 851, title: "Blade: Trinity (2004)", r: 113, c: 154}, 
+        {id: 457, title: "The Punisher (2004)", r: 124, c: 155}, 
+        {id: 747, title: "Elektra (2005)", r: 97, c: 156}, 
+        {id: 631, title: "Man-Thing (2005)", r: 97, c: 156.1}, 
+        {id: 498, title: "Ghost Rider (2007)", r: 114, c: 157}, 
+        {id: 285, title: "Punisher: War Zone (2008)", r: 103, c: 158}, 
+        {id: 254, title: "Ghost Rider: Spirit of Vengeance (2011)", r: 95, c: 159}
     ] },
     { category: "Marvel Animated Legacy", color: "#f39c12", excludeProgress: true, items: [
-        {title: "X-Men: The Animated Series", episodes: 76, r: 1600, c: 160}, 
-        {title: "Spider-Man: The Animated Series (1994)", episodes: 65, r: 1350, c: 161}, 
-        {title: "X-Men: Evolution", episodes: 52, r: 1100, c: 162}, 
-        {title: "Ultimate Avengers: The Movie (2006)", r: 72, c: 163}, 
-        {title: "Ultimate Avengers 2 (2006)", r: 73, c: 164}, 
-        {title: "The Invincible Iron Man (2007)", r: 83, c: 165}, 
-        {title: "Doctor Strange: The Sorcerer Supreme (2007)", r: 76, c: 166}, 
-        {title: "The Spectacular Spider-Man", episodes: 26, r: 550, c: 167}, 
-        {title: "Next Avengers: Heroes of Tomorrow (2008)", r: 78, c: 168}, 
-        {title: "Wolverine and the X-Men", episodes: 26, r: 550, c: 169}, 
-        {title: "Hulk Vs. (2009)", r: 82, c: 170}, 
-        {title: "Planet Hulk (2010)", r: 81, c: 171}, 
-        {title: "The Avengers: Earth's Mightiest Heroes", episodes: 52, r: 1100, c: 172}, 
-        {title: "Thor: Tales of Asgard (2011)", r: 77, c: 173}, 
-        {title: "X-Men '97 - Season 1", episodes: 10, r: 350, c: 174}, 
-        {title: "X-Men '97 - Season 2", episodes: 10, r: 350, c: 174.1}, 
-        {title: "Marvel Anime: Iron Man", episodes: 12, r: 280, c: 175}, 
-        {title: "Marvel Anime: Wolverine", episodes: 12, r: 280, c: 176}, 
-        {title: "Marvel Anime: X-Men", episodes: 12, r: 280, c: 177}, 
-        {title: "Marvel Anime: Blade", episodes: 12, r: 280, c: 178}, 
-        {title: "Marvel Disk Wars: The Avengers", episodes: 51, r: 1120, c: 179}, 
-        {title: "Marvel Future Avengers", episodes: 39, r: 850, c: 180}, 
-        {title: "Phineas and Ferb: Mission Marvel (2013)", r: 44, c: 181}, 
-        {title: "LEGO Marvel Super Heroes: Maximum Overload (2013)", r: 22, c: 182}, 
-        {title: "LEGO Marvel Super Heroes: Avengers Reassembled! (2015)", r: 22, c: 183}, 
-        {title: "LEGO Marvel Spider-Man: Vexed by Venom (2019)", r: 22, c: 184}, 
-        {title: "The Good, the Bart, and the Loki (2021)", r: 6, c: 184.1}, 
-        {title: "LEGO Marvel Avengers: Code Red (2023)", r: 44, c: 185}
+        {id: 626, title: "X-Men: The Animated Series", episodes: 76, r: 1600, c: 160}, 
+        {id: 252, title: "Spider-Man: The Animated Series (1994)", episodes: 65, r: 1350, c: 161}, 
+        {id: 977, title: "X-Men: Evolution", episodes: 52, r: 1100, c: 162}, 
+        {id: 501, title: "Ultimate Avengers: The Movie (2006)", r: 72, c: 163}, 
+        {id: 127, title: "Ultimate Avengers 2 (2006)", r: 73, c: 164}, 
+        {id: 277, title: "The Invincible Iron Man (2007)", r: 83, c: 165}, 
+        {id: 106, title: "Doctor Strange: The Sorcerer Supreme (2007)", r: 76, c: 166}, 
+        {id: 549, title: "The Spectacular Spider-Man", episodes: 26, r: 550, c: 167}, 
+        {id: 405, title: "Next Avengers: Heroes of Tomorrow (2008)", r: 78, c: 168}, 
+        {id: 751, title: "Wolverine and the X-Men", episodes: 26, r: 550, c: 169}, 
+        {id: 342, title: "Hulk Vs. (2009)", r: 82, c: 170}, 
+        {id: 822, title: "Planet Hulk (2010)", r: 81, c: 171}, 
+        {id: 662, title: "The Avengers: Earth's Mightiest Heroes", episodes: 52, r: 1100, c: 172}, 
+        {id: 358, title: "Thor: Tales of Asgard (2011)", r: 77, c: 173}, 
+        {id: 901, title: "X-Men '97 - Season 1", episodes: 10, r: 350, c: 174}, 
+        {id: 960, title: "X-Men '97 - Season 2", episodes: 10, r: 350, c: 174.1}, 
+        {id: 323, title: "Marvel Anime: Iron Man", episodes: 12, r: 280, c: 175}, 
+        {id: 282, title: "Marvel Anime: Wolverine", episodes: 12, r: 280, c: 176}, 
+        {id: 221, title: "Marvel Anime: X-Men", episodes: 12, r: 280, c: 177}, 
+        {id: 861, title: "Marvel Anime: Blade", episodes: 12, r: 280, c: 178}, 
+        {id: 465, title: "Marvel Disk Wars: The Avengers", episodes: 51, r: 1120, c: 179}, 
+        {id: 121, title: "Marvel Future Avengers", episodes: 39, r: 850, c: 180}, 
+        {id: 995, title: "Phineas and Ferb: Mission Marvel (2013)", r: 44, c: 181}, 
+        {id: 455, title: "LEGO Marvel Super Heroes: Maximum Overload (2013)", r: 22, c: 182}, 
+        {id: 602, title: "LEGO Marvel Super Heroes: Avengers Reassembled! (2015)", r: 22, c: 183}, 
+        {id: 236, title: "LEGO Marvel Spider-Man: Vexed by Venom (2019)", r: 22, c: 184}, 
+        {id: 740, title: "The Good, the Bart, and the Loki (2021)", r: 6, c: 184.1}, 
+        {id: 204, title: "LEGO Marvel Avengers: Code Red (2023)", r: 44, c: 185}
     ] }
 ];
 
@@ -233,15 +233,30 @@ let isChronoMode = false;
 let isDevOffline = false;
 const allDbItems = db.flatMap(s => s.items.map(i => ({...i, sectionColor: s.color, excludeProgress: s.excludeProgress, category: s.category})));
 
+/* Moves old title-keyed progress to the new 3-digit item IDs (safe to run repeatedly) */
+function migrateUserData() {
+    let changed = false;
+    allDbItems.forEach(item => {
+        const old = userData[item.title];
+        if (old !== undefined) {
+            if (userData[item.id] === undefined) userData[item.id] = old;
+            delete userData[item.title];
+            changed = true;
+        }
+    });
+    if (changed) localStorage.setItem('marvelTrackerV6', JSON.stringify(userData));
+}
+
 function initializeData() {
+    migrateUserData();
     totalMainMCUItems = 0;
     db.forEach(sec => {
         sec.items.forEach(item => {
             if (!sec.excludeProgress && !item.upcoming) totalMainMCUItems++;
-            if (!userData[item.title]) userData[item.title] = { watched: false, rating: 0, note: "" };
-            if (userData[item.title].inProgress === undefined) userData[item.title].inProgress = false;
-            if (item.episodes && !userData[item.title].watchedEps) userData[item.title].watchedEps = new Array(item.episodes).fill(userData[item.title].watched ? true : false);
-            if(userData[item.title].note === undefined) userData[item.title].note = "";
+            if (!userData[item.id]) userData[item.id] = { watched: false, rating: 0, note: "" };
+            if (userData[item.id].inProgress === undefined) userData[item.id].inProgress = false;
+            if (item.episodes && !userData[item.id].watchedEps) userData[item.id].watchedEps = new Array(item.episodes).fill(userData[item.id].watched ? true : false);
+            if(userData[item.id].note === undefined) userData[item.id].note = "";
         });
     });
 }
@@ -309,7 +324,7 @@ function updateProgress() {
     db.forEach(sec => {
         if (sec.excludeProgress) return;
         let validItems = sec.items.filter(i => !i.upcoming);
-        let watchedCount = validItems.filter(i => userData[i.title].watched).length;
+        let watchedCount = validItems.filter(i => userData[i.id].watched).length;
         if (watchedCount > 0) {
             watchedPhases.push({ color: sec.color, count: watchedCount });
             mainWatched += watchedCount;
@@ -352,7 +367,7 @@ function updateProgress() {
 function updateMiniProgressBars() {
     db.forEach((sec, idx) => {
         let validItems = sec.items.filter(i => !i.upcoming);
-        let watched = validItems.filter(item => userData[item.title].watched).length;
+        let watched = validItems.filter(item => userData[item.id].watched).length;
         let pct = validItems.length > 0 ? Math.round((watched / validItems.length) * 100) : 0;
         
         let wrapperEl = document.getElementById(`mini-prog-wrapper-${idx}`);
@@ -375,17 +390,18 @@ function updateMiniProgressBars() {
 }
 
 function updateLeaderboard() {
-    const rated = Object.entries(userData).filter(([_, data]) => data.rating > 0).sort((a, b) => b[1].rating - a[1].rating).slice(0, 10);
+    const rated = allDbItems.filter(i => userData[i.id] && userData[i.id].rating > 0)
+        .sort((a, b) => userData[b.id].rating - userData[a.id].rating).slice(0, 10);
     const lb = document.getElementById('leaderboard');
     lb.innerHTML = rated.length === 0 ? '<li>No ratings yet!</li>' : '';
-    rated.forEach((item, idx) => lb.innerHTML += `<li><span>${idx+1}. ${item[0].replace(/\s\(\d{4}\)/, '')}</span> <span class="lb-score">${item[1].rating}/10</span></li>`);
+    rated.forEach((item, idx) => lb.innerHTML += `<li><span>${idx+1}. ${item.title.replace(/\s\(\d{4}\)/, '')}</span> <span class="lb-score">${userData[item.id].rating}/10</span></li>`);
 }
 
 function updateUpNext() {
     let next = "All caught up!";
     let searchList = isChronoMode ? [...allDbItems].sort((a, b) => (a.c || 999) - (b.c || 999)) : allDbItems;
     for (let item of searchList) {
-        if (!userData[item.title].watched && !item.excludeProgress && !item.upcoming) { next = item.title.replace(/\s\(\d{4}\)/, ''); break; }
+        if (!userData[item.id].watched && !item.excludeProgress && !item.upcoming) { next = item.title.replace(/\s\(\d{4}\)/, ''); break; }
     }
     document.getElementById('up-next').innerText = next;
 }
@@ -395,13 +411,13 @@ function updateNerdStats() {
     db.forEach(sec => {
         phaseStats[sec.category] = { total: 0, count: 0 };
         sec.items.forEach(item => {
-            if (userData[item.title].watched) watchedCount++;
-            let runtimeToUse = userData[item.title].exactRuntime || item.r;
-            if (item.episodes) totalMinutes += (runtimeToUse / item.episodes) * userData[item.title].watchedEps.filter(Boolean).length;
-            else if (userData[item.title].watched) totalMinutes += runtimeToUse;
-            if (userData[item.title].rating > 0) {
-                totalScore += userData[item.title].rating; countScore++;
-                phaseStats[sec.category].total += userData[item.title].rating; phaseStats[sec.category].count++;
+            if (userData[item.id].watched) watchedCount++;
+            let runtimeToUse = userData[item.id].exactRuntime || item.r;
+            if (item.episodes) totalMinutes += (runtimeToUse / item.episodes) * userData[item.id].watchedEps.filter(Boolean).length;
+            else if (userData[item.id].watched) totalMinutes += runtimeToUse;
+            if (userData[item.id].rating > 0) {
+                totalScore += userData[item.id].rating; countScore++;
+                phaseStats[sec.category].total += userData[item.id].rating; phaseStats[sec.category].count++;
             }
         });
     });
@@ -432,7 +448,7 @@ function applyFilterToDOM() {
     document.querySelectorAll('.item-wrapper').forEach(wrapper => {
         const titleText = wrapper.getAttribute('data-full-title');
         const isWatched = wrapper.querySelector('.main-checkbox').checked;
-        const inProgress = userData[titleText]?.inProgress;
+        const inProgress = userData[wrapper.getAttribute('data-id')]?.inProgress;
         const dbItem = allDbItems.find(i => i.title === titleText);
         
         let show = true;
@@ -522,6 +538,69 @@ function closeModal(event, modalId, force = false) {
     }
 }
 
+/* ==============================================================
+   WHERE TO WATCH (TMDB watch/providers, data by JustWatch)
+============================================================== */
+const REGION_KEY = 'marvelTrackerRegion';
+const PROVIDER_GROUPS = [['flatrate', 'Stream'], ['free', 'Free'], ['ads', 'Free with ads'], ['rent', 'Rent'], ['buy', 'Buy']];
+
+function escHtml(str) { return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function regionName(code) {
+    try { return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) || code; } catch (e) { return code; }
+}
+
+function getPreferredRegion(available) {
+    let saved = null;
+    try { saved = localStorage.getItem(REGION_KEY); } catch (e) {}
+    const langRegion = ((navigator.language || '').split('-')[1] || '').toUpperCase();
+    return [saved, langRegion, 'US'].find(c => c && available.includes(c)) || available[0];
+}
+
+function setProviderRegion(code) {
+    try { localStorage.setItem(REGION_KEY, code); } catch (e) {}
+    renderProviders(code);
+}
+
+function renderProviders(forcedRegion) {
+    const box = document.getElementById('providers-box');
+    if (!box) return;
+    const data = window.currentProviders || {};
+    const regions = Object.keys(data)
+        .filter(r => PROVIDER_GROUPS.some(([k]) => data[r][k] && data[r][k].length))
+        .sort((a, b) => regionName(a).localeCompare(regionName(b)));
+
+    if (regions.length === 0) {
+        box.innerHTML = '<div class="providers"><strong>Where to watch:</strong> <span class="prov-none">No streaming info available for this title yet.</span></div>';
+        return;
+    }
+
+    const region = (forcedRegion && regions.includes(forcedRegion)) ? forcedRegion : getPreferredRegion(regions);
+    const options = regions.map(r => `<option value="${r}" ${r === region ? 'selected' : ''}>${escHtml(regionName(r))}</option>`).join('');
+
+    let rows = '';
+    PROVIDER_GROUPS.forEach(([key, label]) => {
+        const list = data[region][key];
+        if (!list || list.length === 0) return;
+        const chips = list.map(p => p.logo_path
+            ? `<img class="prov-logo" src="https://image.tmdb.org/t/p/w92${p.logo_path}" alt="${escHtml(p.provider_name)}" title="${escHtml(p.provider_name)}">`
+            : `<span class="prov-chip">${escHtml(p.provider_name)}</span>`).join('');
+        rows += `<div class="prov-row"><span class="prov-label">${label}</span><div class="prov-logos">${chips}</div></div>`;
+    });
+    if (!rows) rows = '<span class="prov-none">Not available in this region.</span>';
+
+    const link = data[region].link ? `<a class="prov-link" href="${escHtml(data[region].link)}" target="_blank" rel="noopener noreferrer">All options &rarr;</a>` : '';
+    box.innerHTML = `
+        <div class="providers">
+            <div class="prov-head">
+                <strong>Where to watch</strong>
+                <select class="prov-select" onchange="setProviderRegion(this.value)" aria-label="Country">${options}</select>
+            </div>
+            ${rows}
+            <div class="prov-foot">${link}<span class="prov-credit">Streaming data by JustWatch</span></div>
+        </div>`;
+}
+
 async function openInfo(title) {
     const modal = document.getElementById('info-modal');
     const imgWrapper = document.getElementById('modal-img');
@@ -565,7 +644,7 @@ async function openInfo(title) {
 
     try {
         const mediaType = cached.media_type || (title.includes("Season") || title.includes("Agents") || title.includes("Daredevil") || title.includes("Inhumans") || title.includes("Spider-Noir") || title.includes("X-Men: The Animated Series") || title.includes("X-Men: Evolution") || title.includes("Wolverine and the X-Men") || title.includes("The Avengers: Earth's Mightiest Heroes") || title.includes("Spectacular Spider-Man") || title.includes("X-Men '97") || title.includes("Anime") || title === "Legion" || title === "The Gifted" || title.includes("Supaidāman") || title.includes("Marvel Disk Wars") || title.includes("Future Avengers") ? 'tv' : 'movie');
-        const response = await fetch(`https://api.themoviedb.org/3/${mediaType}/${cached.id}?api_key=${TMDB_API_KEY}&append_to_response=videos`);
+        const response = await fetch(`https://api.themoviedb.org/3/${mediaType}/${cached.id}?api_key=${TMDB_API_KEY}&append_to_response=videos,watch/providers`);
         const details = await response.json();
 
         let titleName = details.title || details.name || cached.title || cached.name;
@@ -575,7 +654,7 @@ async function openInfo(title) {
         
         let exactRuntime = details.runtime || (details.episode_run_time && details.episode_run_time.length > 0 ? details.episode_run_time[0] : 0);
         if (exactRuntime > 0) {
-            userData[title].exactRuntime = exactRuntime * (dbItem?.episodes || 1);
+            if (dbItem && userData[dbItem.id]) userData[dbItem.id].exactRuntime = exactRuntime * (dbItem?.episodes || 1);
             save(); 
         }
 
@@ -598,13 +677,16 @@ async function openInfo(title) {
             }
         }
 
+        window.currentProviders = (details['watch/providers'] && details['watch/providers'].results) || {};
         textWrapper.innerHTML = `
             <h2 style="color: ${dbItem ? dbItem.sectionColor : 'var(--accent)'}; margin: 0 0 10px 0;">${titleName} ${pcBadge}</h2>
             <p><strong>Release Date:</strong> ${title.includes("Encore") ? "2026-09-04" : releaseDate}</p>
             <p><strong>Length:</strong> ${exactRuntime > 0 ? exactRuntime + ' mins' : 'N/A'}</p>
             <p class="modal-overview">${details.overview || "No overview available."}</p>
+            <div id="providers-box"></div>
             ${trailerHtml}
         `;
+        renderProviders();
     } catch (e) { textWrapper.innerHTML = "Error loading detailed information."; }
 }
 
@@ -639,7 +721,7 @@ function spinWheel() {
     let pool = [];
 
     allDbItems.forEach(item => {
-        if (userData[item.title].watched) return;
+        if (userData[item.id].watched) return;
         if (!showNonCanon && (item.category === "Multiverse Legacy & Standalones" || item.category === "Marvel Animated Legacy")) return;
 
         const isShow = !!item.episodes;
@@ -687,7 +769,7 @@ const posterObserver = new IntersectionObserver((entries, observer) => {
 function generateItemHTML(item, sectionColor) {
     const title = item.title;
     const cleanTitle = title.replace(/\s\(\d{4}\)/, '');
-    const data = userData[title];
+    const data = userData[item.id];
     const isShow = !!item.episodes;
     const isDD = item.dd ? 'doomsday-item' : '';
     
@@ -705,7 +787,7 @@ function generateItemHTML(item, sectionColor) {
     }
     
     return `
-        <div class="item-wrapper ${isDD}" data-full-title="${title}">
+        <div class="item-wrapper ${isDD}" data-id="${item.id}" data-full-title="${title}">
             <div class="item ${data.watched ? 'watched' : ''}">
                 <div class="item-left">
                     ${expanderHTML}
@@ -728,7 +810,7 @@ function generateItemHTML(item, sectionColor) {
 }
 
 function attachItemListeners(wrapperDiv, item, sectionColor) {
-    const title = item.title; const isShow = !!item.episodes; const data = userData[title];
+    const title = item.title; const isShow = !!item.episodes; const data = userData[item.id];
     const itemDiv = wrapperDiv.querySelector('.item');
     const mainCheckbox = wrapperDiv.querySelector('.main-checkbox');
     const epCheckboxes = wrapperDiv.querySelectorAll('.ep-check');
@@ -746,16 +828,16 @@ function attachItemListeners(wrapperDiv, item, sectionColor) {
     
     // Manual Started Icon Click
     startedIcon.addEventListener('click', () => {
-        userData[title].inProgress = !userData[title].inProgress;
-        startedIcon.classList.toggle('active', userData[title].inProgress);
+        userData[item.id].inProgress = !userData[item.id].inProgress;
+        startedIcon.classList.toggle('active', userData[item.id].inProgress);
         
-        if (userData[title].inProgress && userData[title].watched) {
-            userData[title].watched = false;
+        if (userData[item.id].inProgress && userData[item.id].watched) {
+            userData[item.id].watched = false;
             mainCheckbox.checked = false;
             itemDiv.classList.remove('watched');
             
             if (isShow) {
-                userData[title].watchedEps[userData[title].watchedEps.length - 1] = false;
+                userData[item.id].watchedEps[userData[item.id].watchedEps.length - 1] = false;
                 epCheckboxes[epCheckboxes.length - 1].checked = false;
             }
         }
@@ -765,17 +847,17 @@ function attachItemListeners(wrapperDiv, item, sectionColor) {
     if (isShow) {
         epCheckboxes.forEach(epCheck => {
             epCheck.addEventListener('change', (e) => {
-                userData[title].watchedEps[parseInt(e.target.getAttribute('data-ep'))] = e.target.checked;
-                const allWatched = userData[title].watchedEps.every(val => val === true);
-                const someWatched = userData[title].watchedEps.some(val => val === true);
+                userData[item.id].watchedEps[parseInt(e.target.getAttribute('data-ep'))] = e.target.checked;
+                const allWatched = userData[item.id].watchedEps.every(val => val === true);
+                const someWatched = userData[item.id].watchedEps.some(val => val === true);
                 
-                userData[title].watched = allWatched; 
+                userData[item.id].watched = allWatched; 
                 mainCheckbox.checked = allWatched; 
                 itemDiv.classList.toggle('watched', allWatched);
                 
                 // Auto-toggle in progress state for TV shows
-                userData[title].inProgress = (!allWatched && someWatched);
-                startedIcon.classList.toggle('active', userData[title].inProgress);
+                userData[item.id].inProgress = (!allWatched && someWatched);
+                startedIcon.classList.toggle('active', userData[item.id].inProgress);
                 
                 save();
             });
@@ -783,19 +865,19 @@ function attachItemListeners(wrapperDiv, item, sectionColor) {
     }
 
     mainCheckbox.addEventListener('change', (e) => {
-        userData[title].watched = e.target.checked; 
+        userData[item.id].watched = e.target.checked; 
         itemDiv.classList.toggle('watched', e.target.checked);
         
         if (e.target.checked) {
-            userData[title].inProgress = false;
+            userData[item.id].inProgress = false;
             startedIcon.classList.remove('active');
         } else if (isShow) {
-            userData[title].inProgress = false;
+            userData[item.id].inProgress = false;
             startedIcon.classList.remove('active');
         }
 
         if (isShow) { 
-            userData[title].watchedEps.fill(e.target.checked); 
+            userData[item.id].watchedEps.fill(e.target.checked); 
             epCheckboxes.forEach(cb => cb.checked = e.target.checked); 
         }
         save();
@@ -805,23 +887,23 @@ function attachItemListeners(wrapperDiv, item, sectionColor) {
         const val = parseInt(hitbox.getAttribute('data-val'), 10);
         hitbox.addEventListener('mouseenter', () => updateStarsDisplay(starBoxes, val));
         hitbox.addEventListener('click', () => {
-            userData[title].rating = userData[title].rating === val ? 0 : val;
-            if(userData[title].rating > 0) {
-                userData[title].watched = true; 
-                userData[title].inProgress = false;
+            userData[item.id].rating = userData[item.id].rating === val ? 0 : val;
+            if(userData[item.id].rating > 0) {
+                userData[item.id].watched = true; 
+                userData[item.id].inProgress = false;
                 startedIcon.classList.remove('active');
                 mainCheckbox.checked = true; 
                 itemDiv.classList.add('watched');
-                if (isShow) { userData[title].watchedEps.fill(true); epCheckboxes.forEach(cb => cb.checked = true); }
+                if (isShow) { userData[item.id].watchedEps.fill(true); epCheckboxes.forEach(cb => cb.checked = true); }
             }
-            ratingDisplay.innerText = userData[title].rating > 0 ? userData[title].rating + '/10' : '-/10';
-            updateStarsDisplay(starBoxes, userData[title].rating); save();
+            ratingDisplay.innerText = userData[item.id].rating > 0 ? userData[item.id].rating + '/10' : '-/10';
+            updateStarsDisplay(starBoxes, userData[item.id].rating); save();
         });
     });
-    wrapperDiv.querySelector('.star-rating').addEventListener('mouseleave', () => updateStarsDisplay(starBoxes, userData[title].rating));
+    wrapperDiv.querySelector('.star-rating').addEventListener('mouseleave', () => updateStarsDisplay(starBoxes, userData[item.id].rating));
     
     noteIcon.addEventListener('click', () => { noteBox.style.display = noteBox.style.display === 'none' ? 'block' : 'none'; if(noteBox.style.display === 'block') textarea.focus(); });
-    textarea.addEventListener('input', (e) => { userData[title].note = e.target.value; noteIcon.classList.toggle('active', e.target.value.trim() !== ''); save(); });
+    textarea.addEventListener('input', (e) => { userData[item.id].note = e.target.value; noteIcon.classList.toggle('active', e.target.value.trim() !== ''); save(); });
 }
 
 function render() {
@@ -896,9 +978,9 @@ function render() {
                 phaseCheck.addEventListener('change', (e) => {
                     const isChecked = e.target.checked;
                     section.items.forEach(item => {
-                        userData[item.title].watched = isChecked;
-                        userData[item.title].inProgress = false;
-                        if (item.episodes) userData[item.title].watchedEps.fill(isChecked);
+                        userData[item.id].watched = isChecked;
+                        userData[item.id].inProgress = false;
+                        if (item.episodes) userData[item.id].watchedEps.fill(isChecked);
                     });
                     
                     const itemWrappers = contentDiv.querySelectorAll('.item-wrapper');
@@ -975,18 +1057,18 @@ function devSetScenario(type) {
         if (type === 'casual' && !item.episodes && !item.excludeProgress) shouldWatch = true;
         if (type === 'doomsday' && item.dd) shouldWatch = true;
         
-        userData[item.title].watched = shouldWatch;
-        userData[item.title].inProgress = false;
-        if (item.episodes) userData[item.title].watchedEps.fill(shouldWatch);
+        userData[item.id].watched = shouldWatch;
+        userData[item.id].inProgress = false;
+        if (item.episodes) userData[item.id].watchedEps.fill(shouldWatch);
     });
     save(); render();
 }
 
 function devGenerateRatings() {
     allDbItems.forEach(item => {
-        userData[item.title].watched = true;
-        userData[item.title].inProgress = false;
-        if (item.episodes) userData[item.title].watchedEps.fill(true);
+        userData[item.id].watched = true;
+        userData[item.id].inProgress = false;
+        if (item.episodes) userData[item.id].watchedEps.fill(true);
         
         const roll = Math.random();
         let r = 7;
@@ -998,13 +1080,13 @@ function devGenerateRatings() {
         else if (roll < 0.96) r = 5;
         else r = Math.floor(Math.random() * 2) + 3;
 
-        userData[item.title].rating = r;
+        userData[item.id].rating = r;
     });
     save(); render();
 }
 
 function devClearRatings() {
-    allDbItems.forEach(item => { userData[item.title].rating = 0; });
+    allDbItems.forEach(item => { userData[item.id].rating = 0; });
     save(); render();
 }
 
@@ -1030,15 +1112,19 @@ function devToggleWireframe() {
 
 function devRunAudit() {
     console.group("🛠 MCU Database Audit");
-    let cList = {}; let dupes = []; let missingR = [];
+    let cList = {}; let dupes = []; let missingR = []; let idSeen = {}; let idProblems = [];
     allDbItems.forEach(i => {
         if (i.c) {
             if (cList[i.c]) dupes.push(`Chrono conflict on ID ${i.c}: ${i.title} & ${cList[i.c]}`);
             else cList[i.c] = i.title;
         }
         if (!i.r && !i.episodes) missingR.push(i.title);
+        if (!i.id) idProblems.push(`Missing id: ${i.title}`);
+        else if (idSeen[i.id]) idProblems.push(`Duplicate id ${i.id}: ${i.title} & ${idSeen[i.id]}`);
+        else idSeen[i.id] = i.title;
     });
     if(dupes.length) console.warn("Duplicate Chronological Orders:", dupes); else console.log("✅ Chrono Order is clean.");
+    if(idProblems.length) console.warn("Item ID problems:", idProblems); else console.log("\u2705 Item IDs are clean.");
     if(missingR.length) console.warn("Missing Runtimes:", missingR); else console.log("✅ Runtimes are clean.");
     console.log(`Total Database Items: ${allDbItems.length}`);
     console.groupEnd();
@@ -1048,7 +1134,7 @@ function devRunAudit() {
 function devSaveJSON() {
     try {
         const newJson = JSON.parse(document.getElementById('dev-json-editor').value);
-        userData = newJson; save(); render();
+        userData = newJson; migrateUserData(); initializeData(); save(); render();
         alert("JSON applied successfully!");
     } catch(e) {
         alert("Invalid JSON format! Check for missing commas or brackets.");
