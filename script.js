@@ -578,13 +578,7 @@ function renderProviders(forcedRegion) {
     const region = (forcedRegion && regions.includes(forcedRegion)) ? forcedRegion : getPreferredRegion(regions);
     const options = regions.map(r => `<option value="${r}" ${r === region ? 'selected' : ''}>${escHtml(regionName(r))}</option>`).join('');
 
-    const provNames = l => (l || []).map(p => p.provider_name).sort().join('|');
-    let groups = PROVIDER_GROUPS.map(([key, label]) => ({ key, label, list: data[region][key] || [] })).filter(g => g.list.length);
-    const rentG = groups.find(g => g.key === 'rent'), buyG = groups.find(g => g.key === 'buy');
-    if (rentG && buyG && provNames(rentG.list) === provNames(buyG.list)) {
-        rentG.label = 'Rent / Buy';
-        groups = groups.filter(g => g !== buyG);
-    }
+    const groups = PROVIDER_GROUPS.map(([key, label]) => ({ key, label, list: data[region][key] || [] })).filter(g => g.list.length);
 
     let rows = '';
     groups.forEach(g => {
