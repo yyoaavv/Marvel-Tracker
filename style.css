@@ -145,7 +145,18 @@
     .section h2 { margin: 0; font-size: 1.4rem; transition: 0.2s; }
     .phase-toggle { font-size: 0.8rem; color: #aaa; transition: 0.2s; width: 20px; text-align: center; }
     
-    .mini-progress-wrapper { display: flex; align-items: center; gap: 10px; cursor: help; }
+    .mini-progress-wrapper { position: relative; display: flex; align-items: center; gap: 10px; cursor: help; outline: none; }
+    /* Instant custom tooltip: "6 / 14 watched · 8 left" */
+    .mini-progress-wrapper::after {
+        content: attr(data-tip);
+        position: absolute; top: calc(100% + 10px); right: 0; z-index: 300;
+        background: #000; color: #fff; border: 1px solid #444; border-radius: 6px;
+        padding: 6px 10px; font-size: 0.85rem; font-weight: bold; white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+        opacity: 0; transform: translateY(-4px); pointer-events: none;
+        transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .mini-progress-wrapper:hover::after, .mini-progress-wrapper:focus::after { opacity: 1; transform: translateY(0); }
     .mini-progress-text { font-size: 0.95rem; font-weight: bold; }
     .mini-progress-container { width: 120px; height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
     .mini-progress-fill { height: 100%; width: 0%; transition: width 0.4s ease; }

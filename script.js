@@ -1,3 +1,11 @@
+/* Safe confetti wrapper: never breaks the app if the library failed to load */
+function fireConfetti(opts) {
+    try {
+        if (typeof confetti === 'function') confetti(opts);
+        else console.warn('canvas-confetti did not load (CDN blocked or offline).');
+    } catch (e) { console.warn('Confetti error:', e); }
+}
+
 /* ==============================================================
    MAIN TRACKER LOGIC
 ============================================================== */
@@ -352,13 +360,13 @@ function updateMiniProgressBars() {
         let textEl = document.getElementById(`mini-pct-${idx}`);
         let phaseCheck = document.getElementById(`phase-check-${idx}`);
         
-        if (wrapperEl) wrapperEl.title = `${watched} / ${validItems.length} Watched`;
+        if (wrapperEl) { wrapperEl.removeAttribute('title'); wrapperEl.dataset.tip = `${watched} / ${validItems.length} watched · ${validItems.length - watched} left`; }
         if (fillEl) fillEl.style.width = pct + '%';
         if (textEl) textEl.innerText = pct + '%';
         if (phaseCheck) phaseCheck.checked = (watched === validItems.length && validItems.length > 0);
 
         if (pct === 100 && !userData[`${sec.category}_completed`] && !sec.excludeProgress && validItems.length > 0) {
-            confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: [sec.color, '#ffffff', '#e62429'], zIndex: 9999 });
+            fireConfetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: [sec.color, '#ffffff', '#e62429'], zIndex: 9999 });
             userData[`${sec.category}_completed`] = true; localStorage.setItem('marvelTrackerV6', JSON.stringify(userData));
         } else if (pct < 100 && userData[`${sec.category}_completed`]) {
             userData[`${sec.category}_completed`] = false; localStorage.setItem('marvelTrackerV6', JSON.stringify(userData));
@@ -657,7 +665,7 @@ function spinWheel() {
             const pick = pool[Math.floor(Math.random() * pool.length)];
             const cleanTitle = pick.title.replace(/\s\(\d{4}\)/, '');
             resEl.innerHTML = `<strong style="color:var(--star-on); font-size:1.4rem;">${cleanTitle}</strong><br><button onclick="handleRandomizerSelect('${pick.title.replace(/'/g, "\\'")}')" class="filter-btn" style="width:auto; padding:5px 20px; margin-top:15px; border-color:${pick.sectionColor}">View Details</button>`;
-            confetti({particleCount: 80, spread: 60, origin: {y: 0.6}});
+            fireConfetti({particleCount: 80, spread: 60, origin: {y: 0.6}});
         }
     }, 50);
 }
@@ -856,7 +864,7 @@ function render() {
             const secDiv = document.createElement('div'); secDiv.className = 'section';
             
             let miniProg = section.excludeProgress ? '' : `
-                <div class="mini-progress-wrapper" id="mini-prog-wrapper-${secIdx}">
+                <div class="mini-progress-wrapper" id="mini-prog-wrapper-${secIdx}" tabindex="0">
                     <input type="checkbox" class="phase-checkbox" id="phase-check-${secIdx}" title="Mark entire phase watched" style="accent-color: ${section.color}; margin-right: 10px;">
                     <span class="mini-progress-text" id="mini-pct-${secIdx}" style="color: ${section.color};">0%</span>
                     <div class="mini-progress-container">
@@ -1000,7 +1008,7 @@ function devClearRatings() {
     save(); render();
 }
 
-function devTriggerConfetti() { confetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } }); }
+function devTriggerConfetti() { fireConfetti({ particleCount: 200, spread: 90, origin: { y: 0.5 } }); }
 
 function devToggleOffline() {
     isDevOffline = !isDevOffline;
