@@ -1,0 +1,182 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ultimate Marvel Tracker</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Dynamic Screen Edge Glow -->
+<div class="edge-glow"></div>
+
+<!-- Animated Multiverse Background -->
+<div class="multiverse-bg">
+    <div class="glow red"></div>
+    <div class="glow purple"></div>
+    <div class="glow blue"></div>
+</div>
+
+<div class="header">
+    <h1>Ultimate Marvel Tracker</h1>
+    <p class="subtitle" onclick="handleSecretClick()">made by yyoaavv</p>
+    <div class="top-controls">
+        <button class="mode-btn active" id="btn-release" onclick="setMode('release')">Release Order</button>
+        <button class="mode-btn" id="btn-chrono" onclick="setMode('chrono')">Chronological Timeline</button>
+    </div>
+    
+    <!-- Doomsday Ticking Clock (Hidden by Default) -->
+    <div class="doomsday-countdown" id="doomsday-timer">
+        <div style="letter-spacing: 2px;">⚠ DOOMSDAY APPROACHES ⚠</div>
+        <div id="doom-clock">Loading...</div>
+    </div>
+</div>
+
+<div class="dashboard">
+    <div class="sidebar">
+        <div class="panel">
+            <h3>🏆 Hall of Fame (Top 10)</h3>
+            <ul class="leaderboard-list" id="leaderboard"></ul>
+        </div>
+        <div class="panel backup-controls">
+            <h3>💾 Backup Data</h3>
+            <button onclick="exportData()">⬇ Export Backup File</button>
+            <label>⬆ Import Backup File<input type="file" id="import-file" accept=".json" onchange="importData(event)"></label>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="main-progress">
+            <div style="display: flex; justify-content: center; align-items: center; position: relative; font-weight: bold;">
+                <span>Marvel Universe Progress</span>
+                <span id="progress-percent" style="position: absolute; right: 0;">0%</span>
+            </div>
+            <!-- Dynamic Gradient Progress Bar Container -->
+            <div class="progress-bar-container" id="main-progress-container">
+                <div id="main-progress-fill"></div>
+            </div>
+        </div>
+        <div id="content"></div>
+    </div>
+
+    <div class="sidebar">
+        <div class="panel">
+            <h3>🎯 Up Next</h3>
+            <div style="font-size: 0.9rem; color: #aaa;">Your next unwatched title:</div>
+            <div class="up-next-title" id="up-next">Loading...</div>
+            <button class="filter-btn btn-random" onclick="openRandomizer()">🎲 Spin the Wheel</button>
+        </div>
+        <div class="panel">
+            <h3>📊 Nerd Stats</h3>
+            <div class="stat-row"><span>Titles Watched:</span><span class="stat-val" id="stat-count">0</span></div>
+            <div class="stat-row"><span>Total Watch Time:</span><span class="stat-val" id="stat-time">0d 0h 0m</span></div>
+            <div class="stat-row"><span>Average Rating:</span><span class="stat-val" id="stat-avg">0/10</span></div>
+            <div class="stat-row"><span>Favorite Phase:</span><span class="stat-val" id="stat-phase">None</span></div>
+        </div>
+        <div class="panel">
+            <h3>🔍 Search & Filter</h3>
+            <input type="text" id="search-input" class="search-input" placeholder="Search for a title..." onkeyup="applyFilterToDOM()">
+            <button class="filter-btn active" id="btn-filter-all" onclick="setFilter('all')">Show All</button>
+            <button class="filter-btn" id="btn-filter-watched" onclick="setFilter('watched')">Watched Only</button>
+            <button class="filter-btn" id="btn-filter-unwatched" onclick="setFilter('unwatched')">Unwatched Only</button>
+            <button class="filter-btn btn-started" id="btn-filter-started" onclick="setFilter('started')">⏳ Started / Watching</button>
+            <button class="filter-btn btn-doomsday" id="btn-filter-doomsday" onclick="setFilter('doomsday')">⚠ Doomsday Prep</button>
+            <button class="filter-btn btn-noncanon" id="btn-toggle-noncanon" onclick="toggleNonCanon()">🌌 Non-Canon & Animation: OFF</button>
+        </div>
+    </div>
+</div>
+
+<!-- Scroll to Top Button -->
+<button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">↑</button>
+
+<!-- Info Modal -->
+<div id="info-modal" class="modal" onclick="closeModal(event, 'info-modal')">
+    <div class="modal-content" id="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal(null, 'info-modal', true)">&times;</span>
+        <div class="modal-img-wrapper" id="modal-img"></div>
+        <div class="modal-details" id="modal-text">Loading...</div>
+    </div>
+</div>
+
+<!-- Randomizer Modal -->
+<div id="random-modal" class="modal" onclick="closeModal(event, 'random-modal')">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal(null, 'random-modal', true)">&times;</span>
+        <h2 style="color:var(--accent); margin-top:0;">What Should I Watch?</h2>
+        <select id="rand-format" class="rand-select">
+            <option value="all">Any Format (Movies & Shows)</option>
+            <option value="movie">Movies Only</option>
+            <option value="show">TV Shows Only</option>
+        </select>
+        <select id="rand-pool" class="rand-select">
+            <option value="all">Entire Database</option>
+            <option value="mcu">Main Universe (No Standalones/One-Shots)</option>
+            <optgroup label="Specific Universes">
+                <option value="Infinity Saga">The Infinity Saga (Phases 1-3)</option>
+                <option value="Multiverse Saga">The Multiverse Saga (Phases 4-6)</option>
+                <option value="Marvel One-Shots">Marvel One-Shots</option>
+                <option value="The Defenders Saga">The Defenders Saga</option>
+                <option value="Fox's X-Men Universe">Fox's X-Men Universe</option>
+                <option value="Sony's Spider-Man Legacy">Sony's Spider-Man Legacy</option>
+                <option value="Legacy Marvel Television">Legacy Marvel Television</option>
+                <option value="Multiverse Legacy & Standalones">Multiverse Legacy & Standalones</option>
+                <option value="Marvel Animated Legacy">Marvel Animated Legacy</option>
+            </optgroup>
+        </select>
+        <button class="filter-btn btn-random" onclick="spinWheel()" style="padding:10px; font-size:1.1rem;">Spin!</button>
+        <div id="rand-result"></div>
+    </div>
+</div>
+
+<!-- Developer Tools Modal -->
+<div id="dev-modal" class="modal" onclick="closeModal(event, 'dev-modal')">
+    <div class="modal-content dev-modal-content" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal(null, 'dev-modal', true)">&times;</span>
+        <h2 style="color: #2ecc71; margin-top: 0;">🛠️ Developer Mode</h2>
+        <p style="font-size: 0.85rem; color: #888; margin-top: -8px; margin-bottom: 15px;">Advanced test utilities and data manipulation.</p>
+        
+        <div class="dev-section">
+            <h4>1. Preset Scenarios (Mocking)</h4>
+            <div class="dev-grid">
+                <button class="dev-btn" onclick="devSetScenario('casual')">🎭 The Casual Fan (Movies Only)</button>
+                <button class="dev-btn" onclick="devSetScenario('doomsday')">⚠ Doomsday Ready</button>
+                <button class="dev-btn" onclick="devSetScenario('all')">✅ Mark All 100% Watched</button>
+                <button class="dev-btn" onclick="devSetScenario('none')">❌ Mark All 0% Unwatched</button>
+            </div>
+        </div>
+
+        <div class="dev-section">
+            <h4>2. Realistic Rating Generator</h4>
+            <div class="dev-grid">
+                <button class="dev-btn" onclick="devGenerateRatings()">🎲 Generate Varied Ratings (All Titles)</button>
+                <button class="dev-btn" onclick="devClearRatings()">Reset All Ratings to 0</button>
+            </div>
+        </div>
+
+        <div class="dev-section">
+            <h4>3. UI & Network Testing</h4>
+            <div class="dev-grid">
+                <button class="dev-btn" onclick="devTriggerConfetti()">🎉 Fire Confetti</button>
+                <button class="dev-btn" onclick="devToggleOffline()" id="dev-offline-btn">🌐 Simulate API Offline: OFF</button>
+                <button class="dev-btn" onclick="devClearCache()">🗑 Flush TMDB Cache</button>
+                <button class="dev-btn" onclick="devToggleWireframe()">📐 Toggle CSS Wireframe</button>
+            </div>
+        </div>
+
+        <div class="dev-section">
+            <h4>4. Database & Storage</h4>
+            <div class="dev-grid" style="margin-bottom: 10px;">
+                <button class="dev-btn" onclick="devRunAudit()">🩺 Run DB Integrity Audit</button>
+                <button class="dev-btn dev-btn-danger" onclick="devHardReset()">🔥 Factory Reset Storage</button>
+            </div>
+            <textarea id="dev-json-editor" spellcheck="false"></textarea>
+            <button class="dev-btn" style="width: 100%;" onclick="devSaveJSON()">💾 Save Live JSON</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
