@@ -18,12 +18,14 @@ The Ultimate Marvel Tracker is a comprehensive, privacy-first web dashboard desi
 *   **Dynamic Progress Bars:** A main progress bar with an animated gradient built from the colors of the phases you've watched, plus a mini progress bar for every phase. Hover (or tap) a mini bar to see exactly how many you've watched and how many are left, like `6 / 14 watched · 8 left`.
 *   **Started But Not Finished:** Mark anything you've begun watching with the ⏳ icon (it also turns on automatically when you've watched some episodes of a show), and use the **Started / Watching** filter to jump back to it.
 *   **Search & Filter:** Filter your list by All, Watched, Unwatched, Started, Doomsday Prep, and optional Non-Canon & Animation titles.
-*   **Up Next:** A quick panel that shows what you should watch next.
+*   **Up Next & Jump:** A quick panel that shows what you should watch next, with a **Jump to it** button that scrolls straight to that title (opening its phase and clearing any filters hiding it).
 *   **Nerd Stats & Hall of Fame:** Tracks your total watch time down to the minute, calculates your average rating, determines your favorite Phase, and builds a custom Top 10 Leaderboard based on your 1-10 star ratings.
 *   **Doomsday Prep Mode:** A specialized filter that isolates only the essential multiverse movies you need to watch before *Avengers: Doomsday*. Essential titles get a green glow, and a Doomsday countdown clock keeps you on track.
 *   **The Randomizer Wheel:** Can't decide what to watch? Spin the wheel to randomly select an unwatched movie or show based on your current filters.
 *   **Celebrations:** Confetti and a glow effect when you complete a Phase.
 *   **Privacy First (No Accounts Required):** All watch progress, ratings, and custom review notes are saved securely to your browser's `localStorage`.
+*   **Send to Phone:** One tap creates a link containing your progress. Open it on your phone and it offers to load everything (it always asks before replacing anything).
+*   **Phone Shortcut:** Install the tracker to your home screen so it opens like an app. Works with one tap on Chrome/Android and with a short guide on iPhone.
 *   **Data Portability:** Export your watch history as a backup JSON file, and import it on your phone or another computer to bring your progress with you.
 
 ## 📁 Project Structure
@@ -34,6 +36,7 @@ Ultimate-Marvel-Tracker/
 ├── style.css     # All styling (themes, progress bars, glows, tooltips)
 ├── script.js     # Data, rendering, filters, stats, TMDB calls
 ├── favicon.png   # Tab icon
+├── manifest.webmanifest, sw.js, icon-192.png, icon-512.png, apple-touch-icon.png  # Home-screen install support
 └── README.md
 ```
 

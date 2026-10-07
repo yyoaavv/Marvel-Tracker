@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ultimate Marvel Tracker</title>
 <link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#121212">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Marvel Tracker">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script>
   // Fallback CDN if the first one is blocked
@@ -49,6 +56,8 @@
             <h3>💾 Backup Data</h3>
             <button onclick="exportData()">⬇ Export Backup File</button>
             <label>⬆ Import Backup File<input type="file" id="import-file" accept=".json" onchange="importData(event)"></label>
+            <button onclick="openSendToPhone()">📤 Send Progress to Phone</button>
+            <button id="btn-shortcut" onclick="openShortcutHelp()">📲 Create Phone Shortcut</button>
         </div>
     </div>
 
@@ -71,6 +80,7 @@
             <h3>🎯 Up Next</h3>
             <div style="font-size: 0.9rem; color: #aaa;">Your next unwatched title:</div>
             <div class="up-next-title" id="up-next">Loading...</div>
+            <button class="filter-btn btn-random btn-jump" id="btn-jump" onclick="jumpToNext()">⬇ Jump to it</button>
             <button class="filter-btn btn-random" onclick="openRandomizer()">🎲 Spin the Wheel</button>
         </div>
         <div class="panel">
@@ -102,6 +112,42 @@
         <span class="close-btn" onclick="closeModal(null, 'info-modal', true)">&times;</span>
         <div class="modal-img-wrapper" id="modal-img"></div>
         <div class="modal-details" id="modal-text">Loading...</div>
+    </div>
+</div>
+
+<!-- Send to Phone Modal -->
+<div id="send-modal" class="modal sheet-modal" onclick="closeModal(event, 'send-modal')">
+    <div class="modal-content sheet" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal(null, 'send-modal', true)">&times;</span>
+        <h2>📤 Send Progress to Phone</h2>
+        <p>Copy this link, send it to yourself (message, email, notes app) and open it on your phone. It will ask before loading anything.</p>
+        <textarea id="send-link" readonly rows="5" onclick="this.select()"></textarea>
+        <div class="sheet-actions">
+            <button id="btn-copy-link" onclick="copySyncLink()">Copy Link</button>
+            <button id="btn-share-link" onclick="shareSyncLink()" style="display:none;">Share...</button>
+        </div>
+        <p class="sheet-note" id="send-note"></p>
+    </div>
+</div>
+
+<!-- Incoming progress (opened from a Send to Phone link) -->
+<div id="sync-modal" class="modal sheet-modal" onclick="closeModal(event, 'sync-modal')">
+    <div class="modal-content sheet" onclick="event.stopPropagation()">
+        <h2 id="sync-title"></h2>
+        <p id="sync-text"></p>
+        <div class="sheet-actions">
+            <button id="btn-sync-load" class="sheet-primary" onclick="acceptIncomingSync()">Load Progress</button>
+            <button id="btn-sync-cancel" onclick="cancelIncomingSync()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Phone Shortcut Modal -->
+<div id="shortcut-modal" class="modal sheet-modal" onclick="closeModal(event, 'shortcut-modal')">
+    <div class="modal-content sheet" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal(null, 'shortcut-modal', true)">&times;</span>
+        <h2>📲 Add to Home Screen</h2>
+        <div id="shortcut-body"></div>
     </div>
 </div>
 

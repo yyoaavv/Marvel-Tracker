@@ -136,7 +136,7 @@ const db = [
         {id: 881, title: "X-Men: Dark Phoenix (2019)", r: 114, c: 111}, 
         {id: 157, title: "The New Mutants (2020)", r: 94, c: 112}
     ] },
-    { category: "Fox's Fantastic Four (Legacy)", color: "#2980b9", excludeProgress: false, items: [
+    { category: "Fox's Fantastic Four", color: "#2980b9", excludeProgress: false, items: [
         {id: 776, title: "Fantastic Four (1994)", r: 90, c: 120}, 
         {id: 483, title: "Fantastic Four (2005)", r: 106, c: 121}, 
         {id: 749, title: "Fantastic Four: Rise of the Silver Surfer (2007)", r: 92, c: 122}, 
@@ -233,6 +233,8 @@ let isChronoMode = false;
 let isDevOffline = false;
 const allDbItems = db.flatMap(s => s.items.map(i => ({...i, sectionColor: s.color, excludeProgress: s.excludeProgress, category: s.category})));
 
+const CATEGORY_RENAMES = { "Fox's Fantastic Four (Legacy)": "Fox's Fantastic Four" };
+
 /* Moves old title-keyed progress to the new 3-digit item IDs (safe to run repeatedly) */
 function migrateUserData() {
     let changed = false;
@@ -241,6 +243,15 @@ function migrateUserData() {
         if (old !== undefined) {
             if (userData[item.id] === undefined) userData[item.id] = old;
             delete userData[item.title];
+            changed = true;
+        }
+    });
+    // Carry the "phase completed" flag over when a category gets renamed
+    Object.entries(CATEGORY_RENAMES).forEach(([oldName, newName]) => {
+        const oldKey = `${oldName}_completed`, newKey = `${newName}_completed`;
+        if (userData[oldKey] !== undefined) {
+            if (userData[newKey] === undefined) userData[newKey] = userData[oldKey];
+            delete userData[oldKey];
             changed = true;
         }
     });
@@ -397,13 +408,47 @@ function updateLeaderboard() {
     rated.forEach((item, idx) => lb.innerHTML += `<li><span>${idx+1}. ${item.title.replace(/\s\(\d{4}\)/, '')}</span> <span class="lb-score">${userData[item.id].rating}/10</span></li>`);
 }
 
+/* Categories hidden while "Non-Canon & Animation" is OFF (same ones render() skips) */
+const NON_CANON_CATEGORIES = ["Multiverse Legacy & Standalones", "Marvel Animated Legacy"];
+
+function getNextUnwatched() {
+    const searchList = isChronoMode ? [...allDbItems].sort((a, b) => (a.c || 999) - (b.c || 999)) : allDbItems;
+    return searchList.find(item =>
+        !userData[item.id].watched && !item.excludeProgress && !item.upcoming &&
+        (showNonCanon || !NON_CANON_CATEGORIES.includes(item.category))
+    ) || null;
+}
+
 function updateUpNext() {
-    let next = "All caught up!";
-    let searchList = isChronoMode ? [...allDbItems].sort((a, b) => (a.c || 999) - (b.c || 999)) : allDbItems;
-    for (let item of searchList) {
-        if (!userData[item.id].watched && !item.excludeProgress && !item.upcoming) { next = item.title.replace(/\s\(\d{4}\)/, ''); break; }
+    const next = getNextUnwatched();
+    document.getElementById('up-next').innerText = next ? next.title.replace(/\s\(\d{4}\)/, '') : "All caught up!";
+
+    const jumpBtn = document.getElementById('btn-jump');
+    if (jumpBtn) {
+        jumpBtn.innerText = next ? '\u2b07 Jump to it' : '\u2b07 Nothing to jump to';
+        jumpBtn.classList.toggle('done', !next);
     }
-    document.getElementById('up-next').innerText = next;
+}
+
+/* Scrolls to the next unwatched title, opening its phase / clearing filters if they hide it */
+function jumpToNext() {
+    const item = getNextUnwatched();
+    if (!item) return;
+    const wrapper = document.querySelector(`.item-wrapper[data-id="${item.id}"]`);
+    if (!wrapper) return;
+
+    if (wrapper.style.display === 'none') {      // hidden by a filter or the search box
+        document.getElementById('search-input').value = '';
+        setFilter('all');
+    }
+    const content = wrapper.closest('.section-content');
+    if (content && content.style.display === 'none') togglePhase(content.previousElementSibling);
+
+    wrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    wrapper.classList.remove('jump-highlight');
+    void wrapper.offsetWidth;                    // restart the animation if clicked again
+    wrapper.classList.add('jump-highlight');
+    setTimeout(() => wrapper.classList.remove('jump-highlight'), 2600);
 }
 
 function updateNerdStats() {
@@ -525,6 +570,200 @@ async function fetchPoster(title, imgElement) {
             }
         }
     } catch(e) { console.log("TMDB fetch error", e); }
+}
+
+/* ==============================================================
+   SEND TO PHONE (your progress travels inside a link)
+============================================================== */
+const LIVE_URL = 'https://yyoaavv.github.io/Ultimate-Marvel-Tracker/';
+const MAX_SYNC_BYTES = 3 * 1024 * 1024;   // safety cap for what a link may unpack to
+let pendingSync = null;
+
+function bytesToB64Url(bytes) {
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function b64UrlToBytes(str) {
+    const b64 = str.replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64 + '='.repeat((4 - b64.length % 4) % 4));
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+}
+
+async function packProgress(obj) {
+    const bytes = new TextEncoder().encode(JSON.stringify(obj));
+    if (typeof CompressionStream === 'function') {
+        const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+        return 'd' + bytesToB64Url(new Uint8Array(await new Response(stream).arrayBuffer()));
+    }
+    return 'r' + bytesToB64Url(bytes);          // very old browsers: no compression
+}
+
+async function unpackProgress(token) {
+    if (token.length > MAX_SYNC_BYTES) throw new Error('too-big');
+    const mode = token[0];
+    const bytes = b64UrlToBytes(token.slice(1));
+    let text;
+    if (mode === 'r') {
+        text = new TextDecoder().decode(bytes);
+    } else if (mode === 'd') {
+        if (typeof DecompressionStream !== 'function') throw new Error('browser-too-old');
+        const reader = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('deflate-raw')).getReader();
+        const chunks = []; let total = 0;
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            total += value.length;
+            if (total > MAX_SYNC_BYTES) throw new Error('too-big');
+            chunks.push(value);
+        }
+        text = new TextDecoder().decode(await new Blob(chunks).arrayBuffer());
+    } else {
+        throw new Error('bad-format');
+    }
+    const obj = JSON.parse(text);
+    if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('bad-format');
+    return obj;
+}
+
+function countWatched(data) {
+    return Object.values(data).filter(v => v && typeof v === 'object' && v.watched === true).length;
+}
+
+async function openSendToPhone() {
+    const modal = document.getElementById('send-modal');
+    const box = document.getElementById('send-link');
+    const note = document.getElementById('send-note');
+    const shareBtn = document.getElementById('btn-share-link');
+    shareBtn.style.display = (navigator.share ? '' : 'none');
+    box.value = 'Preparing your link...';
+    note.textContent = '';
+    modal.style.display = 'flex';
+    try {
+        const token = await packProgress(userData);
+        const base = location.protocol.startsWith('http') ? location.origin + location.pathname : LIVE_URL;
+        const link = `${base}#sync=${token}`;
+        box.value = link;
+        note.textContent = link.length > 8000
+            ? `This link is long (${link.length.toLocaleString()} characters). Some apps may cut it off. If it doesn't work on your phone, use Export / Import Backup instead.`
+            : 'Anyone with this link can see your progress and notes, so only send it to yourself.';
+    } catch (err) {
+        box.value = '';
+        note.textContent = 'Something went wrong while making the link. Try Export Backup File instead.';
+    }
+}
+
+async function copySyncLink() {
+    const box = document.getElementById('send-link');
+    const btn = document.getElementById('btn-copy-link');
+    if (!box.value.startsWith('http')) return;
+    try { await navigator.clipboard.writeText(box.value); }
+    catch (e) { box.select(); document.execCommand('copy'); }
+    const old = btn.innerText;
+    btn.innerText = '\u2705 Copied!';
+    setTimeout(() => { btn.innerText = old; }, 1800);
+}
+
+async function shareSyncLink() {
+    const box = document.getElementById('send-link');
+    if (!box.value.startsWith('http')) return;
+    try { await navigator.share({ title: 'Ultimate Marvel Tracker progress', url: box.value }); } catch (e) { /* cancelled */ }
+}
+
+function showSyncModal(title, text, canLoad) {
+    document.getElementById('sync-title').innerText = title;
+    document.getElementById('sync-text').innerText = text;
+    document.getElementById('btn-sync-load').style.display = canLoad ? '' : 'none';
+    document.getElementById('btn-sync-cancel').innerText = canLoad ? 'Cancel' : 'Close';
+    document.getElementById('sync-modal').style.display = 'flex';
+}
+
+/* Runs on page load: if the page was opened from a "send to phone" link, offer to load it */
+async function checkIncomingSync() {
+    const m = location.hash.match(/^#sync=([A-Za-z0-9_-]+)$/);
+    if (!m) return;
+    history.replaceState(null, '', location.pathname + location.search);   // so a refresh doesn't ask again
+    try {
+        pendingSync = await unpackProgress(m[1]);
+        const incoming = countWatched(pendingSync);
+        const current = countWatched(userData);
+        showSyncModal('\ud83d\udce5 Load progress from link?',
+            `This link has ${incoming} watched title${incoming === 1 ? '' : 's'}. This device currently has ${current}. Loading will replace the progress saved on this device.`, true);
+    } catch (err) {
+        pendingSync = null;
+        const msg = err && err.message === 'browser-too-old'
+            ? 'This browser is too old to open this link. Try updating it, or use Export / Import Backup.'
+            : 'This link looks damaged or incomplete (some apps cut off long links). Try sending it again, or use Export / Import Backup.';
+        showSyncModal('\u26a0\ufe0f Could not read link', msg, false);
+    }
+}
+
+/* Also react if a link is pasted into a tab where the tracker is already open */
+window.addEventListener('hashchange', checkIncomingSync);
+
+function acceptIncomingSync() {
+    if (!pendingSync) return;
+    userData = pendingSync;
+    pendingSync = null;
+    initializeData(); save(); render();
+    closeModal(null, 'sync-modal', true);
+}
+
+function cancelIncomingSync() {
+    pendingSync = null;
+    closeModal(null, 'sync-modal', true);
+}
+
+/* ==============================================================
+   ADD TO HOME SCREEN (phone shortcut)
+============================================================== */
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt = e; });
+window.addEventListener('appinstalled', () => { deferredInstallPrompt = null; setupInstallUI(); });
+
+function isStandalone() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+function setupInstallUI() {
+    const btn = document.getElementById('btn-shortcut');
+    if (btn && isStandalone()) btn.style.display = 'none';          // already running as an app
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+}
+
+async function openShortcutHelp() {
+    // Chrome / Edge / Android can install with one tap
+    if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        try { await deferredInstallPrompt.userChoice; } catch (e) {}
+        deferredInstallPrompt = null;
+        return;
+    }
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/i.test(ua);
+    let steps, note = '';
+    if (isIOS) {
+        steps = ['Tap the <b>Share</b> button (the square with an arrow) in Safari.',
+                 'Scroll down and tap <b>Add to Home Screen</b>.',
+                 'Tap <b>Add</b>.'];
+        note = 'Tip: on iPhone this works from Safari. If you opened the page in another app, open it in Safari first.';
+    } else if (isAndroid) {
+        steps = ['Tap the <b>\u22ee menu</b> in Chrome (top right).',
+                 'Tap <b>Add to Home screen</b> (or <b>Install app</b>).',
+                 'Tap <b>Add</b>.'];
+    } else {
+        steps = ['Open this page on your phone to add it there.',
+                 'On this computer you can also click the <b>install icon</b> in the address bar, or open the <b>\u22ee menu</b> and choose <b>Cast, save, and share \u2192 Install page as app</b>.'];
+    }
+    document.getElementById('shortcut-body').innerHTML =
+        `<ol>${steps.map(x => `<li>${x}</li>`).join('')}</ol>` + (note ? `<p class="sheet-note">${note}</p>` : '');
+    document.getElementById('shortcut-modal').style.display = 'flex';
 }
 
 function closeModal(event, modalId, force = false) {
@@ -1152,4 +1391,6 @@ function devHardReset() {
 window.onload = function() {
     render();
     initDoomsdayClock();
+    checkIncomingSync();
+    setupInstallUI();
 };
