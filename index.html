@@ -8,6 +8,10 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#121212">
+<script>
+  // Apply the saved theme before the page paints (prevents a dark flash in light mode)
+  try { if (localStorage.getItem('marvelTrackerTheme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
+</script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Marvel Tracker">
@@ -32,6 +36,7 @@
 </div>
 
 <div class="header">
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Switch to light mode" aria-label="Switch to light mode">☀️</button>
     <h1>Marvel Tracker</h1>
     <p class="subtitle" onclick="handleSecretClick()">made by yyoaavv</p>
     <div class="top-controls">
@@ -101,6 +106,12 @@
             <button class="filter-btn btn-noncanon" id="btn-toggle-noncanon" onclick="toggleNonCanon()">🌌 Non-Canon & Animation: OFF</button>
         </div>
     </div>
+</div>
+
+<!-- Sandbox banner (only visible while Sandbox Mode is on) -->
+<div id="sandbox-banner">
+    <span>🧪 SANDBOX MODE: changes are NOT saved to your real data.</span>
+    <button onclick="devSandboxExit()">Exit</button>
 </div>
 
 <!-- Scroll to Top Button -->
@@ -222,8 +233,18 @@
             </div>
 
             <div class="dev-col">
+                <div class="dev-section">
+                    <h4>4. Sandbox (test without touching your save)</h4>
+                    <p class="dev-status" id="sandbox-status">Sandbox is OFF. Everything you do is saved to your real data.</p>
+                    <div class="dev-grid">
+                        <button class="dev-btn dev-btn-sandbox" id="sb-start" onclick="devSandboxStart(false)">🧪 Start Sandbox (copy of my save)</button>
+                        <button class="dev-btn dev-btn-sandbox" id="sb-empty" onclick="devSandboxStart(true)">📄 Start Empty Sandbox</button>
+                        <button class="dev-btn dev-btn-sandbox dev-wide" id="sb-exit" onclick="devSandboxExit()" style="display:none;">🚪 Exit Sandbox & Restore My Save</button>
+                    </div>
+                </div>
+
                 <div class="dev-section dev-section-grow">
-                    <h4>4. Database & Storage</h4>
+                    <h4>5. Database & Storage</h4>
                     <div class="dev-grid">
                         <button class="dev-btn" onclick="devRunAudit()">🩺 Run DB Integrity Audit</button>
                         <button class="dev-btn dev-btn-danger" onclick="devHardReset()">🔥 Factory Reset Storage</button>

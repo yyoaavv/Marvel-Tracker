@@ -225,6 +225,10 @@ const db = [
     ] }
 ];
 
+// While Sandbox Mode is on, this holds a copy of the real save and NOTHING is written to localStorage
+let sandboxBackup = null;
+function persist() { if (sandboxBackup === null) localStorage.setItem('marvelTrackerV6', JSON.stringify(userData)); }
+
 let userData = JSON.parse(localStorage.getItem('marvelTrackerV6')) || {};
 let totalMainMCUItems = 0;
 let currentFilter = 'all';
@@ -255,7 +259,7 @@ function migrateUserData() {
             changed = true;
         }
     });
-    if (changed) localStorage.setItem('marvelTrackerV6', JSON.stringify(userData));
+    if (changed) persist();
 }
 
 function initializeData() {
@@ -272,7 +276,7 @@ function initializeData() {
     });
 }
 
-function save() { localStorage.setItem('marvelTrackerV6', JSON.stringify(userData)); updateDashboards(); }
+function save() { persist(); updateDashboards(); }
 
 function updateDashboards() {
     updateProgress(); updateLeaderboard(); updateUpNext(); updateNerdStats();
@@ -393,9 +397,9 @@ function updateMiniProgressBars() {
 
         if (pct === 100 && !userData[`${sec.category}_completed`] && !sec.excludeProgress && validItems.length > 0) {
             fireConfetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: [sec.color, '#ffffff', '#e62429'], zIndex: 9999 });
-            userData[`${sec.category}_completed`] = true; localStorage.setItem('marvelTrackerV6', JSON.stringify(userData));
+            userData[`${sec.category}_completed`] = true; persist();
         } else if (pct < 100 && userData[`${sec.category}_completed`]) {
-            userData[`${sec.category}_completed`] = false; localStorage.setItem('marvelTrackerV6', JSON.stringify(userData));
+            userData[`${sec.category}_completed`] = false; persist();
         }
     });
 }
@@ -978,7 +982,7 @@ function spinWheel() {
     const resEl = document.getElementById('rand-result');
     if (pool.length === 0) { resEl.innerHTML = `<span style="color:var(--accent);">No unwatched titles match your filters!</span>`; return; }
 
-    let spins = 0; resEl.style.color = '#fff';
+    let spins = 0; resEl.style.color = 'var(--text)';
     const interval = setInterval(() => {
         resEl.innerText = pool[Math.floor(Math.random() * pool.length)].title.replace(/\s\(\d{4}\)/, '');
         if (++spins > 20) {
@@ -1371,8 +1375,8 @@ function devToggleOffline() {
     isDevOffline = !isDevOffline;
     const btn = document.getElementById('dev-offline-btn');
     btn.innerText = `🌐 Simulate API Offline: ${isDevOffline ? 'ON (Failing)' : 'OFF'}`;
-    btn.style.borderColor = isDevOffline ? '#e74c3c' : '#555';
-    btn.style.color = isDevOffline ? '#e74c3c' : '#eee';
+    btn.style.borderColor = isDevOffline ? '#e74c3c' : '';
+    btn.style.color = isDevOffline ? '#e74c3c' : '';
 }
 
 function devClearCache() {
@@ -1417,14 +1421,66 @@ function devSaveJSON() {
 }
 
 function devHardReset() {
-    if (confirm("⚠️ FACTORY RESET: This will wipe all saved data. Are you sure?")) {
-        localStorage.removeItem('marvelTrackerV6');
+    const msg = sandboxBackup !== null
+        ? "Reset the sandbox data? (Your real save is safe, only the sandbox is wiped.)"
+        : "⚠️ FACTORY RESET: This will wipe all saved data. Are you sure?";
+    if (confirm(msg)) {
+        if (sandboxBackup === null) localStorage.removeItem('marvelTrackerV6');
         userData = {}; initializeData(); save(); render();
         document.getElementById('dev-json-editor').value = JSON.stringify(userData, null, 2);
     }
 }
 
+/* ---------- Sandbox Mode ----------
+   Start: keeps a copy of your real save in memory and stops ALL writes to localStorage.
+   Exit:  puts the copy back. Refreshing the page also ends the sandbox (real save is untouched). */
+function devSandboxUI() {
+    const on = sandboxBackup !== null;
+    document.body.classList.toggle('sandbox-on', on);
+    document.getElementById('sb-exit').style.display = on ? '' : 'none';
+    document.getElementById('sb-start').innerText = on ? '🔄 Reset Sandbox (re-copy my save)' : '🧪 Start Sandbox (copy of my save)';
+    document.getElementById('sandbox-status').innerText = on
+        ? 'Sandbox is ON. Nothing is saved: test anything, then exit to get your real save back (refreshing also exits).'
+        : 'Sandbox is OFF. Everything you do is saved to your real data.';
+    document.getElementById('dev-json-editor').value = JSON.stringify(userData, null, 2);
+}
+
+function devSandboxStart(empty) {
+    if (sandboxBackup === null) sandboxBackup = JSON.stringify(userData);   // turns saving off
+    userData = empty ? {} : JSON.parse(sandboxBackup);
+    initializeData(); save(); render(); devSandboxUI();
+}
+
+function devSandboxExit() {
+    if (sandboxBackup === null) return;
+    userData = JSON.parse(sandboxBackup);
+    sandboxBackup = null;                                                     // turns saving back on
+    initializeData(); save(); render(); devSandboxUI();
+}
+
+/* ---------- Light / Dark theme ---------- */
+const THEME_KEY = 'marvelTrackerTheme';
+function currentTheme() { return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
+function applyTheme(theme) {
+    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    else document.documentElement.removeAttribute('data-theme');
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#eceef4' : '#121212');
+    const btn = document.getElementById('theme-toggle');
+    if (btn) {
+        const label = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+        btn.textContent = theme === 'light' ? '🌙' : '☀️';
+        btn.title = label; btn.setAttribute('aria-label', label);
+    }
+}
+function toggleTheme() {
+    const next = currentTheme() === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+}
+
 window.onload = function() {
+    applyTheme(currentTheme());
     render();
     initDoomsdayClock();
     checkIncomingSync();
