@@ -395,7 +395,7 @@ function updateMiniProgressBars() {
         if (textEl) textEl.innerText = pct + '%';
         if (phaseCheck) phaseCheck.checked = (watched === validItems.length && validItems.length > 0);
 
-        if (pct === 100 && !userData[`${sec.category}_completed`] && !sec.excludeProgress && validItems.length > 0) {
+        if (pct === 100 && !userData[`${sec.category}_completed`] && validItems.length > 0) {
             fireConfetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: [sec.color, '#ffffff', '#e62429'], zIndex: 9999 });
             userData[`${sec.category}_completed`] = true; persist();
         } else if (pct < 100 && userData[`${sec.category}_completed`]) {
@@ -1188,7 +1188,7 @@ function render() {
 
             const secDiv = document.createElement('div'); secDiv.className = 'section';
             
-            let miniProg = section.excludeProgress ? '' : `
+            let miniProg = `
                 <div class="mini-progress-wrapper" id="mini-prog-wrapper-${secIdx}" tabindex="0">
                     <input type="checkbox" class="phase-checkbox" id="phase-check-${secIdx}" title="Mark entire phase watched" style="accent-color: ${section.color}; margin-right: 10px;">
                     <span class="mini-progress-text" id="mini-pct-${secIdx}" style="color: ${section.color};">0%</span>
