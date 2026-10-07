@@ -1,11 +1,11 @@
-# Ultimate Marvel Tracker
+# Marvel Tracker
 
-[![Live Demo](https://img.shields.io/badge/Live-Website-e62429?style=for-the-badge)](https://yyoaavv.github.io/Ultimate-Marvel-Tracker/)
+[![Live Demo](https://img.shields.io/badge/Live-Website-e62429?style=for-the-badge)](https://yyoaavv.github.io/Marvel-Tracker/)
 
-The Ultimate Marvel Tracker is a comprehensive, privacy-first web dashboard designed for hardcore Marvel fans. Track your journey through the MCU, Fox's X-Men, Sony's Spider-Man universe, and legacy TV shows without needing an account.
+Marvel Tracker is a comprehensive, privacy-first web dashboard designed for hardcore Marvel fans. Track your journey through the MCU, Fox's X-Men, Sony's Spider-Man universe, and legacy TV shows without needing an account.
 
 ### 🚀 Live Website
-**Play with the live tracker here:** [https://yyoaavv.github.io/Ultimate-Marvel-Tracker/](https://yyoaavv.github.io/Ultimate-Marvel-Tracker/)
+**Play with the live tracker here:** [https://yyoaavv.github.io/Marvel-Tracker/](https://yyoaavv.github.io/Marvel-Tracker/)
 
 ---
 
@@ -31,7 +31,7 @@ The Ultimate Marvel Tracker is a comprehensive, privacy-first web dashboard desi
 ## 📁 Project Structure
 
 ```
-Ultimate-Marvel-Tracker/
+Marvel-Tracker/
 ├── index.html    # Page markup
 ├── style.css     # All styling (themes, progress bars, glows, tooltips)
 ├── script.js     # Data, rendering, filters, stats, TMDB calls
@@ -58,4 +58,4 @@ If you want to download the code and run this locally:
 > **Note:** Your progress is stored in the browser's `localStorage`, which is tied to the address you open the site from. Use **Export Backup File** before moving to a new address or device, then import it there.
 
 ---
-*made by yyoaavv* | Featuring the custom progress-ring UMT icon
+*made by yyoaavv* | Featuring the custom progress-ring icon

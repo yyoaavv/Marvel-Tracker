@@ -575,7 +575,7 @@ async function fetchPoster(title, imgElement) {
 /* ==============================================================
    SEND TO PHONE (your progress travels inside a link)
 ============================================================== */
-const LIVE_URL = 'https://yyoaavv.github.io/Ultimate-Marvel-Tracker/';
+const LIVE_URL = 'https://yyoaavv.github.io/Marvel-Tracker/';
 const MAX_SYNC_BYTES = 3 * 1024 * 1024;   // safety cap for what a link may unpack to
 let pendingSync = null;
 
@@ -670,7 +670,7 @@ async function copySyncLink() {
 async function shareSyncLink() {
     const box = document.getElementById('send-link');
     if (!box.value.startsWith('http')) return;
-    try { await navigator.share({ title: 'Ultimate Marvel Tracker progress', url: box.value }); } catch (e) { /* cancelled */ }
+    try { await navigator.share({ title: 'Marvel Tracker progress', url: box.value }); } catch (e) { /* cancelled */ }
 }
 
 function showSyncModal(title, text, canLoad) {
