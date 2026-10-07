@@ -573,7 +573,7 @@ async function fetchPoster(title, imgElement) {
 }
 
 /* ==============================================================
-   SEND TO PHONE (your progress travels inside a link)
+   SEND PROGRESS (your progress travels inside a link)
 ============================================================== */
 const LIVE_URL = 'https://yyoaavv.github.io/Marvel-Tracker/';
 const MAX_SYNC_BYTES = 3 * 1024 * 1024;   // safety cap for what a link may unpack to
@@ -633,7 +633,7 @@ function countWatched(data) {
     return Object.values(data).filter(v => v && typeof v === 'object' && v.watched === true).length;
 }
 
-async function openSendToPhone() {
+async function openSendProgress() {
     const modal = document.getElementById('send-modal');
     const box = document.getElementById('send-link');
     const note = document.getElementById('send-note');
@@ -648,7 +648,7 @@ async function openSendToPhone() {
         const link = `${base}#sync=${token}`;
         box.value = link;
         note.textContent = link.length > 8000
-            ? `This link is long (${link.length.toLocaleString()} characters). Some apps may cut it off. If it doesn't work on your phone, use Export / Import Backup instead.`
+            ? `This link is long (${link.length.toLocaleString()} characters). Some apps may cut it off. If it doesn't work on the other device, use Export / Import Backup instead.`
             : 'Anyone with this link can see your progress and notes, so only send it to yourself.';
     } catch (err) {
         box.value = '';
@@ -681,7 +681,7 @@ function showSyncModal(title, text, canLoad) {
     document.getElementById('sync-modal').style.display = 'flex';
 }
 
-/* Runs on page load: if the page was opened from a "send to phone" link, offer to load it */
+/* Runs on page load: if the page was opened from a "send progress" link, offer to load it */
 async function checkIncomingSync() {
     const m = location.hash.match(/^#sync=([A-Za-z0-9_-]+)$/);
     if (!m) return;
@@ -718,7 +718,7 @@ function cancelIncomingSync() {
 }
 
 /* ==============================================================
-   ADD TO HOME SCREEN (phone shortcut)
+   CREATE SHORTCUT (install as an app on phone or computer)
 ============================================================== */
 let deferredInstallPrompt = null;
 window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstallPrompt = e; });
@@ -758,8 +758,8 @@ async function openShortcutHelp() {
                  'Tap <b>Add to Home screen</b> (or <b>Install app</b>).',
                  'Tap <b>Add</b>.'];
     } else {
-        steps = ['Open this page on your phone to add it there.',
-                 'On this computer you can also click the <b>install icon</b> in the address bar, or open the <b>\u22ee menu</b> and choose <b>Cast, save, and share \u2192 Install page as app</b>.'];
+        steps = ['Click the <b>install icon</b> in the address bar, or open the <b>\u22ee menu</b> and choose <b>Cast, save, and share \u2192 Install page as app</b>.',
+                 'You can also open this page on your phone to add it there.'];
     }
     document.getElementById('shortcut-body').innerHTML =
         `<ol>${steps.map(x => `<li>${x}</li>`).join('')}</ol>` + (note ? `<p class="sheet-note">${note}</p>` : '');

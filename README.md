@@ -24,8 +24,8 @@ Marvel Tracker is a comprehensive, privacy-first web dashboard designed for hard
 *   **The Randomizer Wheel:** Can't decide what to watch? Spin the wheel to randomly select an unwatched movie or show based on your current filters.
 *   **Celebrations:** Confetti and a glow effect when you complete a Phase.
 *   **Privacy First (No Accounts Required):** All watch progress, ratings, and custom review notes are saved securely to your browser's `localStorage`.
-*   **Send to Phone:** One tap creates a link containing your progress. Open it on your phone and it offers to load everything (it always asks before replacing anything).
-*   **Phone Shortcut:** Install the tracker to your home screen so it opens like an app. Works with one tap on Chrome/Android and with a short guide on iPhone.
+*   **Send Progress:** One tap creates a link containing your progress. Send it to yourself and open it on another device (phone to computer or computer to phone) and it offers to load everything (it always asks before replacing anything).
+*   **Create Shortcut:** Install the tracker as an app on your home screen or desktop. Works with one tap on Chrome/Edge/Android and with a short guide on iPhone.
 *   **Data Portability:** Export your watch history as a backup JSON file, and import it on your phone or another computer to bring your progress with you.
 
 ## 📁 Project Structure

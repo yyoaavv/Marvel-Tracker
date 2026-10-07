@@ -56,8 +56,8 @@
             <h3>💾 Backup Data</h3>
             <button onclick="exportData()">⬇ Export Backup File</button>
             <label>⬆ Import Backup File<input type="file" id="import-file" accept=".json" onchange="importData(event)"></label>
-            <button onclick="openSendToPhone()">📤 Send Progress to Phone</button>
-            <button id="btn-shortcut" onclick="openShortcutHelp()">📲 Create Phone Shortcut</button>
+            <button onclick="openSendProgress()">📤 Send Progress</button>
+            <button id="btn-shortcut" onclick="openShortcutHelp()">📲 Create Shortcut</button>
         </div>
     </div>
 
@@ -115,12 +115,12 @@
     </div>
 </div>
 
-<!-- Send to Phone Modal -->
+<!-- Send Progress Modal -->
 <div id="send-modal" class="modal sheet-modal" onclick="closeModal(event, 'send-modal')">
     <div class="modal-content sheet" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeModal(null, 'send-modal', true)">&times;</span>
-        <h2>📤 Send Progress to Phone</h2>
-        <p>Copy this link, send it to yourself (message, email, notes app) and open it on your phone. It will ask before loading anything.</p>
+        <h2>📤 Send Progress</h2>
+        <p>Copy this link, send it to yourself (message, email, notes app) and open it on any other device, phone or computer. It will ask before loading anything.</p>
         <textarea id="send-link" readonly rows="5" onclick="this.select()"></textarea>
         <div class="sheet-actions">
             <button id="btn-copy-link" onclick="copySyncLink()">Copy Link</button>
@@ -130,7 +130,7 @@
     </div>
 </div>
 
-<!-- Incoming progress (opened from a Send to Phone link) -->
+<!-- Incoming progress (opened from a Send Progress link) -->
 <div id="sync-modal" class="modal sheet-modal" onclick="closeModal(event, 'sync-modal')">
     <div class="modal-content sheet" onclick="event.stopPropagation()">
         <h2 id="sync-title"></h2>
@@ -142,11 +142,11 @@
     </div>
 </div>
 
-<!-- Phone Shortcut Modal -->
+<!-- Shortcut Modal -->
 <div id="shortcut-modal" class="modal sheet-modal" onclick="closeModal(event, 'shortcut-modal')">
     <div class="modal-content sheet" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeModal(null, 'shortcut-modal', true)">&times;</span>
-        <h2>📲 Add to Home Screen</h2>
+        <h2>📲 Create Shortcut</h2>
         <div id="shortcut-body"></div>
     </div>
 </div>
