@@ -1282,44 +1282,80 @@ function handleSecretClick() {
     secretClickCount++;
     clearTimeout(secretClickTimer);
     if (secretClickCount >= 5) {
-        document.getElementById('dev-modal').style.display = 'block';
+        document.getElementById('dev-modal').style.display = 'flex';
         document.getElementById('dev-json-editor').value = JSON.stringify(userData, null, 2);
         secretClickCount = 0;
     }
     secretClickTimer = setTimeout(() => { secretClickCount = 0; }, 1000);
 }
 
+function devShuffled(list) {
+    const a = [...list];
+    for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+}
+
+function devSetWatched(item, shouldWatch) {
+    userData[item.id].watched = shouldWatch;
+    userData[item.id].inProgress = false;
+    if (item.episodes) userData[item.id].watchedEps.fill(shouldWatch);
+}
+
 function devSetScenario(type) {
+    if (type === 'half') {
+        // Random 50%: half of the titles that count toward the main progress bar (so it reads ~50%),
+        // plus a random half of everything else (one-shots, upcoming, etc.)
+        const counted = allDbItems.filter(i => !i.excludeProgress && !i.upcoming);
+        const rest = allDbItems.filter(i => i.excludeProgress || i.upcoming);
+        const watchSet = new Set([
+            ...devShuffled(counted).slice(0, Math.round(counted.length / 2)).map(i => i.id),
+            ...devShuffled(rest).slice(0, Math.round(rest.length / 2)).map(i => i.id)
+        ]);
+        allDbItems.forEach(item => devSetWatched(item, watchSet.has(item.id)));
+        save(); render();
+        return;
+    }
     allDbItems.forEach(item => {
         let shouldWatch = false;
         if (type === 'all') shouldWatch = true;
-        if (type === 'casual' && !item.episodes && !item.excludeProgress) shouldWatch = true;
         if (type === 'doomsday' && item.dd) shouldWatch = true;
-        
-        userData[item.id].watched = shouldWatch;
-        userData[item.id].inProgress = false;
-        if (item.episodes) userData[item.id].watchedEps.fill(shouldWatch);
+        devSetWatched(item, shouldWatch);
     });
     save(); render();
 }
 
-function devGenerateRatings() {
-    allDbItems.forEach(item => {
-        userData[item.id].watched = true;
-        userData[item.id].inProgress = false;
-        if (item.episodes) userData[item.id].watchedEps.fill(true);
-        
-        const roll = Math.random();
-        let r = 7;
-        if (roll < 0.03) r = 10;
-        else if (roll < 0.16) r = 9;
-        else if (roll < 0.42) r = 8;
-        else if (roll < 0.72) r = 7;
-        else if (roll < 0.89) r = 6;
-        else if (roll < 0.96) r = 5;
-        else r = Math.floor(Math.random() * 2) + 3;
+function devRealisticRating() {
+    const roll = Math.random();
+    if (roll < 0.03) return 10;
+    if (roll < 0.16) return 9;
+    if (roll < 0.42) return 8;
+    if (roll < 0.72) return 7;
+    if (roll < 0.89) return 6;
+    if (roll < 0.96) return 5;
+    return Math.floor(Math.random() * 2) + 3;
+}
 
-        userData[item.id].rating = r;
+// Varied (realistic, bell-shaped) ratings. halfOnly = true rates a random 50% of titles and clears the rest.
+function devGenerateRatings(halfOnly = false) {
+    const rated = halfOnly
+        ? new Set(devShuffled(allDbItems).slice(0, Math.round(allDbItems.length / 2)).map(i => i.id))
+        : null;
+    allDbItems.forEach(item => {
+        if (rated && !rated.has(item.id)) { userData[item.id].rating = 0; return; }
+        devSetWatched(item, true);
+        userData[item.id].rating = devRealisticRating();
+    });
+    save(); render();
+}
+
+// Completely random ratings, 1-10, for every title
+function devRandomRatings() {
+    allDbItems.forEach(item => {
+        devSetWatched(item, true);
+        userData[item.id].rating = Math.floor(Math.random() * 10) + 1;
     });
     save(); render();
 }

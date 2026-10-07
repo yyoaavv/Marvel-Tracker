@@ -185,45 +185,53 @@
 <div id="dev-modal" class="modal" onclick="closeModal(event, 'dev-modal')">
     <div class="modal-content dev-modal-content" onclick="event.stopPropagation()">
         <span class="close-btn" onclick="closeModal(null, 'dev-modal', true)">&times;</span>
-        <h2 style="color: #2ecc71; margin-top: 0;">🛠️ Developer Mode</h2>
-        <p style="font-size: 0.85rem; color: #888; margin-top: -8px; margin-bottom: 15px;">Advanced test utilities and data manipulation.</p>
-        
-        <div class="dev-section">
-            <h4>1. Preset Scenarios (Mocking)</h4>
-            <div class="dev-grid">
-                <button class="dev-btn" onclick="devSetScenario('casual')">🎭 The Casual Fan (Movies Only)</button>
-                <button class="dev-btn" onclick="devSetScenario('doomsday')">⚠ Doomsday Ready</button>
-                <button class="dev-btn" onclick="devSetScenario('all')">✅ Mark All 100% Watched</button>
-                <button class="dev-btn" onclick="devSetScenario('none')">❌ Mark All 0% Unwatched</button>
-            </div>
-        </div>
+        <h2 class="dev-title">🛠️ Developer Mode</h2>
+        <p class="dev-sub">Advanced test utilities and data manipulation.</p>
 
-        <div class="dev-section">
-            <h4>2. Realistic Rating Generator</h4>
-            <div class="dev-grid">
-                <button class="dev-btn" onclick="devGenerateRatings()">🎲 Generate Varied Ratings (All Titles)</button>
-                <button class="dev-btn" onclick="devClearRatings()">Reset All Ratings to 0</button>
-            </div>
-        </div>
+        <div class="dev-cols">
+            <div class="dev-col">
+                <div class="dev-section">
+                    <h4>1. Preset Scenarios (Mocking)</h4>
+                    <div class="dev-grid">
+                        <button class="dev-btn" onclick="devSetScenario('all')">✅ Mark All 100% Watched</button>
+                        <button class="dev-btn" onclick="devSetScenario('half')">🎲 Mark Random 50% Watched</button>
+                        <button class="dev-btn" onclick="devSetScenario('doomsday')">⚠ Doomsday Ready</button>
+                        <button class="dev-btn" onclick="devSetScenario('none')">❌ Mark All 0% Unwatched</button>
+                    </div>
+                </div>
 
-        <div class="dev-section">
-            <h4>3. UI & Network Testing</h4>
-            <div class="dev-grid">
-                <button class="dev-btn" onclick="devTriggerConfetti()">🎉 Fire Confetti</button>
-                <button class="dev-btn" onclick="devToggleOffline()" id="dev-offline-btn">🌐 Simulate API Offline: OFF</button>
-                <button class="dev-btn" onclick="devClearCache()">🗑 Flush TMDB Cache</button>
-                <button class="dev-btn" onclick="devToggleWireframe()">📐 Toggle CSS Wireframe</button>
-            </div>
-        </div>
+                <div class="dev-section">
+                    <h4>2. Rating Generator</h4>
+                    <div class="dev-grid">
+                        <button class="dev-btn" onclick="devGenerateRatings()">🎲 Generate Varied Ratings (All Titles)</button>
+                        <button class="dev-btn" onclick="devRandomRatings()">🎰 Generate Random Ratings 1-10 (All Titles)</button>
+                        <button class="dev-btn" onclick="devGenerateRatings(true)">🌓 Generate Varied Ratings (Half of Titles)</button>
+                        <button class="dev-btn" onclick="devClearRatings()">❌ Reset All Ratings to 0</button>
+                    </div>
+                </div>
 
-        <div class="dev-section">
-            <h4>4. Database & Storage</h4>
-            <div class="dev-grid" style="margin-bottom: 10px;">
-                <button class="dev-btn" onclick="devRunAudit()">🩺 Run DB Integrity Audit</button>
-                <button class="dev-btn dev-btn-danger" onclick="devHardReset()">🔥 Factory Reset Storage</button>
+                <div class="dev-section">
+                    <h4>3. UI & Network Testing</h4>
+                    <div class="dev-grid">
+                        <button class="dev-btn" onclick="devTriggerConfetti()">🎉 Fire Confetti</button>
+                        <button class="dev-btn" onclick="devToggleOffline()" id="dev-offline-btn">🌐 Simulate API Offline: OFF</button>
+                        <button class="dev-btn" onclick="devClearCache()">🗑 Flush TMDB Cache</button>
+                        <button class="dev-btn" onclick="devToggleWireframe()">📐 Toggle CSS Wireframe</button>
+                    </div>
+                </div>
             </div>
-            <textarea id="dev-json-editor" spellcheck="false"></textarea>
-            <button class="dev-btn" style="width: 100%;" onclick="devSaveJSON()">💾 Save Live JSON</button>
+
+            <div class="dev-col">
+                <div class="dev-section dev-section-grow">
+                    <h4>4. Database & Storage</h4>
+                    <div class="dev-grid">
+                        <button class="dev-btn" onclick="devRunAudit()">🩺 Run DB Integrity Audit</button>
+                        <button class="dev-btn dev-btn-danger" onclick="devHardReset()">🔥 Factory Reset Storage</button>
+                    </div>
+                    <textarea id="dev-json-editor" spellcheck="false"></textarea>
+                    <button class="dev-btn" onclick="devSaveJSON()">💾 Save Live JSON</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>

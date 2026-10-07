@@ -261,15 +261,21 @@
     #rand-result { margin-top: 20px; font-size: 1.2rem; min-height: 50px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
     /* Dev Tools Modal */
-    .dev-modal-content { max-height: 85vh; overflow-y: auto; flex-direction: column; max-width: 550px; border-color: #2ecc71; }
-    .dev-section { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 6px; padding: 15px; margin-bottom: 15px; }
-    .dev-section h4 { margin: 0 0 10px 0; color: #2ecc71; text-transform: uppercase; font-size: 0.85rem; border-bottom: 1px dashed #444; padding-bottom: 5px; }
-    .dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .dev-btn { background: #1c1c1c; color: #eee; border: 1px solid #555; padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.2s; text-align: center; }
+    #dev-modal { align-items: center; justify-content: center; }
+    .dev-modal-content { margin: 0; width: 96%; max-width: 900px; max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; flex-direction: column; gap: 8px; padding: 16px 18px; border-color: #2ecc71; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: #555 transparent; }
+    .dev-title { color: #2ecc71; margin: 0; font-size: 1.3rem; padding-right: 24px; }
+    .dev-sub { font-size: 0.8rem; color: #888; margin: 0; }
+    .dev-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch; min-height: 0; }
+    .dev-col { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+    .dev-section { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 6px; padding: 10px 12px; }
+    .dev-section-grow { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+    .dev-section h4 { margin: 0 0 8px 0; color: #2ecc71; text-transform: uppercase; font-size: 0.8rem; border-bottom: 1px dashed #444; padding-bottom: 4px; }
+    .dev-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .dev-btn { background: #1c1c1c; color: #eee; border: 1px solid #555; padding: 7px 6px; border-radius: 4px; cursor: pointer; font-size: 0.78rem; line-height: 1.25; transition: 0.2s; text-align: center; }
     .dev-btn:hover { background: #2a2a2a; border-color: #2ecc71; color: #fff; }
     .dev-btn-danger { border-color: #c0392b; color: #e74c3c; }
     .dev-btn-danger:hover { background: #c0392b; color: #fff; }
-    #dev-json-editor { width: 100%; height: 100px; background: #111; color: #0f0; border: 1px solid #444; border-radius: 4px; padding: 10px; font-family: monospace; font-size: 0.8rem; box-sizing: border-box; resize: vertical; margin-bottom: 10px; }
+    #dev-json-editor { flex: 1; width: 100%; min-height: 60px; height: auto; background: #111; color: #0f0; border: 1px solid #444; border-radius: 4px; padding: 8px; font-family: monospace; font-size: 0.75rem; box-sizing: border-box; resize: none; margin: 8px 0; }
     
     body.dev-wireframe * { outline: 1px solid rgba(46, 204, 113, 0.3) !important; }
 
@@ -359,7 +365,15 @@
         /* Popups */
         .modal-content { flex-direction: column; align-items: center; text-align: center; padding: 18px; }
         #modal-content { width: 94%; }
-        .dev-grid { grid-template-columns: 1fr; }
+        .dev-modal-content { padding: 12px; gap: 6px; }
+        .dev-sub { display: none; }
+        .dev-cols { grid-template-columns: 1fr; gap: 8px; }
+        .dev-col { gap: 8px; }
+        .dev-section { padding: 8px; }
+        .dev-section h4 { margin-bottom: 6px; font-size: 0.72rem; }
+        .dev-grid { gap: 6px; }
+        .dev-btn { font-size: 0.7rem; padding: 6px 4px; }
+        #dev-json-editor { min-height: 40px; margin: 6px 0; }
         .modal-img-wrapper img { width: 140px; }
         .providers { text-align: left; width: 100%; box-sizing: border-box; }
         .prov-row { flex-direction: column; align-items: flex-start; gap: 4px; margin: 8px 0; }
