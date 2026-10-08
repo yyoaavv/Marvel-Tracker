@@ -1485,6 +1485,355 @@ function toggleTheme() {
     try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
 }
 
+/* ==============================================================
+   MARVEL WRAPPED (story-style recap + shareable image)
+   Everything is calculated in your browser from your own progress.
+============================================================== */
+const WR = { open: false, slides: [], i: 0, t: 0, paused: false, raf: 0, last: 0, downAt: 0, W: null };
+
+function wrFmtTime(mins) { mins = Math.round(mins); return { d: Math.floor(mins / 1440), h: Math.floor((mins % 1440) / 60), m: mins % 60 }; }
+function wrHours(mins) { return mins >= 600 ? String(Math.round(mins / 60)) : (mins / 60).toFixed(1); }
+function wrClean(t) { return t.replace(/\s\(\d{4}\)/, ''); }
+function wrCat(c) { return c.replace('The Infinity Saga - ', 'Infinity Saga · ').replace('The Multiverse Saga - ', 'Multiverse Saga · '); }
+
+function computeWrapped() {
+    const W = { year: new Date().getFullYear(), titles: 0, tracked: 0, movies: 0, shows: 0, episodes: 0, minutes: 0, showMin: 0,
+        rated: [], hist: Array(11).fill(0), ratingSum: 0, notes: 0, started: 0, postCredits: 0, mcuWatched: 0, legacyWatched: 0,
+        secs: [], longestMovie: null, bingeShow: null, dd: { total: 0, watched: 0, next: null } };
+    const LEGACY = ["Multiverse Legacy & Standalones", "Marvel Animated Legacy", "Legacy Marvel Television"];
+
+    db.forEach(sec => {
+        const S = { category: sec.category, color: sec.color, total: 0, watched: 0, minutes: 0, rSum: 0, rCount: 0 };
+        sec.items.forEach(item => {
+            if (item.upcoming) return;
+            const u = userData[item.id]; if (!u) return;
+            const isShow = !!item.episodes;
+            const rt = u.exactRuntime || item.r;
+            const eps = isShow && u.watchedEps ? u.watchedEps.filter(Boolean).length : 0;
+            const mins = isShow ? (rt / item.episodes) * eps : (u.watched ? rt : 0);
+            S.total++; W.tracked++; S.minutes += mins; W.minutes += mins;
+            if (isShow) { W.episodes += eps; W.showMin += mins; }
+            if (u.watched) {
+                W.titles++; S.watched++;
+                if (isShow) W.shows++; else W.movies++;
+                if (/^The (Infinity|Multiverse) Saga/.test(sec.category)) W.mcuWatched++;
+                if (LEGACY.includes(sec.category)) W.legacyWatched++;
+                if (item.pc) W.postCredits += Number(item.pc) || 0;
+                if (!isShow && (!W.longestMovie || rt > W.longestMovie.mins)) W.longestMovie = { title: wrClean(item.title), mins: rt };
+            } else if (u.inProgress || eps > 0) W.started++;
+            if (isShow && mins > 0 && (!W.bingeShow || mins > W.bingeShow.mins)) W.bingeShow = { title: wrClean(item.title), mins, eps };
+            if (u.rating > 0) {
+                W.rated.push({ title: wrClean(item.title), rating: u.rating, color: sec.color });
+                W.hist[Math.min(10, Math.round(u.rating))]++; W.ratingSum += u.rating; S.rSum += u.rating; S.rCount++;
+            }
+            if (u.note && String(u.note).trim()) W.notes++;
+            if (item.dd) { W.dd.total++; if (u.watched) W.dd.watched++; else if (!W.dd.next) W.dd.next = wrClean(item.title); }
+        });
+        W.secs.push(S);
+    });
+
+    W.avg = W.rated.length ? W.ratingSum / W.rated.length : 0;
+    W.perfect = W.hist[10];
+    W.completed = W.secs.filter(s => s.total > 0 && s.watched === s.total);
+    W.topRated = [...W.rated].sort((a, b) => b.rating - a.rating).slice(0, 5);
+    W.lowest = W.rated.length >= 3 ? W.rated.reduce((m, r) => (r.rating < m.rating ? r : m)) : null;
+    const rs = W.secs.filter(s => s.rCount >= 2);
+    W.fav = rs.length ? rs.reduce((b, s) => (s.rSum / s.rCount > b.rSum / b.rCount ? s : b)) : W.secs.reduce((b, s) => (s.minutes > b.minutes ? s : b));
+    if (W.fav && W.fav.watched === 0 && W.fav.minutes === 0) W.fav = null;
+    W.byTime = W.secs.filter(s => s.minutes > 0).sort((a, b) => b.minutes - a.minutes).slice(0, 6);
+    W.archetype = wrArchetype(W);
+    W.badges = wrBadges(W);
+    return W;
+}
+
+function wrArchetype(W) {
+    const t = W.titles;
+    if (W.tracked && t / W.tracked >= 0.9) return { emoji: '🏆', name: 'The Completionist', line: 'You never leave a title behind.' };
+    if (t >= 10 && (t - W.mcuWatched) / t >= 0.45) return { emoji: '🌌', name: 'The Multiverse Wanderer', line: 'One universe was never enough.' };
+    if (W.minutes > 0 && W.showMin / W.minutes >= 0.6) return { emoji: '📺', name: 'The Binge Master', line: 'Episodes are your love language.' };
+    if (W.rated.length >= 5 && W.avg <= 6.2) return { emoji: '🧐', name: 'The Tough Critic', line: 'Hard to impress, harder to fool.' };
+    if (W.rated.length >= 5 && W.avg >= 8.3) return { emoji: '🤩', name: 'The True Believer', line: 'Everything is a banger to you.' };
+    if (t >= 5 && W.legacyWatched / t >= 0.3) return { emoji: '📼', name: 'The Nostalgic', line: 'You remember when it all began.' };
+    if (t >= 5 && W.movies / t >= 0.75) return { emoji: '🎬', name: 'The Cinephile', line: 'The big screen is your home.' };
+    if (t < 25) return { emoji: '🛡️', name: 'The Rising Hero', line: 'Your origin story has just begun.' };
+    return { emoji: '⭐', name: 'The Avenger', line: 'Assembled and ready for anything.' };
+}
+
+function wrBadges(W) {
+    const b = [];
+    if (W.completed.length) b.push(`🏅 ${W.completed.length} universe${W.completed.length > 1 ? 's' : ''} completed`);
+    if (W.perfect) b.push(`💯 ${W.perfect} perfect 10${W.perfect > 1 ? 's' : ''}`);
+    if (W.dd.total && W.dd.watched === W.dd.total) b.push('⚠️ Doomsday ready');
+    if (W.minutes >= 7200) b.push('⏱️ 5+ day marathoner');
+    if (W.notes) b.push(`📝 ${W.notes} review note${W.notes > 1 ? 's' : ''}`);
+    if (W.postCredits >= 10) b.push(`🎬 ${W.postCredits} post-credit scenes`);
+    if (W.episodes >= 100) b.push(`📺 ${W.episodes} episodes`);
+    return b.slice(0, 6);
+}
+
+function wrSlides(W) {
+    const T = wrFmtTime(W.minutes);
+    const pctAll = W.tracked ? Math.round((W.titles / W.tracked) * 100) : 0;
+    const r = n => `style="--d:${(n * 0.12).toFixed(2)}s"`;
+    const ring = (pct, color) => `<div class="wr-ring rise" ${r(3)}><svg viewBox="0 0 120 120"><circle class="rb" cx="60" cy="60" r="52"/><circle class="rf" cx="60" cy="60" r="52" style="stroke:${color};--to:${(326.7 * (1 - pct / 100)).toFixed(1)}"/></svg><div class="rv"><span><b class="cu" data-v="${pct}">0</b>%</span></div></div>`;
+    const S = [];
+
+    S.push({ g1: '#e62429', g2: '#6c2bd9', dur: 4500, html: `
+        <div class="wr-kicker rise" ${r(0)}>Marvel Tracker presents</div>
+        <h1 class="wr-mega rise" ${r(1)}>Your<br>Marvel<br><span>Wrapped</span></h1>
+        <div class="wr-year rise" ${r(3)}>${W.year}</div>
+        <div class="wr-sub rise" ${r(4)}>${W.titles} titles · ${wrHours(W.minutes)} hours · one universe</div>
+        <div class="wr-hint rise" ${r(6)}>tap to continue →</div>` });
+
+    S.push({ g1: '#2980b9', g2: '#8e44ad', html: `
+        <div class="wr-kicker rise" ${r(0)}>You've watched</div>
+        <div class="wr-big rise" ${r(1)}><b class="cu" data-v="${W.titles}">0</b></div>
+        <div class="wr-title2 rise" ${r(2)}>titles</div>
+        ${ring(pctAll, '#ffffff')}
+        <div class="wr-sub rise" ${r(4)}>of everything on the tracker</div>
+        <div class="wr-chips rise" ${r(5)}><span>🎬 ${W.movies} movies</span><span>📺 ${W.shows} shows</span><span>▶️ ${W.episodes} episodes</span></div>` });
+
+    S.push({ g1: '#f39c12', g2: '#e62429', html: `
+        <div class="wr-kicker rise" ${r(0)}>You spent</div>
+        <div class="wr-time rise" ${r(1)}>
+            <div><b class="cu" data-v="${T.d}">0</b><span>days</span></div>
+            <div><b class="cu" data-v="${T.h}">0</b><span>hours</span></div>
+            <div><b class="cu" data-v="${T.m}">0</b><span>mins</span></div>
+        </div>
+        <div class="wr-title2 rise" ${r(2)}>in the Marvel universe</div>
+        ${W.minutes >= 181 ? `<div class="wr-line rise" ${r(3)}>That's <b>${(W.minutes / 181).toFixed(1)}×</b> Avengers: Endgame, back to back.</div>` : ''}
+        ${W.bingeShow ? `<div class="wr-line rise" ${r(4)}>Biggest binge: <b>${escHtml(W.bingeShow.title)}</b> (${wrHours(W.bingeShow.mins)}h, ${W.bingeShow.eps} episodes)</div>` : ''}
+        ${W.longestMovie ? `<div class="wr-line rise" ${r(5)}>Longest movie: <b>${escHtml(W.longestMovie.title)}</b> (${Math.floor(W.longestMovie.mins / 60)}h ${W.longestMovie.mins % 60}m)</div>` : ''}` });
+
+    if (W.fav) {
+        const f = W.fav, fp = f.total ? Math.round((f.watched / f.total) * 100) : 0;
+        S.push({ g1: f.color, g2: '#1a1033', html: `
+            <div class="wr-kicker rise" ${r(0)}>Your home universe</div>
+            <div class="wr-name rise" ${r(1)} style="color:${f.color};filter:brightness(1.25)">${escHtml(wrCat(f.category))}</div>
+            ${ring(fp, f.color)}
+            <div class="wr-sub rise" ${r(4)}>${f.watched} of ${f.total} watched${f.rCount ? ` · avg rating ${(f.rSum / f.rCount).toFixed(1)}/10` : ''}</div>
+            ${W.completed.length ? `<div class="wr-chips rise" ${r(5)}>${W.completed.slice(0, 4).map(s => `<span>🏅 ${escHtml(wrCat(s.category))}</span>`).join('')}</div>` : ''}` });
+    }
+
+    if (W.byTime.length >= 2) {
+        const max = W.byTime[0].minutes;
+        S.push({ g1: '#16a085', g2: '#2c3e9e', html: `
+            <div class="wr-kicker rise" ${r(0)}>Where your time went</div>
+            <div class="wr-hb">${W.byTime.map((s, i) => `
+                <div class="row rise" ${r(i + 1)}><div class="lbl"><span>${escHtml(wrCat(s.category))}</span><span>${wrHours(s.minutes)}h</span></div>
+                <div class="tr"><div class="fl" style="--w:${Math.max(4, Math.round((s.minutes / max) * 100))}%;--d:${(0.3 + i * 0.12).toFixed(2)}s;background:${s.color}"></div></div></div>`).join('')}
+            </div>` });
+    }
+
+    if (W.topRated.length) {
+        S.push({ g1: '#f1c40f', g2: '#e67e22', html: `
+            <div class="wr-kicker rise" ${r(0)}>Your top ${W.topRated.length}</div>
+            <ul class="wr-top">${W.topRated.map((t, i) => `<li class="rise" ${r(i + 1)} style="--c:${t.color}"><span class="n">${i + 1}</span><span class="t">${escHtml(t.title)}</span><span class="s">${t.rating}/10</span></li>`).join('')}</ul>` });
+    }
+
+    if (W.rated.length >= 3) {
+        const max = Math.max(...W.hist.slice(1));
+        const verdict = W.avg >= 8.5 ? 'Generous' : W.avg >= 7 ? 'Balanced' : W.avg >= 5.5 ? 'Picky' : 'Brutal';
+        S.push({ g1: '#e84393', g2: '#6c5ce7', html: `
+            <div class="wr-kicker rise" ${r(0)}>Your average rating</div>
+            <div class="wr-big rise" ${r(1)}><b class="cu" data-v="${W.avg.toFixed(1)}" data-dec="1">0</b><small>/10</small></div>
+            <div class="wr-title2 rise" ${r(2)}>${verdict} critic</div>
+            <div class="wr-hist">${W.hist.slice(1).map((n, i) => `<div><i style="--h:${Math.round((n / max) * 80) + 2}px;--d:${(0.4 + i * 0.07).toFixed(2)}s"></i><em>${i + 1}</em></div>`).join('')}</div>
+            <div class="wr-line rise" ${r(5)}>${W.rated.length} ratings${W.perfect ? ` · <b>${W.perfect}</b> perfect 10${W.perfect > 1 ? 's' : ''}` : ''}</div>` });
+    }
+
+    if (W.lowest && W.lowest.rating <= 6) {
+        const q = W.lowest.rating <= 3 ? 'Ouch. That one hurt.' : W.lowest.rating <= 5 ? "Not every hero lands." : 'Even great universes have a dud.';
+        S.push({ g1: '#636e72', g2: '#c0392b', html: `
+            <div class="wr-kicker rise" ${r(0)}>Your harshest rating</div>
+            <div class="wr-emoji rise" ${r(1)}>🥶</div>
+            <div class="wr-name rise" ${r(2)}>${escHtml(W.lowest.title)}</div>
+            <div class="wr-big rise" ${r(3)} style="font-size:3.6rem">${W.lowest.rating}/10</div>
+            <div class="wr-sub rise" ${r(4)}>${q}</div>` });
+    }
+
+    if (W.dd.total) {
+        const dp = Math.round((W.dd.watched / W.dd.total) * 100);
+        const msg = dp === 100 ? "You're ready. Let Doomsday come." : dp >= 60 ? `Almost there. ${W.dd.total - W.dd.watched} left, next up: ${W.dd.next}` : `Start your prep with ${W.dd.next}`;
+        S.push({ g1: '#27ae60', g2: '#0b3d2e', html: `
+            <div class="wr-kicker rise" ${r(0)}>⚠ Doomsday readiness</div>
+            ${ring(dp, '#2ecc71')}
+            <div class="wr-title2 rise" ${r(4)}>${W.dd.watched} / ${W.dd.total} essentials</div>
+            <div class="wr-sub rise" ${r(5)}>${escHtml(msg)}</div>` });
+    }
+
+    const tiles = [];
+    if (W.postCredits) tiles.push(['🎬', W.postCredits, 'post-credit scenes sat through']);
+    if (W.notes) tiles.push(['📝', W.notes, 'review notes written']);
+    if (W.started) tiles.push(['⏳', W.started, 'titles still in progress']);
+    if (W.completed.length) tiles.push(['🏅', W.completed.length, 'universes completed']);
+    if (W.episodes) tiles.push(['▶️', W.episodes, 'episodes watched']);
+    if (W.perfect) tiles.push(['💯', W.perfect, 'perfect 10 ratings']);
+    if (tiles.length >= 2) {
+        S.push({ g1: '#00cec9', g2: '#6c5ce7', html: `
+            <div class="wr-kicker rise" ${r(0)}>Fun facts</div>
+            <div class="wr-tiles">${tiles.slice(0, 6).map((t, i) => `<div class="wr-tile rise" ${r(i + 1)}><em>${t[0]}</em><b class="cu" data-v="${t[1]}">0</b><span>${t[2]}</span></div>`).join('')}</div>` });
+    }
+
+    const A = W.archetype;
+    S.push({ g1: '#e62429', g2: '#8e44ad', html: `
+        <div class="wr-kicker rise" ${r(0)}>You are</div>
+        <div class="wr-emoji rise" ${r(1)}>${A.emoji}</div>
+        <div class="wr-name rise" ${r(2)}>${A.name}</div>
+        <div class="wr-sub rise" ${r(3)}>${A.line}</div>
+        <div class="wr-chips rise" ${r(4)}>${W.badges.map(b => `<span>${escHtml(b)}</span>`).join('')}</div>` });
+
+    S.push({ g1: '#e62429', g2: '#2980b9', dur: 0, onShow: stage => { const img = stage.querySelector('#wr-preview'); if (img) img.src = wrappedCanvas(W).toDataURL('image/png'); }, html: `
+        <div class="wr-kicker rise" ${r(0)}>Share your Wrapped</div>
+        <img id="wr-preview" class="rise" ${r(1)} alt="Your Marvel Wrapped card">
+        <div class="wr-actions rise" ${r(2)}>
+            <button class="main" onclick="shareWrapped()">📤 Share</button>
+            <button onclick="downloadWrapped()">⬇ Save image</button>
+            <button onclick="wrGo(0)">🔁 Replay</button>
+        </div>
+        <div class="wr-sub rise" ${r(3)} id="wr-msg" style="font-size:.8rem;opacity:.6">Made on your device. Nothing is uploaded.</div>` });
+    return S;
+}
+
+function wrappedCanvas(W) {
+    const c = document.createElement('canvas'); c.width = 1080; c.height = 1920;
+    const x = c.getContext('2d'), F = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif", A = W.archetype, T = wrFmtTime(W.minutes);
+    const bg = x.createLinearGradient(0, 0, 1080, 1920); bg.addColorStop(0, '#1b0b33'); bg.addColorStop(0.55, '#26091f'); bg.addColorStop(1, '#3a0b12');
+    x.fillStyle = bg; x.fillRect(0, 0, 1080, 1920);
+    const glow = (cx, cy, rad, col) => { const g = x.createRadialGradient(cx, cy, 0, cx, cy, rad); g.addColorStop(0, col); g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(cx - rad, cy - rad, rad * 2, rad * 2); };
+    glow(120, 200, 560, 'rgba(230,36,41,0.45)'); glow(980, 880, 620, 'rgba(142,68,173,0.40)'); glow(160, 1700, 600, 'rgba(41,128,185,0.35)');
+    const rr = (px, py, w, h, rad, fill, stroke) => { x.beginPath(); if (x.roundRect) x.roundRect(px, py, w, h, rad); else x.rect(px, py, w, h); if (fill) { x.fillStyle = fill; x.fill(); } if (stroke) { x.strokeStyle = stroke; x.lineWidth = 2; x.stroke(); } };
+    const txt = (s, px, py, size, weight, col, align) => { x.font = `${weight} ${size}px ${F}`; x.fillStyle = col; x.textAlign = align || 'left'; x.textBaseline = 'alphabetic'; x.fillText(s, px, py); };
+    const fit = (s, maxW, size, weight) => { x.font = `${weight} ${size}px ${F}`; if (x.measureText(s).width <= maxW) return s; while (s.length > 1 && x.measureText(s + '…').width > maxW) s = s.slice(0, -1); return s + '…'; };
+
+    txt('MARVEL TRACKER', 540, 120, 38, '600', 'rgba(255,255,255,0.65)', 'center');
+    const tg = x.createLinearGradient(200, 0, 880, 0); tg.addColorStop(0, '#ff5a5f'); tg.addColorStop(1, '#b57cff');
+    txt('MARVEL', 540, 260, 150, '900', tg, 'center'); txt('WRAPPED', 540, 400, 150, '900', '#ffffff', 'center');
+    txt(String(W.year), 540, 470, 56, '600', 'rgba(255,255,255,0.7)', 'center');
+
+    rr(90, 520, 900, 350, 40, 'rgba(255,255,255,0.07)', 'rgba(255,255,255,0.18)');
+    txt(A.emoji, 540, 650, 120, '400', '#fff', 'center');
+    txt('YOU ARE', 540, 722, 30, '600', 'rgba(255,255,255,0.6)', 'center');
+    txt(fit(A.name, 840, 72, '800'), 540, 792, 72, '800', '#ffffff', 'center');
+    txt(fit(A.line, 840, 34, '400'), 540, 840, 34, '400', 'rgba(255,255,255,0.75)', 'center');
+
+    const tiles = [[String(W.titles), 'TITLES WATCHED'], [T.d ? `${T.d}d ${T.h}h` : `${T.h}h ${T.m}m`, 'WATCH TIME'],
+                   [W.rated.length ? W.avg.toFixed(1) : '-', 'AVG RATING'], [String(W.completed.length), 'UNIVERSES DONE']];
+    tiles.forEach((t, i) => {
+        const px = i % 2 ? 555 : 90, py = 890 + Math.floor(i / 2) * 194;
+        rr(px, py, 435, 170, 28, 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.14)');
+        txt(t[0], px + 217, py + 96, 80, '800', '#ffffff', 'center');
+        txt(t[1], px + 217, py + 142, 28, '600', 'rgba(255,255,255,0.6)', 'center');
+    });
+
+    const list = W.topRated.length
+        ? { head: 'TOP RATED', rows: W.topRated.map(t => ({ label: t.title, val: `${t.rating}/10`, color: t.color })) }
+        : { head: 'MOST WATCHED UNIVERSES', rows: W.byTime.slice(0, 5).map(s => ({ label: wrCat(s.category), val: `${wrHours(s.minutes)}h`, color: s.color })) };
+    if (list.rows.length) {
+        txt(list.head, 90, 1342, 32, '700', 'rgba(255,255,255,0.6)', 'left');
+        list.rows.forEach((row, i) => {
+            const py = 1366 + i * 62;
+            rr(90, py, 900, 52, 14, 'rgba(255,255,255,0.07)');
+            rr(90, py, 10, 52, 5, row.color);
+            txt(String(i + 1), 130, py + 37, 32, '800', 'rgba(255,255,255,0.9)', 'center');
+            txt(fit(row.label, 640, 32, '600'), 165, py + 37, 32, '600', '#ffffff', 'left');
+            txt(row.val, 970, py + 37, 32, '800', '#ffd166', 'right');
+        });
+    }
+
+    if (W.fav) txt(fit(`🌌 Home universe: ${wrCat(W.fav.category)}`, 900, 34, '600'), 90, 1726, 34, '600', 'rgba(255,255,255,0.9)', 'left');
+    if (W.dd.total) {
+        const dp = W.dd.watched / W.dd.total;
+        txt('DOOMSDAY READY', 90, 1790, 30, '700', 'rgba(255,255,255,0.75)', 'left');
+        rr(400, 1762, 480, 36, 18, 'rgba(255,255,255,0.12)');
+        if (dp > 0) { const g = x.createLinearGradient(400, 0, 880, 0); g.addColorStop(0, '#27ae60'); g.addColorStop(1, '#2ecc71'); rr(400, 1762, Math.max(36, 480 * dp), 36, 18, g); }
+        txt(`${Math.round(dp * 100)}%`, 990, 1790, 32, '800', '#ffffff', 'right');
+    }
+    txt(LIVE_URL.replace('https://', '').replace(/\/$/, ''), 540, 1868, 30, '600', 'rgba(255,255,255,0.55)', 'center');
+    return c;
+}
+
+function wrCountUp(root) {
+    root.querySelectorAll('.cu').forEach(el => {
+        const to = parseFloat(el.dataset.v) || 0, dec = +el.dataset.dec || 0, t0 = performance.now(), dur = 1100;
+        (function step(t) {
+            const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+            el.textContent = (to * e).toFixed(dec);
+            if (p < 1) requestAnimationFrame(step); else el.textContent = to.toFixed(dec);
+        })(t0);
+    });
+}
+
+function wrRender() {
+    const s = WR.slides[WR.i], stage = document.getElementById('wr-stage');
+    stage.innerHTML = `<div class="wr-slide" style="--g1:${s.g1};--g2:${s.g2}"><div class="wr-body">${s.html}</div></div>`;
+    wrCountUp(stage);
+    if (s.onShow) s.onShow(stage);
+    document.querySelectorAll('#wr-bars b').forEach((b, i) => { b.style.width = i < WR.i ? '100%' : '0'; });
+}
+
+function wrGo(n) {
+    if (n >= WR.slides.length) return;
+    WR.i = Math.max(0, n); WR.t = 0; wrRender();
+}
+function wrTap(dir) { if (Date.now() - WR.downAt > 350) return; wrGo(WR.i + dir); }
+
+function wrTick(now) {
+    if (!WR.open) return;
+    const dt = Math.min(100, now - WR.last); WR.last = now;
+    const s = WR.slides[WR.i];
+    if (!WR.paused && s.dur) {
+        WR.t += dt;
+        const p = Math.min(1, WR.t / s.dur), bar = document.querySelectorAll('#wr-bars b')[WR.i];
+        if (bar) bar.style.width = (p * 100) + '%';
+        if (p >= 1) wrGo(WR.i + 1);
+    }
+    WR.raf = requestAnimationFrame(wrTick);
+}
+
+function openWrapped() {
+    WR.W = computeWrapped();
+    WR.slides = WR.W.titles === 0
+        ? [{ g1: '#e62429', g2: '#2980b9', dur: 0, html: `<div class="wr-emoji">🛡️</div><div class="wr-name">Nothing to wrap yet</div><div class="wr-sub">Mark a few titles as watched (and rate some), then come back for your Marvel Wrapped!</div><div class="wr-actions"><button class="main" onclick="closeWrapped()">Got it</button></div>` }]
+        : wrSlides(WR.W);
+    document.getElementById('wr-bars').innerHTML = WR.slides.map(() => '<i><b></b></i>').join('');
+    WR.i = 0; WR.t = 0; WR.paused = false; WR.open = true; WR.last = performance.now();
+    document.getElementById('wrapped-overlay').classList.add('open');
+    document.body.classList.add('wr-open');
+    wrRender();
+    cancelAnimationFrame(WR.raf); WR.raf = requestAnimationFrame(wrTick);
+}
+
+function closeWrapped() {
+    WR.open = false; cancelAnimationFrame(WR.raf);
+    document.getElementById('wrapped-overlay').classList.remove('open');
+    document.body.classList.remove('wr-open');
+}
+
+function wrBlob() { return new Promise(res => wrappedCanvas(WR.W).toBlob(res, 'image/png')); }
+async function shareWrapped() {
+    const blob = await wrBlob(); if (!blob) return;
+    const file = new File([blob], 'marvel-wrapped.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: 'My Marvel Wrapped', text: `My Marvel Wrapped: ${WR.W.titles} titles watched. Track yours: ${LIVE_URL}` }); return; }
+        catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    downloadWrapped();
+}
+async function downloadWrapped() {
+    const blob = await wrBlob(); if (!blob) return;
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'marvel-wrapped.png';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    const m = document.getElementById('wr-msg'); if (m) m.textContent = 'Saved! Check your downloads.';
+}
+document.addEventListener('keydown', e => {
+    if (!WR.open) return;
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); wrGo(WR.i + 1); }
+    else if (e.key === 'ArrowLeft') wrGo(WR.i - 1);
+    else if (e.key === 'Escape') closeWrapped();
+});
+
+
 window.onload = function() {
     applyTheme(currentTheme());
     render();

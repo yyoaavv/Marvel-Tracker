@@ -22,6 +22,7 @@ Marvel Tracker is a comprehensive, privacy-first web dashboard designed for hard
 *   **Nerd Stats & Hall of Fame:** Tracks your total watch time down to the minute, calculates your average rating, determines your favorite Phase, and builds a custom Top 10 Leaderboard based on your 1-10 star ratings.
 *   **Doomsday Prep Mode:** A specialized filter that isolates only the essential multiverse movies you need to watch before *Avengers: Doomsday*. Essential titles get a green glow, and a Doomsday countdown clock keeps you on track.
 *   **The Randomizer Wheel:** Can't decide what to watch? Spin the wheel to randomly select an unwatched movie or show based on your current filters.
+*   **Marvel Wrapped:** A Spotify-style story built from your own progress: titles watched, total watch time (in Endgames), your home universe, where your time went, top 5, rating breakdown, harshest rating, Doomsday readiness, fun facts and a Marvel personality type. Tap through the slides, then share or save a ready-made image card. Everything is made on your device.
 *   **Light & Dark Mode:** One tap on the ☀️/🌙 button in the header switches themes. Your choice is remembered on that device.
 *   **Celebrations:** Confetti and a glow effect when you complete a Phase.
 *   **Privacy First (No Accounts Required):** All watch progress, ratings, and custom review notes are saved securely to your browser's `localStorage`.

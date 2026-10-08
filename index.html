@@ -94,6 +94,7 @@
             <div class="stat-row"><span>Total Watch Time:</span><span class="stat-val" id="stat-time">0d 0h 0m</span></div>
             <div class="stat-row"><span>Average Rating:</span><span class="stat-val" id="stat-avg">0/10</span></div>
             <div class="stat-row"><span>Favorite Phase:</span><span class="stat-val" id="stat-phase">None</span></div>
+            <button class="filter-btn btn-wrapped" onclick="openWrapped()">✨ Marvel Wrapped</button>
         </div>
         <div class="panel">
             <h3>🔍 Search & Filter</h3>
@@ -254,6 +255,17 @@
                 </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Marvel Wrapped (story-style recap) -->
+<div id="wrapped-overlay" class="wr-overlay">
+    <div class="wr-phone" onpointerdown="WR.paused = true; WR.downAt = Date.now();" onpointerup="WR.paused = false;" onpointercancel="WR.paused = false;" onpointerleave="WR.paused = false;">
+        <div class="wr-bars" id="wr-bars"></div>
+        <button class="wr-close" onclick="closeWrapped()" aria-label="Close">&times;</button>
+        <div class="wr-stage" id="wr-stage"></div>
+        <div class="wr-zone l" onclick="wrTap(-1)"></div>
+        <div class="wr-zone r" onclick="wrTap(1)"></div>
     </div>
 </div>
 
