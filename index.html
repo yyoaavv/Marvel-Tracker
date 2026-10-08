@@ -1,274 +1,1014 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Marvel Tracker</title>
-<link rel="icon" type="image/png" href="favicon.png">
-<link rel="manifest" href="manifest.webmanifest">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unplugged</title>
+<meta name="theme-color" content="#e9eaf5">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#121212">
-<script>
-  // Apply the saved theme before the page paints (prevents a dark flash in light mode)
-  try { if (localStorage.getItem('marvelTrackerTheme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
-</script>
+<link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Marvel Tracker">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<script>
-  // Fallback CDN if the first one is blocked
-  window.confetti || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/canvas-confetti/1.6.0/confetti.browser.min.js"><\/script>');
-</script>
-<link rel="stylesheet" href="style.css">
+<meta name="apple-mobile-web-app-title" content="Unplugged">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9eaf5;--card:#f7f8fd;--ink:#1c2033;--mute:#5a6080;--accent:#4a4fb0;--clean:#4a4fb0;--slip:#9b3f8f;--line:#d0d3e8;--panic:#c2412d;--on:#fff}
+:root[data-theme=dark]{--on:#10112a;--bg:#14162a;--card:#1d2040;--ink:#e8eaf8;--mute:#9a9fc4;--accent:#9ea3ff;--clean:#9ea3ff;--slip:#e08ad0;--line:#2e3260;--panic:#e2664f}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px);overflow-y:scroll}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.55 "Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+main{max-width:1080px;margin:0 auto;padding:32px 24px 60px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:24px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:20px;align-items:start}
+@media (max-width:820px){.layout{grid-template-columns:1fr}}
+h1{font-size:2rem;font-weight:800;margin:0;letter-spacing:-.02em}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.logo{width:44px;height:auto;flex:none;fill:var(--accent)}
+h2{font-size:1.15rem;font-weight:600;margin:0 0 12px}
+p{margin:0 0 12px}
+.sub{color:var(--mute);margin-bottom:24px}
+section{background:var(--card);border-radius:14px;padding:22px;margin-bottom:20px}
+.col>section:last-child{margin-bottom:0}
+.streak{display:flex;gap:28px;align-items:flex-end;flex-wrap:wrap}
+.big{font-size:4.5rem;font-weight:800;line-height:.9;letter-spacing:-.04em;color:var(--accent)}
+.lbl{color:var(--mute);font-size:.95rem}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:12px 18px;cursor:pointer;color:var(--on);background:var(--accent)}
+button.clean{background:var(--clean)}button.slip{background:var(--slip)}
+button.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.today{color:var(--mute);margin-bottom:12px}
+.cal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cal-head button{padding:6px 12px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.dow{text-align:center;font-size:.8rem;color:var(--mute)}
+.d{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.95rem;background:var(--bg);color:var(--mute);padding:0;border:0;font-weight:400}
+button.d:not(:disabled):hover{filter:brightness(.93)}
+.d:disabled{opacity:.35;cursor:default}
+.d.sel{box-shadow:0 0 0 3px var(--ink)}
+div.d{background:transparent}
+.d.clean{background:var(--clean);color:var(--on)}.d.slip{background:var(--slip);color:var(--on)}
+.d.now{font-weight:800;text-decoration:underline}
+.legend{display:flex;gap:16px;margin-top:12px;font-size:.85rem;color:var(--mute)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:4px;margin-right:6px;vertical-align:-1px}
+textarea{width:100%;min-height:96px;font:inherit;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);resize:vertical}
+#msg{min-height:1.5em;color:var(--mute);margin-top:12px}
+.panic-btn{background:var(--slip);font-size:.95rem;padding:10px 18px;border-radius:8px;white-space:nowrap}
+.panic-btn:hover{filter:brightness(1.08)}
+#overlay{position:fixed;inset:0;background:rgba(10,12,30,.55);z-index:10;display:none;overflow-y:auto;padding:calc(40px + env(safe-area-inset-top,0px)) 24px 40px}
+#overlay.open{display:flex;justify-content:center;align-items:flex-start}
+.pw{width:100%;max-width:980px;background:var(--bg);border-radius:14px;padding:28px;box-shadow:0 20px 60px rgba(0,0,0,.35);margin:auto 0}
+.phead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+.phead .sub{margin:6px 0 0;max-width:62ch}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+.pgrid section{margin-bottom:20px}.pgrid .col>section:last-child{margin-bottom:0}
+@media (max-width:820px){.pgrid{grid-template-columns:1fr}.pw{padding:20px}}
+.breath{width:160px;height:160px;border-radius:50%;background:var(--accent);margin:24px auto 12px;display:flex;align-items:center;justify-content:center;color:var(--on);font-weight:600;font-size:1.2rem;transform:scale(.6);transition:transform 4s ease-in-out}
+.breath.in{transform:scale(1)}
+.timer{font-size:2.6rem;font-weight:800;text-align:center;letter-spacing:-.02em}
+ul.acts{padding-left:20px;margin:0}ul.acts li{margin-bottom:8px}
+.reasons-box{background:transparent;border-radius:14px;padding:0;white-space:pre-wrap;min-height:48px}
+.foot{display:flex;gap:10px;flex-wrap:wrap}
+.tabs{display:flex;gap:6px;margin-bottom:22px;border-bottom:1.5px solid var(--line)}
+.tabs button{background:transparent;color:var(--mute);border-radius:10px 10px 0 0;padding:10px 18px;border-bottom:3px solid transparent}
+.tabs button[aria-pressed=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--on);border-color:var(--accent)}
+.themes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.theme{display:flex;align-items:center;gap:10px;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);padding:10px 12px}
+.theme[aria-pressed=true]{border-color:var(--accent)}
+.theme .dots{display:flex;flex:none}
+.theme .dots i{width:22px;height:22px;border-radius:50%;border:2px solid var(--card);margin-right:-8px}
+.theme .nm{margin-left:8px}
+.set section{margin-bottom:0}
+:root[data-theme=dark]{color-scheme:dark}
+.range{gap:16px}
+.range label{display:flex;flex-direction:column;gap:4px;color:var(--mute);font-size:.9rem}
+input[type=date]{font:inherit;padding:10px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)}
+input[type=date]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+#view-tracker,#view-achievements,#view-stats,#view-settings{min-height:60vh}
+.fade{animation:fadein .22s ease-out}
+@keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fade{animation:none}}
+.set .lbl{margin-bottom:12px}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion:reduce){.breath{transition:none}}
+
+.tabs{overflow-x:auto}.tabs button{white-space:nowrap;flex:none}
+input[type=color]{width:64px;height:42px;padding:2px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);cursor:pointer}
+input[type=color]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.bar{height:10px;background:var(--bg);border-radius:6px;overflow:hidden}
+.bar>i{display:block;height:100%;width:0;background:var(--accent);border-radius:6px;transition:width .4s}
+@media (prefers-reduced-motion:reduce){.bar>i{transition:none}}
+.next{margin-top:20px}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:12px}
+.badge{display:flex;gap:14px;align-items:center;background:var(--bg);border-radius:12px;padding:12px 14px}
+.badge.locked{opacity:.6}
+.medal{flex:none;width:54px;height:54px;border-radius:50%;background:var(--accent);color:var(--on);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem}
+.badge:not(.locked) .medal{box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--slip)}
+.badge.locked .medal{background:var(--line);color:var(--mute)}
+.badge b{display:block;line-height:1.25}
+.badge small{display:block;color:var(--mute);font-size:.85rem;line-height:1.35}
+.badge .st{margin-top:3px;font-weight:600}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(130px,100%),1fr));gap:12px}
+.tile{background:var(--bg);border-radius:12px;padding:14px}
+.tile b{display:block;font-size:1.8rem;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.tile span{color:var(--mute);font-size:.85rem}
+.wk{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:end}
+.wd{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:165px}
+.wd .n{font-size:.8rem;color:var(--mute);margin-bottom:4px}
+.wd .stack{width:100%;max-width:34px;display:flex;flex-direction:column-reverse;border-radius:6px;overflow:hidden}
+.wd .sc{background:var(--clean)}.wd .ss{background:var(--slip)}
+.wd .dl{font-size:.8rem;color:var(--mute);margin-top:6px}
+.mrow{display:grid;grid-template-columns:40px 1fr minmax(110px,auto);gap:10px;align-items:center;margin-bottom:10px}
+.mrow .ml,.mrow .mt{font-size:.85rem;color:var(--mute)}
+.heatwrap{overflow-x:auto;padding-bottom:8px}
+.hm,.heat{width:max-content;display:grid;grid-auto-flow:column;grid-auto-columns:12px;gap:3px}
+.hm{font-size:.7rem;color:var(--mute);height:16px;margin-bottom:4px}
+.hm span{white-space:nowrap}
+.heat{grid-template-rows:repeat(7,12px)}
+.heat i{border-radius:3px;background:var(--line);opacity:.55}
+.heat i.clean{background:var(--clean);opacity:1}.heat i.slip{background:var(--slip);opacity:1}
+.heat i.x{visibility:hidden}
+#toast{position:fixed;left:50%;top:calc(16px + env(safe-area-inset-top,0px));transform:translate(-50%,-20px);background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:30;max-width:calc(100% - 32px);text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){#toast{transition:none}}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{background:transparent;color:var(--ink);border:1.5px solid var(--line);padding:8px 14px;border-radius:999px;font-weight:600;font-size:.92rem}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--on);border-color:var(--accent)}
+#pickedList:empty{display:none}
+#pickedList{background:var(--bg);border-radius:12px;padding:12px 14px}
+.rsn{margin-bottom:10px}.rsn:last-child{margin-bottom:0}
+.rsn b{display:block;color:var(--accent)}
+.rsn span,.rsn.own{white-space:pre-wrap}
+#pickedList .rsn span{font-size:.92rem;color:var(--mute)}
+.remind{background:var(--card);border-left:6px solid var(--accent);border-radius:12px;padding:16px 18px;margin-bottom:20px}
+.remind b{display:block;color:var(--accent);margin-bottom:4px}
+.remind p{margin:0;font-size:1.15rem;font-weight:600;white-space:pre-wrap}
+.mob{display:none}
+@media (max-width:600px){
+  html,body{overflow-x:hidden;max-width:100%}
+  main{padding:20px 16px 48px}
+  .top{flex-direction:column;align-items:stretch;text-align:center;gap:14px;margin-bottom:18px}
+  .brand{justify-content:center}
+  h1{font-size:1.7rem}
+  .logo{width:38px}
+  .panic-btn{width:100%;padding:12px 18px}
+  section{padding:16px}
+  .tabs{overflow:visible;gap:2px;justify-content:center}
+  .tabs button{flex:1 1 auto;min-width:0;padding:10px 4px;font-size:.8rem;white-space:normal;text-align:center}
+  .streak{justify-content:center;text-align:center;gap:20px}
+  .big{font-size:3.6rem}
+  .range label{flex:1 1 130px;min-width:0}
+  input[type=date]{width:100%;min-width:0}
+  .theme{padding:8px 8px;gap:6px;font-size:.8rem}
+  .theme .dots i{width:16px;height:16px;margin-right:-6px}
+  .theme .nm{min-width:0;margin-left:4px;white-space:nowrap}
+  .dsk{display:none}.mob{display:inline}
+  .heatwrap{overflow:visible}
+  .hm,.heat{width:100%;grid-auto-columns:minmax(0,1fr);gap:2px}
+  .heat{grid-template-rows:repeat(7,auto)}
+  .heat i{aspect-ratio:1;border-radius:2px}
+  .hm{font-size:.62rem;height:14px}
+  .hm .old,.heat .old{display:none}
+  .legend{flex-wrap:wrap}
+  .mrow{grid-template-columns:34px minmax(0,1fr) auto}
+  #overlay{padding:calc(16px + env(safe-area-inset-top,0px)) 12px 16px}
+  .pw{padding:16px}
+  .phead{flex-wrap:wrap}
+}
+@media (max-width:340px){.theme{font-size:.72rem}}
+
+.survey{background:var(--bg);border-radius:12px;padding:14px 16px;margin-top:16px}
+.survey h3{font-size:1rem;font-weight:600;margin:0 0 2px}
+.survey .sg{margin:14px 0 8px;font-weight:600;color:var(--ink);font-size:.9rem}
+.survey .chips{margin-bottom:0}
+.survey .chip{padding:7px 12px;font-size:.88rem}
+.survey .foot{margin-top:16px}
+.insight{background:var(--bg);border-left:5px solid var(--accent);border-radius:10px;padding:10px 14px;margin-bottom:10px;font-weight:600}
+.tg{margin:16px 0 8px;font-weight:600;color:var(--ink);font-size:.9rem}
+.trow{display:grid;grid-template-columns:minmax(96px,150px) minmax(0,1fr) 64px;gap:10px;align-items:center;margin-bottom:8px}
+.trow .tl,.trow .tn{font-size:.85rem;color:var(--mute)}
+.trow .tn{text-align:right}
+@media (max-width:600px){.trow{grid-template-columns:minmax(80px,120px) minmax(0,1fr) 56px}}
+</style>
 </head>
 <body>
-
-<!-- Dynamic Screen Edge Glow -->
-<div class="edge-glow"></div>
-
-<!-- Animated Multiverse Background -->
-<div class="multiverse-bg">
-    <div class="glow red"></div>
-    <div class="glow purple"></div>
-    <div class="glow blue"></div>
-</div>
-
-<div class="header">
-    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Switch to light mode" aria-label="Switch to light mode">☀️</button>
-    <h1>Marvel Tracker</h1>
-    <p class="subtitle" onclick="handleSecretClick()">made by yyoaavv</p>
-    <div class="top-controls">
-        <button class="mode-btn active" id="btn-release" onclick="setMode('release')">Release Order</button>
-        <button class="mode-btn" id="btn-chrono" onclick="setMode('chrono')">Chronological Timeline</button>
+<main>
+  <header class="top">
+    <div>
+      <div class="brand">
+        <svg class="logo" viewBox="16 7 32 36" aria-hidden="true"><defs><mask id="eyes" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#fff"/><circle cx="25.5" cy="26.5" r="3" fill="#000"/><circle cx="38.5" cy="26.5" r="3" fill="#000"/></mask></defs><g mask="url(#eyes)"><rect x="23" y="9" width="4" height="10" rx="2"/><rect x="37" y="9" width="4" height="10" rx="2"/><rect x="18" y="19" width="28" height="15" rx="5"/><rect x="29" y="34" width="6" height="7" rx="2"/></g></svg>
+        <h1 id="siteName">Unplugged</h1>
+      </div>
+      <p class="sub" style="margin:0">One honest check-in a day. Everything stays on your device.</p>
     </div>
-    
-    <!-- Doomsday Ticking Clock (Hidden by Default) -->
-    <div class="doomsday-countdown" id="doomsday-timer">
-        <div style="letter-spacing: 2px;">⚠ DOOMSDAY APPROACHES ⚠</div>
-        <div id="doom-clock">Loading...</div>
-    </div>
-</div>
+    <button class="panic-btn" id="panic">I need help now</button>
+  </header>
+  <nav class="tabs" aria-label="Sections">
+    <button type="button" data-tab="tracker" aria-pressed="true">Tracker</button>
+    <button type="button" data-tab="achievements" aria-pressed="false">Achievements</button>
+    <button type="button" data-tab="stats" aria-pressed="false">Stats</button>
+    <button type="button" data-tab="settings" aria-pressed="false">Settings</button>
+  </nav>
+  <div id="view-tracker">
+  <div class="layout">
+  <div class="col">
 
-<div class="dashboard">
-    <div class="sidebar">
-        <div class="panel">
-            <h3>🏆 Hall of Fame (Top 10)</h3>
-            <ul class="leaderboard-list" id="leaderboard"></ul>
+  <section>
+    <div class="streak">
+      <div><div class="big" id="cur">0</div><div class="lbl">days in a row</div></div>
+      <div><div style="font-size:2rem;font-weight:800" id="best">0</div><div class="lbl">best streak</div></div>
+      <div><div style="font-size:2rem;font-weight:800" id="total">0</div><div class="lbl">clean days total</div></div>
+    </div>
+    <div class="next">
+      <div class="lbl" id="nextLbl"></div>
+      <div class="bar" style="margin-top:8px"><i id="nextBar"></i></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 id="logTitle">Today</h2>
+    <div class="today" id="todayLabel"></div>
+    <div class="row">
+      <button class="clean" id="btnClean">I stayed clean</button>
+      <button class="slip" id="btnSlip">I slipped</button>
+      <button class="ghost" id="btnDetails" hidden>Add slip details</button>
+      <button class="ghost" id="btnClear">Clear this day</button>
+      <button class="ghost" id="btnToday" hidden>Back to today</button>
+    </div>
+    <p class="lbl" style="margin:12px 0 0">Tip: pick any past day on the calendar to fix or fill in your log.</p>
+    <div id="msg" role="status"></div>
+    <div class="survey fade" id="survey" hidden>
+      <h3>What was going on?</h3>
+      <p class="lbl" style="margin:0">Optional. Tap anything that fits, it saves as you go.</p>
+      <p class="sg">Trigger</p>
+      <div class="chips" id="svTrig" role="group" aria-label="Triggers"></div>
+      <p class="sg">Where</p>
+      <div class="chips" id="svCtx" role="group" aria-label="Location or context"></div>
+      <p class="sg">When</p>
+      <div class="chips" id="svWhen" role="group" aria-label="Time of day"></div>
+      <div class="foot"><button type="button" class="clean" id="svDone">Done</button></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Log a range of days</h2>
+    <p class="lbl">Fill in many days at once, like a week you forgot to log.</p>
+    <div class="row range">
+      <label>From<input type="date" id="rFrom"></label>
+      <label>To<input type="date" id="rTo"></label>
+    </div>
+    <div class="row" style="margin-top:14px">
+      <button class="clean" id="rClean">Mark all clean</button>
+      <button class="slip" id="rSlip">Mark all slipped</button>
+      <button class="ghost" id="rClear">Clear range</button>
+    </div>
+    <div id="rmsg" class="lbl" role="status" style="margin:12px 0 0;min-height:1.5em"></div>
+  </section>
+  </div>
+  <div class="col">
+  <section>
+    <div class="cal-head">
+      <button class="ghost" id="prev" aria-label="Previous month">&lt;</button>
+      <h2 id="monthLabel" style="margin:0"></h2>
+      <button class="ghost" id="next" aria-label="Next month">&gt;</button>
+    </div>
+    <div class="grid" id="dows"></div>
+    <div class="grid" id="cal" style="margin-top:6px"></div>
+    <div class="legend"><span><i style="background:var(--clean)"></i>Clean</span><span><i style="background:var(--slip)"></i>Slipped</span></div>
+  </section>
+
+  </div>
+  </div>
+  <section style="margin-top:20px">
+    <h2>Why I'm doing this</h2>
+    <p class="lbl">Pick the reasons that fit you. They'll pop up when you tap "I need help now".</p>
+    <div class="chips" id="reasonChips" role="group" aria-label="Built-in reasons"></div>
+    <div id="pickedList"></div>
+    <p class="lbl" style="margin:18px 0 8px">Anything else, in your own words:</p>
+    <textarea id="reasons" placeholder="My reasons..."></textarea>
+  </section>
+
+  </div>
+
+  <div id="view-achievements" hidden>
+    <section>
+      <div class="streak"><div><div class="big" id="achCount">0</div><div class="lbl" id="achOf"></div></div></div>
+      <div class="bar" style="margin-top:16px"><i id="achBar"></i></div>
+    </section>
+    <section>
+      <h2>Streak milestones</h2>
+      <div class="badges" id="achStreak"></div>
+    </section>
+    <section>
+      <h2>More achievements</h2>
+      <div class="badges" id="achMore"></div>
+    </section>
+  </div>
+
+  <div id="view-stats" hidden>
+    <section>
+      <h2>Overview</h2>
+      <div class="tiles" id="tiles"></div>
+    </section>
+    <div class="layout">
+      <div class="col">
+        <section>
+          <h2>Last 30 days</h2>
+          <div class="big" id="l30" style="font-size:3rem">-</div>
+          <div class="lbl" id="l30t" style="margin:8px 0 12px"></div>
+          <div class="bar"><i id="l30bar"></i></div>
+        </section>
+        <section>
+          <h2>By weekday</h2>
+          <div class="wk" id="wk"></div>
+          <p class="lbl" id="wkNote" style="margin:14px 0 0"></p>
+          <div class="legend"><span><i style="background:var(--clean)"></i>Clean</span><span><i style="background:var(--slip)"></i>Slipped</span></div>
+        </section>
+      </div>
+      <div class="col">
+        <section>
+          <h2>Last 6 months</h2>
+          <div id="months"></div>
+          <p class="lbl" style="margin:12px 0 0">Share of logged days that were clean.</p>
+        </section>
+      </div>
+    </div>
+    <section style="margin-top:20px">
+      <h2>What leads to slips</h2>
+      <p class="lbl" id="trigNote" style="margin:0 0 14px"></p>
+      <div id="trigInsights"></div>
+      <div id="trigBars"></div>
+    </section>
+    <section style="margin-top:20px">
+      <h2>Your <span class="dsk">year</span><span class="mob">last 6 months</span></h2>
+      <div class="heatwrap" id="heatwrap"><div class="hm" id="hm"></div><div class="heat" id="heat"></div></div>
+      <div class="legend"><span><i style="background:var(--clean)"></i>Clean</span><span><i style="background:var(--slip)"></i>Slipped</span><span><i style="background:var(--line)"></i>Not logged</span></div>
+    </section>
+  </div>
+
+  <div id="view-settings" class="set layout" hidden>
+    <section>
+      <h2>Appearance</h2>
+      <p class="lbl">Light or dark mode</p>
+      <div class="seg" id="modeSeg">
+        <button type="button" class="ghost" data-mode="system" aria-pressed="false">Match my device</button>
+        <button type="button" class="ghost" data-mode="light" aria-pressed="false">Light</button>
+        <button type="button" class="ghost" data-mode="dark" aria-pressed="false">Dark</button>
+      </div>
+      <p class="lbl" style="margin-top:20px">Theme: <strong id="themeName"></strong></p>
+      <div class="themes" id="accSeg" role="group" aria-label="Themes"></div>
+      <div id="customBox" hidden style="margin-top:18px">
+        <p class="lbl">Pick your own colors. If a color is too light or too dark to read, it is nudged slightly.</p>
+        <div class="row range">
+          <label>Main color<input type="color" id="cAcc"></label>
+          <label>Secondary color<input type="color" id="cSec"></label>
         </div>
-        <div class="panel backup-controls">
-            <h3>💾 Backup Data</h3>
-            <button onclick="exportData()">⬇ Export Backup File</button>
-            <label>⬆ Import Backup File<input type="file" id="import-file" accept=".json" onchange="importData(event)"></label>
-            <button onclick="openSendProgress()">📤 Send Progress</button>
-            <button id="btn-shortcut" onclick="openShortcutHelp()">📲 Create Shortcut</button>
-        </div>
-    </div>
+        <div class="row" style="margin-top:14px"><button class="ghost" id="cReset" type="button">Reset custom colors</button></div>
+      </div>
+    </section>
+    <section>
+      <h2>Your data</h2>
+      <p class="lbl">Your log lives only in this browser. Export a backup before clearing your browser data or switching devices.</p>
+      <div class="foot">
+        <button class="ghost" id="export">Export backup</button>
+        <button class="ghost" id="import">Import backup</button>
+        <button class="ghost" id="reset">Erase everything</button>
+      </div>
+      <input type="file" id="file" accept="application/json" hidden>
+    </section>
+    <section id="installBox">
+      <h2>Install the app</h2>
+      <p class="lbl">Add Unplugged to your home screen for a full-screen app with no browser bar. It works offline too.</p>
+      <div class="foot"><button class="ghost" id="install" type="button" hidden>Install Unplugged</button></div>
+      <p class="lbl" id="installHint" style="margin:0"></p>
+    </section>
+  </div>
+</main>
 
-    <div class="main-content">
-        <div class="main-progress">
-            <div style="display: flex; justify-content: center; align-items: center; position: relative; font-weight: bold;">
-                <span>Marvel Universe Progress</span>
-                <span id="progress-percent" style="position: absolute; right: 0;">0%</span>
-            </div>
-            <!-- Dynamic Gradient Progress Bar Container -->
-            <div class="progress-bar-container" id="main-progress-container">
-                <div id="main-progress-fill"></div>
-            </div>
-        </div>
-        <div id="content"></div>
-    </div>
+<div id="toast" role="status" aria-live="polite"></div>
 
-    <div class="sidebar">
-        <div class="panel">
-            <h3>🎯 Up Next</h3>
-            <div style="font-size: 0.9rem; color: #aaa;">Your next unwatched title:</div>
-            <div class="up-next-title" id="up-next">Loading...</div>
-            <button class="filter-btn btn-random btn-jump" id="btn-jump" onclick="jumpToNext()">⬇ Jump to it</button>
-            <button class="filter-btn btn-random" onclick="openRandomizer()">🎲 Spin the Wheel</button>
-        </div>
-        <div class="panel">
-            <h3>📊 Nerd Stats</h3>
-            <div class="stat-row"><span>Titles Watched:</span><span class="stat-val" id="stat-count">0</span></div>
-            <div class="stat-row"><span>Total Watch Time:</span><span class="stat-val" id="stat-time">0d 0h 0m</span></div>
-            <div class="stat-row"><span>Average Rating:</span><span class="stat-val" id="stat-avg">0/10</span></div>
-            <div class="stat-row"><span>Favorite Phase:</span><span class="stat-val" id="stat-phase">None</span></div>
-            <button class="filter-btn btn-wrapped" onclick="openWrapped()">✨ Marvel Wrapped</button>
-        </div>
-        <div class="panel">
-            <h3>🔍 Search & Filter</h3>
-            <input type="text" id="search-input" class="search-input" placeholder="Search for a title..." onkeyup="applyFilterToDOM()">
-            <button class="filter-btn active" id="btn-filter-all" onclick="setFilter('all')">Show All</button>
-            <button class="filter-btn" id="btn-filter-watched" onclick="setFilter('watched')">Watched Only</button>
-            <button class="filter-btn" id="btn-filter-unwatched" onclick="setFilter('unwatched')">Unwatched Only</button>
-            <button class="filter-btn btn-started" id="btn-filter-started" onclick="setFilter('started')">⏳ Started / Watching</button>
-            <button class="filter-btn btn-doomsday" id="btn-filter-doomsday" onclick="setFilter('doomsday')">⚠ Doomsday Prep</button>
-            <button class="filter-btn btn-noncanon" id="btn-toggle-noncanon" onclick="toggleNonCanon()">🌌 Non-Canon & Animation: OFF</button>
-        </div>
+<div id="overlay" role="dialog" aria-modal="true" aria-label="Urge support">
+  <div class="pw">
+    <div class="phead">
+      <div>
+        <h1>This will pass.</h1>
+        <p class="sub">An urge peaks and fades, usually within 10-15 minutes. You don't have to fight it forever, just through this window.</p>
+      </div>
+      <button class="ghost" id="closeX" type="button">Close</button>
     </div>
+    <div class="remind" id="remind" hidden></div>
+    <div class="pgrid">
+      <div class="col">
+        <section>
+          <h2>Breathe</h2>
+          <div class="breath" id="breath">Breathe in</div>
+          <p class="lbl" style="text-align:center;margin:0">In for 4, out for 4. Repeat.</p>
+        </section>
+        <section>
+          <h2>Ride it out</h2>
+          <div class="timer" id="timer">10:00</div>
+          <div class="row" style="justify-content:center;margin-top:10px">
+            <button id="tStart">Start 10 minutes</button>
+            <button class="ghost" id="tStop">Stop</button>
+          </div>
+        </section>
+      </div>
+      <div class="col">
+        <section>
+          <h2>Change the scene now</h2>
+          <ul class="acts">
+            <li>Stand up and leave the room you're in.</li>
+            <li>Go outside or take a walk around the block.</li>
+            <li>Do 20 pushups or squats.</li>
+            <li>Take a shower or wash your face.</li>
+            <li>Message or call a friend. Say hi, you don't have to explain.</li>
+            <li>Put your phone in another room.</li>
+          </ul>
+        </section>
+        <section>
+          <h2>Your reasons</h2>
+          <div class="reasons-box" id="myReasons"></div>
+        </section>
+      </div>
+    </div>
+    <button id="closePanic" class="clean" style="margin-top:20px">I'm okay, back to the tracker</button>
+  </div>
 </div>
 
-<!-- Sandbox banner (only visible while Sandbox Mode is on) -->
-<div id="sandbox-banner">
-    <span>🧪 SANDBOX MODE: changes are NOT saved to your real data.</span>
-    <button onclick="devSandboxExit()">Exit</button>
-</div>
+<script>
+(function(){
+  var KEY="reset-tracker-v1";
+  var state=freshState();
+  try{var raw=localStorage.getItem(KEY);if(raw){var p=JSON.parse(raw);if(p&&p.log)state=Object.assign(state,p);}}catch(e){}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var TRIG=[["stress","Stress"],["boredom","Boredom"],["fatigue","Fatigue"],["lonely","Loneliness"],["screen","Late night screen time"]];
+  var CTX=[["alone","Home alone"],["bedroom","Bedroom"],["inbed","In bed"]];
+  var WHEN=[["morning","Morning"],["afternoon","Afternoon"],["evening","Evening"],["late","After 11 PM"]];
+  function ids(a,list){var ok=list.map(function(x){return x[0];});return Array.isArray(a)?a.filter(function(x,i){return ok.indexOf(x)>=0&&a.indexOf(x)===i;}):[];}
+  if(state.v!==3){if(state.accent==="teal")state.accent="indigo";state.v=3;save();}
+  normalize();
+  function $(id){return document.getElementById(id);}
+  function pad(n){return n<10?"0"+n:""+n;}
+  function key(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+  function parse(k){var a=k.split("-");return new Date(+a[0],+a[1]-1,+a[2]);}
+  var todayKey=key(new Date());var sel=todayKey;
+  var view=new Date();view.setDate(1);
 
-<!-- Scroll to Top Button -->
-<button id="scrollTopBtn" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Go to top">↑</button>
+  function stats(){
+    var keys=Object.keys(state.log).sort(),best=0,run=0,total=0,prev=null;
+    keys.forEach(function(k){
+      if(state.log[k]==="clean"){
+        total++;
+        if(prev&&Math.round((parse(k)-parse(prev))/86400000)===1&&state.log[prev]==="clean")run++;else run=1;
+        if(run>best)best=run;prev=k;
+      }else{run=0;prev=k;}
+    });
+    var cur=0,d=new Date();
+    if(state.log[key(d)]!=="clean"&&state.log[key(d)]!=="slip")d.setDate(d.getDate()-1);
+    while(state.log[key(d)]==="clean"){cur++;d.setDate(d.getDate()-1);}
+    return{cur:cur,best:best,total:total};
+  }
 
-<!-- Info Modal -->
-<div id="info-modal" class="modal" onclick="closeModal(event, 'info-modal')">
-    <div class="modal-content" id="modal-content" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModal(null, 'info-modal', true)">&times;</span>
-        <div class="modal-img-wrapper" id="modal-img"></div>
-        <div class="modal-details" id="modal-text">Loading...</div>
-    </div>
-</div>
+  /* ---------- Analysis, achievements, stats ---------- */
+  var announce=false,toastT=null;
+  function freshState(){return{log:{},reasons:"",mode:"system",accent:"indigo",custom:{accent:"#e0592a",slip:"#2c6e91"},picked:[],slips:{},ach:{},helped:0,rode:0,themed:false,v:3};}
+  function normalize(){
+    var hexOk=/^#[0-9a-f]{6}$/i;
+    if(!Array.isArray(state.picked))state.picked=[];
+    if(!state.slips||typeof state.slips!=="object"||Array.isArray(state.slips))state.slips={};
+    Object.keys(state.slips).forEach(function(k){
+      var r=state.slips[k];
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(k)||!r||typeof r!=="object"){delete state.slips[k];return;}
+      r.t=ids(r.t,TRIG);r.c=ids(r.c,CTX);r.w=ids([r.w],WHEN)[0]||"";
+      if(!r.t.length&&!r.c.length&&!r.w)delete state.slips[k];
+    });
+    if(!state.ach||typeof state.ach!=="object")state.ach={};
+    Object.keys(state.ach).forEach(function(k){if(["reasons","helped","rode","themed"].indexOf(k)<0)delete state.ach[k];});
+    if(!state.custom||!hexOk.test(state.custom.accent||"")||!hexOk.test(state.custom.slip||""))state.custom={accent:"#e0592a",slip:"#2c6e91"};
+  }
+  function analyze(){
+    var keys=Object.keys(state.log).sort(),A={clean:0,slip:0,logged:0,runs:[],byDow:[],months:{},dates:{}},run=0,after=false,prev=null,runStart=null,cleanKeys=[],i;
+    for(i=0;i<7;i++)A.byDow.push({c:0,s:0});
+    function endRun(){if(run>0)A.runs.push({len:run,after:after,start:runStart});run=0;}
+    keys.forEach(function(k){
+      var v=state.log[k],d=parse(k),ym=k.slice(0,7),m=A.months[ym]||(A.months[ym]={clean:0,slip:0});
+      var consec=prev&&Math.round((d-parse(prev))/86400000)===1;
+      if(v==="clean"){
+        A.clean++;cleanKeys.push(k);A.byDow[d.getDay()].c++;m.clean++;
+        if(consec&&state.log[prev]==="clean")run++;
+        else{endRun();run=1;runStart=k;after=!!(consec&&state.log[prev]==="slip");}
+      }else{A.slip++;A.byDow[d.getDay()].s++;m.slip++;endRun();}
+      prev=k;
+    });
+    endRun();
+    A.logged=A.clean+A.slip;
+    var sum=0;A.best=0;
+    A.runs.forEach(function(r){sum+=r.len;if(r.len>A.best)A.best=r.len;});
+    A.avg=A.runs.length?sum/A.runs.length:0;
+    A.cur=stats().cur;
+    /* The day each log-based achievement was actually earned */
+    function addDays(k,n){var d=parse(k);d.setDate(d.getDate()+n);return key(d);}
+    function firstRun(f){for(var j=0;j<A.runs.length;j++)if(f(A.runs[j]))return A.runs[j];return null;}
+    MS.forEach(function(m){var r=firstRun(function(x){return x.len>=m[0];});if(r)A.dates["streak"+m[0]]=addDays(r.start,m[0]-1);});
+    if(keys.length)A.dates.first=keys[0];
+    if(keys.length>=30)A.dates.logged30=keys[29];
+    [10,50,100,250].forEach(function(n){if(cleanKeys.length>=n)A.dates["total"+n]=cleanKeys[n-1];});
+    var rb=firstRun(function(x){return x.after;});if(rb)A.dates.bounce=rb.start;
+    var rc=firstRun(function(x){return x.after&&x.len>=7;});if(rc)A.dates.comeback=addDays(rc.start,6);
+    var months=Object.keys(A.months);
+    for(i=0;i<months.length;i++){
+      var ym=months[i],y=+ym.slice(0,4),mo=+ym.slice(5,7),days=new Date(y,mo,0).getDate(),last=ym+"-"+pad(days);
+      if(A.months[ym].clean===days&&last<=todayKey){A.dates.cleanmonth=last;break;}
+    }
+    return A;
+  }
 
-<!-- Send Progress Modal -->
-<div id="send-modal" class="modal sheet-modal" onclick="closeModal(event, 'send-modal')">
-    <div class="modal-content sheet" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModal(null, 'send-modal', true)">&times;</span>
-        <h2>📤 Send Progress</h2>
-        <p>Copy this link, send it to yourself (message, email, notes app) and open it on any other device, phone or computer. It will ask before loading anything.</p>
-        <textarea id="send-link" readonly rows="5" onclick="this.select()"></textarea>
-        <div class="sheet-actions">
-            <button id="btn-copy-link" onclick="copySyncLink()">Copy Link</button>
-            <button id="btn-share-link" onclick="shareSyncLink()" style="display:none;">Share...</button>
-        </div>
-        <p class="sheet-note" id="send-note"></p>
-    </div>
-</div>
+  var MS=[[1,"Day one"],[3,"Getting going"],[7,"One week"],[14,"Two weeks"],[30,"One month"],[60,"Two months"],[90,"Three months"],[180,"Half a year"],[365,"One full year"]];
+  var ACH=[],prevU=null;
+  MS.forEach(function(m){
+    ACH.push({id:"streak"+m[0],group:"s",title:m[1],badge:String(m[0]),
+      desc:m[0]===1?"Stay clean for a full day.":"Reach a "+m[0]+"-day streak.",
+      prog:function(A){return[A.best,m[0]];}});
+  });
+  ACH.push({id:"first",group:"m",title:"First check-in",badge:"\u2605",desc:"Log your first day."});
+  ACH.push({id:"logged30",group:"m",title:"Showing up",badge:"\u2605",desc:"Log 30 days, clean or not.",prog:function(A){return[A.logged,30];}});
+  [10,50,100,250].forEach(function(n){
+    ACH.push({id:"total"+n,group:"m",title:n+" clean days",badge:String(n),desc:"Add up "+n+" clean days in total, streak or not.",
+      prog:function(A){return[A.clean,n];}});
+  });
+  ACH.push({id:"bounce",group:"m",title:"Bounced back",badge:"\u2605",desc:"Log a clean day right after a slip."});
+  ACH.push({id:"comeback",group:"m",title:"Comeback",badge:"\u2605",desc:"Get a 7-day streak that starts right after a slip."});
+  ACH.push({id:"cleanmonth",group:"m",title:"Perfect month",badge:"\u2605",desc:"Finish a whole calendar month with every day clean."});
+  /* Event-based ones (not from the log) are stored with the day they happened */
+  ACH.push({id:"reasons",group:"m",ev:true,title:"Know your why",badge:"\u2605",desc:"Pick or write your reasons.",test:function(){return (state.reasons||"").trim().length>0||(state.picked||[]).length>0;}});
+  ACH.push({id:"helped",group:"m",ev:true,title:"Asked for help",badge:"\u2605",desc:"Open the help panel when an urge hits.",test:function(){return (state.helped||0)>0;}});
+  ACH.push({id:"rode",group:"m",ev:true,title:"Rode it out",badge:"\u2605",desc:"Finish the full 10-minute timer.",test:function(){return (state.rode||0)>0;}});
+  ACH.push({id:"themed",group:"m",ev:true,title:"Made it yours",badge:"\u2605",desc:"Pick a different theme.",test:function(){return !!state.themed;}});
 
-<!-- Incoming progress (opened from a Send Progress link) -->
-<div id="sync-modal" class="modal sheet-modal" onclick="closeModal(event, 'sync-modal')">
-    <div class="modal-content sheet" onclick="event.stopPropagation()">
-        <h2 id="sync-title"></h2>
-        <p id="sync-text"></p>
-        <div class="sheet-actions">
-            <button id="btn-sync-load" class="sheet-primary" onclick="acceptIncomingSync()">Load Progress</button>
-            <button id="btn-sync-cancel" onclick="cancelIncomingSync()">Cancel</button>
-        </div>
-    </div>
-</div>
+  function toast(t){var el=$("toast");el.textContent=t;el.classList.add("show");clearTimeout(toastT);toastT=setTimeout(function(){el.classList.remove("show");},4500);}
 
-<!-- Shortcut Modal -->
-<div id="shortcut-modal" class="modal sheet-modal" onclick="closeModal(event, 'shortcut-modal')">
-    <div class="modal-content sheet" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModal(null, 'shortcut-modal', true)">&times;</span>
-        <h2>📲 Create Shortcut</h2>
-        <div id="shortcut-body"></div>
-    </div>
-</div>
+  /* Work out what is unlocked right now (log-based ones come straight from the log,
+     so editing or clearing days adds or removes them), and announce new ones. */
+  function sync(A){
+    var U={},changed=false,fresh=[],i;
+    ACH.forEach(function(a){
+      var d=null;
+      if(a.ev){
+        if(a.test()&&!state.ach[a.id]){state.ach[a.id]=todayKey;changed=true;}
+        d=state.ach[a.id]||null;   /* once earned, these stay */
+      }else d=A.dates[a.id]||null;
+      if(d)U[a.id]=d;
+    });
+    if(changed)save();
+    var diff=false;
+    if(prevU){
+      ACH.forEach(function(a){if(U[a.id]&&!prevU[a.id])fresh.push(a);});
+      diff=fresh.length>0||Object.keys(prevU).some(function(k){return !U[k];});
+    }
+    if(fresh.length&&announce){
+      var pick=null;
+      for(i=fresh.length-1;i>=0;i--){if(fresh[i].group==="s"){pick=fresh[i];break;}}   /* highest streak milestone */
+      if(!pick){pick=fresh[0];fresh.forEach(function(a){if(U[a.id]>=U[pick.id])pick=a;});}
+      toast("Achievement unlocked: "+pick.title+(fresh.length>1?" (+"+(fresh.length-1)+" more)":""));
+    }
+    prevU=U;
+    return{U:U,changed:diff};
+  }
+  function afterEvent(){var A=analyze(),r=sync(A);if(r.changed)renderAch(A,r.U);}
+  function refresh(){var A=analyze(),r=sync(A);renderAch(A,r.U);renderNext(A);renderStats(A);renderTriggers();}
 
-<!-- Randomizer Modal -->
-<div id="random-modal" class="modal" onclick="closeModal(event, 'random-modal')">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModal(null, 'random-modal', true)">&times;</span>
-        <h2 style="color:var(--accent); margin-top:0;">What Should I Watch?</h2>
-        <select id="rand-format" class="rand-select">
-            <option value="all">Any Format (Movies & Shows)</option>
-            <option value="movie">Movies Only</option>
-            <option value="show">TV Shows Only</option>
-        </select>
-        <select id="rand-pool" class="rand-select">
-            <option value="all">Entire Database</option>
-            <option value="mcu">Main Universe (No Standalones/One-Shots)</option>
-            <optgroup label="Specific Universes">
-                <option value="Infinity Saga">The Infinity Saga (Phases 1-3)</option>
-                <option value="Multiverse Saga">The Multiverse Saga (Phases 4-6)</option>
-                <option value="Marvel One-Shots">Marvel One-Shots</option>
-                <option value="The Defenders Saga">The Defenders Saga</option>
-                <option value="Fox's X-Men Universe">Fox's X-Men Universe</option>
-                <option value="Sony's Spider-Man Legacy">Sony's Spider-Man Legacy</option>
-                <option value="Legacy Marvel Television">Legacy Marvel Television</option>
-                <option value="Multiverse Legacy & Standalones">Multiverse Legacy & Standalones</option>
-                <option value="Marvel Animated Legacy">Marvel Animated Legacy</option>
-            </optgroup>
-        </select>
-        <button class="filter-btn btn-random" onclick="spinWheel()" style="padding:10px; font-size:1.1rem;">Spin!</button>
-        <div id="rand-result"></div>
-    </div>
-</div>
+  function badgeEl(a,A,date){
+    var el=document.createElement("div"),med=document.createElement("div"),tx=document.createElement("div"),
+        t=document.createElement("b"),d=document.createElement("small"),st=document.createElement("small");
+    el.className="badge"+(date?"":" locked");med.className="medal";med.textContent=a.badge;
+    t.textContent=a.title;d.textContent=a.desc;st.className="st";
+    if(date)st.textContent="Unlocked "+parse(date).toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+    else if(a.prog){var p=a.prog(A);st.textContent=Math.min(p[0],p[1])+" of "+p[1];}
+    else st.textContent="Locked";
+    tx.appendChild(t);tx.appendChild(d);tx.appendChild(st);el.appendChild(med);el.appendChild(tx);
+    return el;
+  }
+  function renderAch(A,U){
+    var n=Object.keys(U).length,box={s:$("achStreak"),m:$("achMore")};box.s.innerHTML="";box.m.innerHTML="";
+    ACH.forEach(function(a){box[a.group].appendChild(badgeEl(a,A,U[a.id]));});
+    $("achCount").textContent=n;$("achOf").textContent="of "+ACH.length+" unlocked";
+    $("achBar").style.width=(n/ACH.length*100)+"%";
+  }
+  function renderNext(A){
+    var cur=A.cur,next=null,prev=0,i;
+    for(i=0;i<MS.length;i++){if(MS[i][0]>cur){next=MS[i][0];break;}prev=MS[i][0];}
+    if(next){
+      $("nextLbl").textContent="Next milestone: "+next+(next===1?" day":" days")+" ("+(next-cur)+" to go)";
+      $("nextBar").style.width=((cur-prev)/(next-prev)*100)+"%";
+    }else{
+      $("nextLbl").textContent="You've reached every streak milestone. Keep going.";
+      $("nextBar").style.width="100%";
+    }
+  }
+  function renderStats(A){
+    var i,t=$("tiles");
+    var tiles=[[A.clean,"clean days"],[A.slip,"slipped days"],[A.logged,"days logged"],[A.logged?Math.round(A.clean/A.logged*100)+"%":"-","clean rate"],
+      [A.cur,"current streak"],[A.best,"best streak"],[A.runs.length?Math.round(A.avg*10)/10:"-","average streak"],[A.runs.length,"streaks so far"]];
+    t.innerHTML="";
+    tiles.forEach(function(x){var d=document.createElement("div");d.className="tile";d.innerHTML="<b></b><span></span>";d.firstChild.textContent=x[0];d.lastChild.textContent=x[1];t.appendChild(d);});
 
-<!-- Developer Tools Modal -->
-<div id="dev-modal" class="modal" onclick="closeModal(event, 'dev-modal')">
-    <div class="modal-content dev-modal-content" onclick="event.stopPropagation()">
-        <span class="close-btn" onclick="closeModal(null, 'dev-modal', true)">&times;</span>
-        <h2 class="dev-title">🛠️ Developer Mode</h2>
-        <p class="dev-sub">Advanced test utilities and data manipulation.</p>
+    var c30=0,s30=0,dt=new Date();
+    for(i=0;i<30;i++){var v=state.log[key(dt)];if(v==="clean")c30++;else if(v==="slip")s30++;dt.setDate(dt.getDate()-1);}
+    var l30=c30+s30;
+    $("l30").textContent=l30?Math.round(c30/l30*100)+"%":"-";
+    $("l30t").textContent=l30?c30+" clean and "+s30+" slipped, out of "+l30+" days logged in the last 30.":"No days logged in the last 30 days yet.";
+    $("l30bar").style.width=(l30?c30/l30*100:0)+"%";
 
-        <div class="dev-cols">
-            <div class="dev-col">
-                <div class="dev-section">
-                    <h4>1. Preset Scenarios (Mocking)</h4>
-                    <div class="dev-grid">
-                        <button class="dev-btn" onclick="devSetScenario('all')">✅ Mark All 100% Watched</button>
-                        <button class="dev-btn" onclick="devSetScenario('half')">🎲 Mark Random 50% Watched</button>
-                        <button class="dev-btn" onclick="devSetScenario('doomsday')">⚠ Doomsday Ready</button>
-                        <button class="dev-btn" onclick="devSetScenario('none')">❌ Mark All 0% Unwatched</button>
-                    </div>
-                </div>
+    var names=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],full=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],max=1,worst=-1,wv=0,wk=$("wk");
+    A.byDow.forEach(function(x,j){var tt=x.c+x.s;if(tt>max)max=tt;if(x.s>wv){wv=x.s;worst=j;}});
+    wk.innerHTML="";
+    A.byDow.forEach(function(x,j){
+      var tt=x.c+x.s,w=document.createElement("div");w.className="wd";
+      w.innerHTML='<div class="n">'+tt+'</div><div class="stack" style="height:'+Math.round(tt/max*110)+'px"><div class="sc" style="flex:'+x.c+' 0 0"></div><div class="ss" style="flex:'+x.s+' 0 0"></div></div><div class="dl">'+names[j]+'</div>';
+      wk.appendChild(w);
+    });
+    $("wkNote").textContent=A.logged===0?"Log a few days and your weekly pattern will show up here.":(worst>=0?"You slip most often on "+full[worst]+"s ("+wv+" so far). Plan something for that day.":"No slips logged. Nice.");
 
-                <div class="dev-section">
-                    <h4>2. Rating Generator</h4>
-                    <div class="dev-grid">
-                        <button class="dev-btn" onclick="devGenerateRatings()">🎲 Generate Varied Ratings (All Titles)</button>
-                        <button class="dev-btn" onclick="devRandomRatings()">🎰 Generate Random Ratings 1-10 (All Titles)</button>
-                        <button class="dev-btn" onclick="devGenerateRatings(true)">🌓 Generate Varied Ratings (Half of Titles)</button>
-                        <button class="dev-btn" onclick="devClearRatings()">❌ Reset All Ratings to 0</button>
-                    </div>
-                </div>
+    var mo=$("months"),now=new Date();mo.innerHTML="";
+    for(i=5;i>=0;i--){
+      var dd=new Date(now.getFullYear(),now.getMonth()-i,1),ym=dd.getFullYear()+"-"+pad(dd.getMonth()+1),m=A.months[ym]||{clean:0,slip:0},tot=m.clean+m.slip;
+      var r=document.createElement("div");r.className="mrow";
+      r.innerHTML='<span class="ml"></span><div class="bar"><i></i></div><span class="mt"></span>';
+      r.querySelector(".ml").textContent=dd.toLocaleDateString(undefined,{month:"short"});
+      r.querySelector("i").style.width=(tot?m.clean/tot*100:0)+"%";
+      r.querySelector(".mt").textContent=tot?m.clean+" clean, "+m.slip+" slipped":"no data";
+      mo.appendChild(r);
+    }
 
-                <div class="dev-section">
-                    <h4>3. UI & Network Testing</h4>
-                    <div class="dev-grid">
-                        <button class="dev-btn" onclick="devTriggerConfetti()">🎉 Fire Confetti</button>
-                        <button class="dev-btn" onclick="devToggleOffline()" id="dev-offline-btn">🌐 Simulate API Offline: OFF</button>
-                        <button class="dev-btn" onclick="devClearCache()">🗑 Flush TMDB Cache</button>
-                        <button class="dev-btn" onclick="devToggleWireframe()">📐 Toggle CSS Wireframe</button>
-                    </div>
-                </div>
-            </div>
+    var hm=$("hm"),ht=$("heat"),s0=new Date(),lastM=-1,w,dow;hm.innerHTML="";ht.innerHTML="";
+    s0.setDate(s0.getDate()-s0.getDay()-52*7);
+    for(w=0;w<53;w++){
+      var first=new Date(s0.getFullYear(),s0.getMonth(),s0.getDate()+w*7),sp=document.createElement("span");
+      if(first.getMonth()!==lastM){sp.textContent=first.toLocaleDateString(undefined,{month:"short"});lastM=first.getMonth();}
+      if(w<27)sp.className="old";hm.appendChild(sp);
+      for(dow=0;dow<7;dow++){
+        var cd=new Date(first.getFullYear(),first.getMonth(),first.getDate()+dow),k=key(cd),cell=document.createElement("i");
+        if(k>todayKey)cell.className="x";
+        else{
+          if(state.log[k])cell.className=state.log[k];
+          cell.title=cd.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+(state.log[k]?" - "+(state.log[k]==="clean"?"clean":"slipped"):"");
+        }
+        if(w<27)cell.className+=" old";
+        ht.appendChild(cell);
+      }
+    }
+  }
 
-            <div class="dev-col">
-                <div class="dev-section">
-                    <h4>4. Sandbox (test without touching your save)</h4>
-                    <p class="dev-status" id="sandbox-status">Sandbox is OFF. Everything you do is saved to your real data.</p>
-                    <div class="dev-grid">
-                        <button class="dev-btn dev-btn-sandbox" id="sb-start" onclick="devSandboxStart(false)">🧪 Start Sandbox (copy of my save)</button>
-                        <button class="dev-btn dev-btn-sandbox" id="sb-empty" onclick="devSandboxStart(true)">📄 Start Empty Sandbox</button>
-                        <button class="dev-btn dev-btn-sandbox dev-wide" id="sb-exit" onclick="devSandboxExit()" style="display:none;">🚪 Exit Sandbox & Restore My Save</button>
-                    </div>
-                </div>
+  /* ---------- Slip survey + trigger insights ---------- */
+  var surveyKey=null;
+  function buildSv(boxId,list,field){
+    list.forEach(function(x){
+      var b=document.createElement("button");b.type="button";b.className="chip";b.dataset.id=x[0];b.dataset.f=field;b.textContent=x[1];
+      b.onclick=function(){toggleSv(field,x[0]);};
+      $(boxId).appendChild(b);
+    });
+  }
+  buildSv("svTrig",TRIG,"t");buildSv("svCtx",CTX,"c");buildSv("svWhen",WHEN,"w");
+  function toggleSv(field,id){
+    if(state.log[sel]!=="slip")return;
+    var r=state.slips[sel]||(state.slips[sel]={t:[],c:[],w:""});
+    if(field==="w")r.w=r.w===id?"":id;
+    else{var i=r[field].indexOf(id);if(i>=0)r[field].splice(i,1);else r[field].push(id);}
+    if(!r.t.length&&!r.c.length&&!r.w)delete state.slips[sel];
+    save();renderSurvey();renderTriggers();
+  }
+  function renderSurvey(){
+    var isSlip=state.log[sel]==="slip",open=surveyKey===sel&&isSlip,det=$("btnDetails");
+    $("survey").hidden=!open;
+    det.hidden=!isSlip||open;
+    det.textContent=state.slips[sel]?"Edit slip details":"Add slip details";
+    if(!open)return;
+    var r=state.slips[sel]||{t:[],c:[],w:""};
+    document.querySelectorAll("#survey .chip").forEach(function(b){
+      var f=b.dataset.f,on=f==="w"?r.w===b.dataset.id:r[f].indexOf(b.dataset.id)>=0;
+      b.setAttribute("aria-pressed",on);
+    });
+  }
+  function renderTriggers(){
+    var cats=[
+      {f:"t",title:"Triggers",list:TRIG,counts:{},n:0,say:function(l,p){return"Top trigger: "+l+", in "+p+"% of slips where you tagged a trigger.";}},
+      {f:"c",title:"Where",list:CTX,counts:{},n:0,say:function(l,p){return"Most common setting: "+l+" ("+p+"% of slips with a setting tagged).";}},
+      {f:"w",title:"When",list:WHEN,counts:{},n:0,say:function(l,p){return"Most common time: "+l+" ("+p+"% of slips with a time tagged).";}}
+    ],tagged=0,ins=$("trigInsights"),bars=$("trigBars"),note=$("trigNote");
+    Object.keys(state.slips).forEach(function(k){
+      if(state.log[k]!=="slip")return;
+      var r=state.slips[k],any=false;
+      cats.forEach(function(c){
+        var v=c.f==="w"?(r.w?[r.w]:[]):r[c.f];
+        if(v.length){c.n++;any=true;v.forEach(function(id){c.counts[id]=(c.counts[id]||0)+1;});}
+      });
+      if(any)tagged++;
+    });
+    ins.innerHTML="";bars.innerHTML="";
+    if(!tagged){note.textContent="Next time you log a slip, tap what was going on. Your patterns will show up here. It stays on your device.";return;}
+    note.textContent=tagged<3?"Based on "+tagged+" tagged slip"+(tagged>1?"s":"")+" so far. Tag a few more to see real patterns.":"Based on "+tagged+" tagged slips.";
+    cats.forEach(function(c){
+      var rows=c.list.map(function(x){return{id:x[0],label:x[1],n:c.counts[x[0]]||0};}).filter(function(x){return x.n>0;});
+      if(!rows.length)return;
+      rows.sort(function(a,b){return b.n-a.n;});
+      if(c.n>=3){var d=document.createElement("div");d.className="insight";d.textContent=c.say(rows[0].label,Math.round(rows[0].n/c.n*100));ins.appendChild(d);}
+      var h=document.createElement("p");h.className="tg";h.textContent=c.title;bars.appendChild(h);
+      rows.forEach(function(x){
+        var r=document.createElement("div");r.className="trow";
+        r.innerHTML='<span class="tl"></span><div class="bar"><i></i></div><span class="tn"></span>';
+        r.querySelector(".tl").textContent=x.label;
+        r.querySelector("i").style.width=Math.round(x.n/c.n*100)+"%";
+        r.querySelector(".tn").textContent=x.n+" ("+Math.round(x.n/c.n*100)+"%)";
+        bars.appendChild(r);
+      });
+    });
+  }
 
-                <div class="dev-section dev-section-grow">
-                    <h4>5. Database & Storage</h4>
-                    <div class="dev-grid">
-                        <button class="dev-btn" onclick="devRunAudit()">🩺 Run DB Integrity Audit</button>
-                        <button class="dev-btn dev-btn-danger" onclick="devHardReset()">🔥 Factory Reset Storage</button>
-                    </div>
-                    <textarea id="dev-json-editor" spellcheck="false"></textarea>
-                    <button class="dev-btn" onclick="devSaveJSON()">💾 Save Live JSON</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+  /* ---------- Built-in reasons ---------- */
+  var PRESETS=[
+    {id:"faith",name:"Faith",msg:"I want to live in line with my faith and values. I can choose that right now."},
+    {id:"relationships",name:"Healthy relationships",msg:"I want real, healthy, honest relationships. This urge is not what I want for the people I love."},
+    {id:"selfrespect",name:"Self-respect",msg:"Every time I wait it out, I trust and respect myself more."},
+    {id:"health",name:"My health",msg:"My body and energy matter. Better sleep and more energy are waiting on the other side of this."},
+    {id:"clarity",name:"Clear mind",msg:"I want less guilt and a clearer head. The urge passes, the clarity stays."},
+    {id:"goals",name:"Goals and focus",msg:"I have goals worth my time and attention. Don't trade them for ten minutes."},
+    {id:"family",name:"Family",msg:"The people who love me deserve the best version of me."},
+    {id:"confidence",name:"Confidence",msg:"I build real confidence by keeping promises to myself."},
+    {id:"freedom",name:"Freedom",msg:"I want to make my own choices instead of being run by an urge."},
+    {id:"sleep",name:"Better sleep",msg:"Late nights cost me tomorrow. Choosing sleep now means a better morning."},
+    {id:"time",name:"My time",msg:"That time is better spent on things I'll be proud of. Ten minutes from now I'll be glad I waited."},
+    {id:"respect",name:"Respect for others",msg:"I want to see people as people, not as images. Respect starts with what I choose to feed my mind."},
+    {id:"presence",name:"Being present",msg:"I want to be fully here for my life, not escaping from it."},
+    {id:"integrity",name:"Integrity",msg:"I want my private choices to match the person I say I am."},
+    {id:"mood",name:"Mood and motivation",msg:"I feel lighter and more driven when I stay clear. Don't trade tomorrow's mood for a short rush."},
+    {id:"discipline",name:"Discipline",msg:"Self-control is a muscle. Every urge I ride out makes the next one weaker."},
+    {id:"future",name:"My future",msg:"The person I'm becoming will thank me for what I do in the next ten minutes."},
+    {id:"purpose",name:"Purpose",msg:"I want a life with direction. This urge has none."},
+    {id:"intimacy",name:"Real intimacy",msg:"I want real closeness with someone, not a substitute that leaves me emptier."},
+    {id:"strength",name:"Strength and fitness",msg:"I'm building my body and my habits. This urge is just noise next to that."}
+  ];
+  function pickedReasons(){return PRESETS.filter(function(p){return (state.picked||[]).indexOf(p.id)>=0;});}
+  function mkReason(title,text,cls){
+    var d=document.createElement("div"),b=document.createElement("b"),sp=document.createElement("span");
+    d.className="rsn"+(cls?" "+cls:"");b.textContent=title;sp.textContent=text;d.appendChild(b);d.appendChild(sp);return d;
+  }
+  function renderChips(){
+    var picked=pickedReasons(),list=$("pickedList");
+    document.querySelectorAll("#reasonChips button").forEach(function(b){b.setAttribute("aria-pressed",(state.picked||[]).indexOf(b.dataset.id)>=0);});
+    list.innerHTML="";
+    picked.forEach(function(p){list.appendChild(mkReason(p.name,p.msg));});
+  }
+  function fillReasons(){
+    var box=$("myReasons"),rm=$("remind"),list=pickedReasons(),txt=(state.reasons||"").trim(),opts=[];
+    box.innerHTML="";rm.innerHTML="";rm.hidden=true;
+    list.forEach(function(p){box.appendChild(mkReason(p.name,p.msg));opts.push({h:p.name,t:p.msg});});
+    if(txt){box.appendChild(mkReason("In my own words",txt,"own"));opts.push({h:"In my own words",t:txt.length>220?txt.slice(0,220)+"...":txt});}
+    if(!opts.length){box.textContent="You haven't picked or written any reasons yet. Add them on the Tracker tab while you're feeling calm.";return;}
+    var o=opts[Math.floor(Math.random()*opts.length)],h=document.createElement("b"),p=document.createElement("p");
+    h.textContent="Remember: "+o.h;p.textContent=o.t;rm.appendChild(h);rm.appendChild(p);rm.hidden=false;
+  }
+  PRESETS.forEach(function(p){
+    var b=document.createElement("button");b.type="button";b.className="chip";b.dataset.id=p.id;b.textContent=p.name;
+    b.onclick=function(){
+      var i=state.picked.indexOf(p.id);
+      if(i>=0)state.picked.splice(i,1);else state.picked.push(p.id);
+      save();renderChips();afterEvent();
+    };
+    $("reasonChips").appendChild(b);
+  });
 
-<!-- Marvel Wrapped (story-style recap) -->
-<div id="wrapped-overlay" class="wr-overlay">
-    <div class="wr-phone" onpointerdown="WR.paused = true; WR.downAt = Date.now();" onpointerup="WR.paused = false;" onpointercancel="WR.paused = false;" onpointerleave="WR.paused = false;">
-        <div class="wr-bars" id="wr-bars"></div>
-        <button class="wr-close" onclick="closeWrapped()" aria-label="Close">&times;</button>
-        <div class="wr-stage" id="wr-stage"></div>
-        <div class="wr-zone l" onclick="wrTap(-1)"></div>
-        <div class="wr-zone r" onclick="wrTap(1)"></div>
-    </div>
-</div>
+  function render(){
+    var pr=false;
+    Object.keys(state.slips).forEach(function(k){if(state.log[k]!=="slip"){delete state.slips[k];pr=true;}});
+    if(pr)save();
+    var s=stats();
+    $("cur").textContent=s.cur;$("best").textContent=s.best;$("total").textContent=s.total;
+    var st=state.log[sel];
+    $("logTitle").textContent=sel===todayKey?"Today":"Editing a past day";
+    $("btnToday").hidden=sel===todayKey;
+    $("todayLabel").textContent=parse(sel).toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric",year:"numeric"})+(st?" - logged as "+(st==="clean"?"clean":"slipped"):" - not logged yet");
+    $("monthLabel").textContent=view.toLocaleDateString(undefined,{month:"long",year:"numeric"});
+    var cal=$("cal");cal.innerHTML="";
+    var first=view.getDay(),days=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+    for(var i=0;i<first;i++)cal.appendChild(document.createElement("div"));
+    for(var n=1;n<=days;n++){
+      var k=view.getFullYear()+"-"+pad(view.getMonth()+1)+"-"+pad(n),c=document.createElement("div");
+      c=document.createElement("button");c.type="button";
+      c.className="d"+(state.log[k]?" "+state.log[k]:"")+(k===todayKey?" now":"")+(k===sel?" sel":"");
+      c.textContent=n;c.disabled=k>todayKey;
+      c.setAttribute("aria-label",parse(k).toLocaleDateString(undefined,{month:"long",day:"numeric"})+(state.log[k]?", "+state.log[k]:""));
+      (function(kk){c.onclick=function(){sel=kk;$("msg").textContent="";render();};})(k);
+      cal.appendChild(c);
+    }
+    $("reasons").value=state.reasons||"";renderChips();renderSurvey();refresh();
+  }
 
-<script src="script.js"></script>
+  var dows=$("dows");["S","M","T","W","T","F","S"].forEach(function(l){var d=document.createElement("div");d.className="dow";d.textContent=l;dows.appendChild(d);});
+
+  $("btnClean").onclick=function(){state.log[sel]="clean";save();render();var c=stats().cur;$("msg").textContent=sel!==todayKey?"Day updated.":(c>1?"Day "+c+". Keep going.":"Day 1 is done. That's how every streak starts.");};
+  $("btnSlip").onclick=function(){state.log[sel]="slip";save();surveyKey=sel;render();$("msg").textContent=sel!==todayKey?"Day updated.":"It happens. Your best streak is still saved. Tomorrow is a fresh day, start it clean.";};
+  $("btnDetails").onclick=function(){surveyKey=sel;renderSurvey();};
+  $("svDone").onclick=function(){surveyKey=null;renderSurvey();toast(state.slips[sel]?"Saved. Patterns show up in the Stats tab.":"No problem. You can add details any time.");};
+  $("btnClear").onclick=function(){delete state.log[sel];save();render();$("msg").textContent="";};
+  var rt=new Date();rt.setDate(rt.getDate()-6);
+  $("rFrom").max=$("rTo").max=todayKey;$("rTo").value=todayKey;$("rFrom").value=key(rt);
+  function applyRange(val){
+    var f=$("rFrom").value,t=$("rTo").value,m=$("rmsg");
+    if(!f||!t){m.textContent="Pick both a start and an end date.";return;}
+    if(f>t){m.textContent="The start date has to come before the end date.";return;}
+    if(t>todayKey){m.textContent="You can't log days in the future.";return;}
+    var keys=[],d=parse(f),end=parse(t);
+    while(d<=end&&keys.length<=1100){keys.push(key(d));d.setDate(d.getDate()+1);}
+    if(keys.length>1100){m.textContent="That range is too long. Try 3 years or less.";return;}
+    var changes=keys.filter(function(k){return state.log[k]&&state.log[k]!==val;}).length;
+    if(val!==null&&changes>0&&!confirm("This will change "+changes+" day"+(changes>1?"s":"")+" you already logged. Continue?"))return;
+    keys.forEach(function(k){if(val===null)delete state.log[k];else state.log[k]=val;});
+    save();render();
+    m.textContent=(val===null?"Cleared ":"Marked ")+keys.length+" day"+(keys.length>1?"s":"")+(val===null?"":" as "+(val==="clean"?"clean":"slipped"))+".";
+  }
+  $("rClean").onclick=function(){applyRange("clean");};
+  $("rSlip").onclick=function(){applyRange("slip");};
+  $("rClear").onclick=function(){applyRange(null);};
+  $("btnToday").onclick=function(){sel=todayKey;view=new Date();view.setDate(1);render();};
+  $("prev").onclick=function(){view.setMonth(view.getMonth()-1);render();};
+  $("next").onclick=function(){view.setMonth(view.getMonth()+1);render();};
+  $("reasons").oninput=function(e){state.reasons=e.target.value;save();afterEvent();};
+
+  $("export").onclick=function(){
+    var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(state)],{type:"application/json"}));a.download="reset-backup.json";a.click();
+  };
+  $("import").onclick=function(){$("file").click();};
+  $("file").onchange=function(e){
+    var f=e.target.files[0];if(!f)return;var r=new FileReader();
+    r.onload=function(){try{var p=JSON.parse(r.result);if(p&&p.log){announce=false;state=Object.assign(freshState(),p);normalize();save();render();applyTheme();announce=true;$("msg").textContent="Backup imported.";}}catch(x){$("msg").textContent="That file couldn't be read.";}};
+    r.readAsText(f);
+  };
+  $("reset").onclick=function(){if(confirm("Erase all your data? This can't be undone.")){state=freshState();save();render();applyTheme();}};
+  /* Themes: every theme has a name and a full light + dark palette */
+  var THEMES={
+    indigo:{name:"Indigo",
+      light:{accent:"#4a4fb0",slip:"#9b3f8f",bg:"#e9eaf5",card:"#f7f8fd",ink:"#1c2033",mute:"#5a6080",line:"#d0d3e8",on:"#ffffff"},
+      dark:{accent:"#9ea3ff",slip:"#e08ad0",bg:"#14162a",card:"#1d2040",ink:"#e8eaf8",mute:"#9a9fc4",line:"#2e3260",on:"#10112a"}},
+    forest:{name:"Forest",
+      light:{accent:"#2f7d3f",slip:"#8a5a3c",bg:"#e8eeea",card:"#f7faf8",ink:"#1d2a24",mute:"#5d6e66",line:"#cdd9d3",on:"#ffffff"},
+      dark:{accent:"#7fd08f",slip:"#d9a679",bg:"#16211b",card:"#1e2d25",ink:"#e6efe9",mute:"#93a89c",line:"#2f4438",on:"#10201a"}},
+    amber:{name:"Amber",
+      light:{accent:"#a8650f",slip:"#2f6f8f",bg:"#f2ece1",card:"#fbf8f2",ink:"#2e2618",mute:"#766a58",line:"#e0d6c4",on:"#ffffff"},
+      dark:{accent:"#f0b45b",slip:"#7fc0de",bg:"#221c12",card:"#2d261a",ink:"#f3ecdf",mute:"#b0a48e",line:"#463c28",on:"#231a08"}},
+    rose:{name:"Rose",
+      light:{accent:"#b0396b",slip:"#3f7f6f",bg:"#f3e8ed",card:"#fcf7f9",ink:"#301a24",mute:"#7a5d6a",line:"#e3cdd6",on:"#ffffff"},
+      dark:{accent:"#f09ac0",slip:"#7fcfb8",bg:"#241519",card:"#311d24",ink:"#f6e8ee",mute:"#b898a6",line:"#4b2c38",on:"#2a0f1c"}},
+    plum:{name:"Plum",
+      light:{accent:"#7a3fa8",slip:"#8f6a0c",bg:"#eee9f3",card:"#faf8fc",ink:"#261d30",mute:"#6a5d7a",line:"#d9cfe3",on:"#ffffff"},
+      dark:{accent:"#c9a0ee",slip:"#e6c35c",bg:"#1b1522",card:"#271e30",ink:"#efe8f6",mute:"#a898ba",line:"#3d2f4b",on:"#1c0f29"}},
+    slate:{name:"Slate",
+      light:{accent:"#3f5566",slip:"#a0505a",bg:"#e8edf1",card:"#f6f8fa",ink:"#1d2830",mute:"#5d6e7a",line:"#cdd7de",on:"#ffffff"},
+      dark:{accent:"#9db5c6",slip:"#e09aa2",bg:"#161e24",card:"#1e2a32",ink:"#e6edf1",mute:"#93a5b2",line:"#2f4350",on:"#101c24"}},
+    mint:{name:"Mint",
+      light:{accent:"#0f7f61",slip:"#2f4a7a",bg:"#e6f3ee",card:"#f6fbf9",ink:"#14302a",mute:"#55736a",line:"#c8e0d6",on:"#ffffff"},
+      dark:{accent:"#7fe0bf",slip:"#8fb0f0",bg:"#0f1f1d",card:"#172a27",ink:"#e4f5ef",mute:"#8fb5aa",line:"#274540",on:"#0b2a21"}},
+    midnight:{name:"Midnight",
+      light:{accent:"#1d3a8a",slip:"#9a6b00",bg:"#e4e8f1",card:"#f5f7fb",ink:"#0d1530",mute:"#566083",line:"#ccd3e6",on:"#ffffff"},
+      dark:{accent:"#6ea8ff",slip:"#f0c75e",bg:"#070b1a",card:"#0f1630",ink:"#e6ecff",mute:"#8e9bc4",line:"#1f2a52",on:"#07102a"}},
+    mono:{name:"Monochrome",
+      light:{accent:"#000000",slip:"#5c5c5c",bg:"#ffffff",card:"#f3f3f3",ink:"#000000",mute:"#5f5f5f",line:"#d9d9d9",on:"#ffffff"},
+      dark:{accent:"#ffffff",slip:"#a0a0a0",bg:"#000000",card:"#141414",ink:"#ffffff",mute:"#a0a0a0",line:"#2e2e2e",on:"#000000"}}
+  };
+  var ORDER=["indigo","forest","amber","rose","plum","slate","mint","midnight","mono","custom"];
+
+  /* Custom theme: build a full palette from two picked colors */
+  function hex2hsl(hx){
+    var n=parseInt(hx.slice(1),16),r=((n>>16)&255)/255,g=((n>>8)&255)/255,b=(n&255)/255,
+        mx=Math.max(r,g,b),mn=Math.min(r,g,b),d=mx-mn,h=0,s=0,l=(mx+mn)/2;
+    if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60;}
+    return[h,s*100,l*100];
+  }
+  function hsl2hex(h,s,l){
+    s/=100;l/=100;var a=s*Math.min(l,1-l);
+    function f(n){var k=(n+h/30)%12;return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1)))).toString(16).padStart(2,"0");}
+    return"#"+f(0)+f(8)+f(4);
+  }
+  function lum(hx){
+    var n=parseInt(hx.slice(1),16),w=[.2126,.7152,.0722],sum=0;
+    [(n>>16)&255,(n>>8)&255,n&255].forEach(function(v,i){v/=255;sum+=w[i]*(v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4));});
+    return sum;
+  }
+  function ratio(a,b){var x=lum(a),y=lum(b);return(Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
+  function onFor(a,b){
+    var w=Math.min(ratio(a,"#ffffff"),ratio(b,"#ffffff")),k=Math.min(ratio(a,"#111111"),ratio(b,"#111111"));
+    return w>=k?"#ffffff":"#111111";
+  }
+  function buildCustom(){
+    var c=state.custom,a=hex2hsl(c.accent),s=hex2hsl(c.slip),h=a[0],f=Math.min(a[1],30)/30;
+    function tone(sat,l){return hsl2hex(h,sat*f,l);}
+    var cardL=tone(30,97.5),cardD=tone(24,15);
+    function fit(hx,against,min,dir){var x=hex2hsl(hx),l=x[2],out=hx;while(ratio(out,against)<min&&l>4&&l<96){l+=dir*2;out=hsl2hex(x[0],x[1],l);}return out;}
+    var la=fit(c.accent,cardL,3.5,-1),ls=fit(c.slip,cardL,3.5,-1),da=fit(c.accent,cardD,4.5,1),ds=fit(c.slip,cardD,4.5,1);
+    return{name:"Custom",
+      light:{accent:la,slip:ls,bg:tone(22,92),card:tone(30,97.5),ink:tone(28,13),mute:tone(14,42),line:tone(20,82),on:onFor(la,ls)},
+      dark:{accent:da,slip:ds,bg:tone(28,10),card:tone(24,15),ink:tone(30,93),mute:tone(14,68),line:tone(20,25),on:onFor(da,ds)}};
+  }
+  function getTheme(k){return k==="custom"?buildCustom():THEMES[k];}
+
+  var mq=window.matchMedia("(prefers-color-scheme:dark)");
+  function applyTheme(){
+    var mode=state.mode||"system",dark=mode==="dark"||(mode==="system"&&mq.matches);
+    if(state.accent!=="custom"&&!THEMES[state.accent])state.accent="indigo";
+    var th=getTheme(state.accent),p=dark?th.dark:th.light,root=document.documentElement;
+    root.setAttribute("data-theme",dark?"dark":"light");
+    root.style.setProperty("--accent",p.accent);
+    root.style.setProperty("--clean",p.accent);
+    root.style.setProperty("--slip",p.slip);
+    root.style.setProperty("--bg",p.bg);
+    root.style.setProperty("--card",p.card);
+    root.style.setProperty("--ink",p.ink);
+    root.style.setProperty("--mute",p.mute);
+    root.style.setProperty("--line",p.line);
+    root.style.setProperty("--on",p.on);
+    var tc=document.querySelector('meta[name=theme-color]');if(tc)tc.setAttribute("content",p.bg);
+    $("themeName").textContent=th.name;
+    $("customBox").hidden=state.accent!=="custom";
+    if($("cAcc").value!==state.custom.accent)$("cAcc").value=state.custom.accent;
+    if($("cSec").value!==state.custom.slip)$("cSec").value=state.custom.slip;
+    document.querySelectorAll("#modeSeg button").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.mode===mode);});
+    document.querySelectorAll("#accSeg button").forEach(function(b){
+      var t=getTheme(b.dataset.acc),q=dark?t.dark:t.light;
+      b.querySelector(".dots").innerHTML='<i style="background:'+q.accent+'"></i><i style="background:'+q.slip+'"></i>';
+      b.setAttribute("aria-pressed",b.dataset.acc===state.accent);
+    });
+  }
+  ORDER.forEach(function(k){
+    var b=document.createElement("button");b.type="button";b.className="theme";b.dataset.acc=k;
+    b.innerHTML='<span class="dots"></span><span class="nm"></span>';
+    b.querySelector(".nm").textContent=k==="custom"?"Custom":THEMES[k].name;
+    b.onclick=function(){state.accent=k;state.themed=true;save();applyTheme();afterEvent();};
+    $("accSeg").appendChild(b);
+  });
+  $("cAcc").oninput=function(e){state.custom.accent=e.target.value;state.themed=true;save();applyTheme();};
+  $("cSec").oninput=function(e){state.custom.slip=e.target.value;state.themed=true;save();applyTheme();};
+  $("cReset").onclick=function(){state.custom={accent:"#e0592a",slip:"#2c6e91"};save();applyTheme();};
+  document.querySelectorAll("#modeSeg button").forEach(function(b){
+    b.onclick=function(){state.mode=b.dataset.mode;save();applyTheme();};
+  });
+  if(mq.addEventListener)mq.addEventListener("change",applyTheme);
+  document.querySelectorAll(".tabs button").forEach(function(b){
+    b.onclick=function(){
+      var t=b.dataset.tab;
+      document.querySelectorAll(".tabs button").forEach(function(x){x.setAttribute("aria-pressed",x===b);});
+      ["tracker","achievements","stats","settings"].forEach(function(n){$("view-"+n).hidden=n!==t;});
+      var v=$("view-"+t);v.classList.remove("fade");void v.offsetWidth;v.classList.add("fade");
+      if(t==="stats"){var hw=$("heatwrap");hw.scrollLeft=hw.scrollWidth;}
+    };
+  });
+  applyTheme();
+
+  /* Panic */
+  var breathTimer=null,tInt=null,left=600;
+  function fmt(s){return pad(Math.floor(s/60))+":"+pad(s%60);}
+  function breathe(){
+    var b=$("breath"),inhale=true;
+    function step(){b.classList.toggle("in",inhale);b.textContent=inhale?"Breathe in":"Breathe out";inhale=!inhale;}
+    step();breathTimer=setInterval(step,4000);
+  }
+  $("panic").onclick=function(){
+    state.helped=(state.helped||0)+1;save();var wasA=announce;announce=false;afterEvent();announce=wasA;
+    fillReasons();
+    $("overlay").classList.add("open");breathe();$("closePanic").focus({preventScroll:true});$("overlay").scrollTop=0;
+  };
+  function stopTimer(){clearInterval(tInt);tInt=null;left=600;$("timer").textContent=fmt(left);}
+  $("tStart").onclick=function(){
+    if(tInt)return;
+    tInt=setInterval(function(){left--;$("timer").textContent=fmt(left);if(left<=0){clearInterval(tInt);tInt=null;$("timer").textContent="Done";left=600;state.rode=(state.rode||0)+1;save();afterEvent();}},1000);
+  };
+  $("tStop").onclick=stopTimer;
+  function closePanic(){$("overlay").classList.remove("open");clearInterval(breathTimer);stopTimer();$("panic").focus();}
+  $("closePanic").onclick=closePanic;$("closeX").onclick=closePanic;
+  $("overlay").addEventListener("click",function(e){if(e.target===$("overlay"))closePanic();});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape"&&$("overlay").classList.contains("open"))closePanic();});
+
+  /* ---------- PWA: service worker + install ---------- */
+  if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1")){
+    window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});
+  }
+  var deferred=null,standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  $("installBox").hidden=standalone;
+  $("installHint").textContent=isIOS?"On iPhone or iPad: open this page in Safari, tap the Share button, then Add to Home Screen.":"Or use your browser menu and choose Install app or Add to Home screen.";
+  window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();deferred=e;$("install").hidden=false;$("installHint").hidden=true;});
+  $("install").onclick=function(){
+    if(!deferred)return;
+    deferred.prompt();
+    deferred.userChoice.then(function(){deferred=null;$("install").hidden=true;$("installHint").hidden=false;});
+  };
+  window.addEventListener("appinstalled",function(){$("installBox").hidden=true;toast("Installed. Find Unplugged on your home screen.");});
+
+  render();announce=true;
+})();
+</script>
 </body>
 </html>
