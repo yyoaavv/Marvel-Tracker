@@ -540,6 +540,24 @@ function toggleEps(id) {
     else { el.style.display = 'none'; expander.innerText = '▼'; }
 }
 
+// Picks the right TMDB search result for a title. Movies only match movies and shows only match shows
+// (otherwise "X-Men (2000)" can land on the 2000 cartoon X-Men: Evolution), then the release year decides.
+function pickTmdbMatch(results, title, exactYear, searchQuery) {
+    const dbItem = allDbItems.find(i => i.title === title);
+    let pool = results;
+    if (dbItem) {
+        const wanted = dbItem.episodes ? 'tv' : 'movie';
+        const typed = results.filter(r => r.media_type === wanted);
+        if (typed.length) pool = typed;
+    }
+    let best = pool[0];
+    if (exactYear && searchQuery !== "Avengers: Endgame") {
+        const yearMatchObj = pool.find(r => (r.release_date && r.release_date.startsWith(exactYear)) || (r.first_air_date && r.first_air_date.startsWith(exactYear)));
+        if (yearMatchObj) best = yearMatchObj;
+    }
+    return best;
+}
+
 async function fetchPoster(title, imgElement) {
     if (isDevOffline) return;
     
@@ -557,15 +575,7 @@ async function fetchPoster(title, imgElement) {
         const data = await response.json();
         
         if (data.results && data.results.length > 0) {
-            let bestMatch = data.results[0];
-            
-            if (exactYear && searchQuery !== "Avengers: Endgame") {
-                const yearMatchObj = data.results.find(r => 
-                    (r.release_date && r.release_date.startsWith(exactYear)) || 
-                    (r.first_air_date && r.first_air_date.startsWith(exactYear))
-                );
-                if (yearMatchObj) bestMatch = yearMatchObj;
-            }
+            const bestMatch = pickTmdbMatch(data.results, title, exactYear, searchQuery);
             
             tmdbCache[title] = bestMatch;
             if (bestMatch.poster_path) {
@@ -873,11 +883,7 @@ async function openInfo(title) {
             const response = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchQuery)}`);
             const data = await response.json();
             if (data.results && data.results.length > 0) {
-                cached = data.results[0];
-                if (exactYear && searchQuery !== "Avengers: Endgame") {
-                    const yearMatchObj = data.results.find(r => (r.release_date && r.release_date.startsWith(exactYear)) || (r.first_air_date && r.first_air_date.startsWith(exactYear)));
-                    if (yearMatchObj) cached = yearMatchObj;
-                }
+                cached = pickTmdbMatch(data.results, title, exactYear, searchQuery);
                 tmdbCache[title] = cached;
             }
         } catch(e) { console.log(e); }
