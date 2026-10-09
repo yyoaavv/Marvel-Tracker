@@ -1,6 +1,8 @@
     :root {
         color-scheme: dark;
-        --bg: #121212; --card-bg: rgba(30, 30, 30, 0.85); --panel-bg: rgba(20, 20, 20, 0.9);
+        --bg: #121212; --card-bg: rgba(24, 24, 30, 0.66); --panel-bg: rgba(20, 20, 26, 0.72);
+        --modal-bg: rgba(24, 24, 30, 0.98); --accent-hover: #ff3b40;
+        --g1: 230,36,41; --g2: 142,68,173; --g3: 41,128,185; --dot: rgba(255,255,255,0.85); --grid: rgba(255,255,255,0.055);
         --text: #ffffff; --accent: #e62429; --star-on: #f5b301; --star-off: #3a3a3a;
         /* Theme tokens (dark values); the light theme overrides these at the bottom of this file */
         --bg-page: #0b090f; --text-2: #aaa; --text-3: #888; --text-4: #ccc;
@@ -20,54 +22,21 @@
         top: 0; left: 0; width: 100vw; height: 100vh;
         pointer-events: none;
         z-index: 9998; 
-        box-shadow: inset 0 0 80px rgba(230, 36, 41, 0.25);
+        box-shadow: none;
         transition: box-shadow 0.6s ease;
     }
     .doomsday-active .edge-glow {
         box-shadow: inset 0 0 120px rgba(46, 204, 113, 0.4);
     }
 
-    /* Multiverse Animated Background */
-    .multiverse-bg {
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        z-index: -1;
-        overflow: hidden;
-        pointer-events: none;
-    }
-    .multiverse-bg .glow {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(90px);
-        opacity: var(--glow-opacity);
-        animation: drift infinite alternate ease-in-out;
-    }
-    .glow.red {
-        width: 60vw; height: 60vw;
-        background: radial-gradient(circle, rgba(230,36,41,0.4) 0%, transparent 70%);
-        top: -10%; left: -10%;
-        animation-duration: 25s;
-    }
-    .glow.purple {
-        width: 70vw; height: 70vw;
-        background: radial-gradient(circle, rgba(142,68,173,0.4) 0%, transparent 70%);
-        bottom: -20%; right: -10%;
-        animation-delay: -5s;
-        animation-duration: 22s;
-    }
-    .glow.blue {
-        width: 50vw; height: 50vw;
-        background: radial-gradient(circle, rgba(41,128,185,0.4) 0%, transparent 70%);
-        top: 30%; left: 30%;
-        animation-delay: -10s;
-        animation-duration: 28s;
-    }
-    @keyframes drift {
-        0% { transform: translate(0, 0) scale(1) rotate(0deg); }
-        33% { transform: translate(8vw, -8vh) scale(1.1) rotate(45deg); }
-        66% { transform: translate(-6vw, 10vh) scale(0.9) rotate(90deg); }
-        100% { transform: translate(-12vw, -5vh) scale(1.2) rotate(135deg); }
-    }
+    /* Background layers (look is chosen in Settings: aurora / grid / stars / plain) */
+    .multiverse-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; overflow: hidden; pointer-events: none; }
+    .multiverse-bg::before, .multiverse-bg::after { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity 0.4s ease; }
+    .multiverse-bg .glow { position: absolute; border-radius: 50%; filter: blur(100px); opacity: var(--glow-opacity); animation: drift 34s infinite alternate ease-in-out; will-change: transform; transition: opacity 0.4s ease; }
+    .glow.red    { width: 55vw; height: 55vw; background: radial-gradient(circle, rgba(var(--g1), 0.55) 0%, transparent 68%); top: -18%; left: -12%; }
+    .glow.purple { width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(var(--g2), 0.5) 0%, transparent 68%); bottom: -25%; right: -12%; animation-duration: 40s; animation-delay: -8s; }
+    .glow.blue   { width: 42vw; height: 42vw; background: radial-gradient(circle, rgba(var(--g3), 0.4) 0%, transparent 68%); top: 35%; left: 40%; animation-duration: 46s; animation-delay: -16s; }
+    @keyframes drift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(7vw, 5vh, 0) scale(1.15); } }
 
     .header { text-align: center; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); position: relative; z-index: 10; }
     .header h1 { color: var(--accent); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
@@ -138,7 +107,7 @@
     
     .btn-doomsday { border-color: #27ae60; color: #2ecc71; }
     .btn-doomsday:hover, .btn-doomsday.active { background-color: #27ae60; color: #fff; }
-    .btn-random { background: linear-gradient(45deg, #8e44ad, #2980b9); color: #fff; border: none; font-weight: bold; margin-top: 10px; }
+    .btn-random { background: linear-gradient(45deg, rgb(var(--g2)), rgb(var(--g3))); color: #fff; border: none; font-weight: bold; margin-top: 10px; }
     .btn-jump { background: linear-gradient(45deg, #2471a3, #3498db); color: #fff; }
     .btn-jump.done { opacity: 0.55; cursor: default; filter: grayscale(0.4); }
     @keyframes jumpPulse {
@@ -236,11 +205,11 @@
         width: 50px; height: 50px; font-size: 1.5rem; cursor: pointer;
         box-shadow: 0 4px 10px rgba(0,0,0,0.5); transition: 0.3s;
     }
-    #scrollTopBtn:hover { background-color: #ff0000; transform: scale(1.1); }
+    #scrollTopBtn:hover { filter: brightness(1.15); transform: scale(1.1); }
 
     /* Modals */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: var(--overlay); backdrop-filter: blur(5px); }
-    .modal-content { background: var(--panel-bg); margin: 10% auto; padding: 25px; border: 1px solid var(--accent); width: 90%; max-width: 700px; border-radius: 8px; display: flex; gap: 20px; position: relative; color: var(--text); box-shadow: 0 10px 25px rgba(0,0,0,0.8); }
+    .modal-content { background: var(--modal-bg); margin: 10% auto; padding: 25px; border: 1px solid var(--accent); width: 90%; max-width: 700px; border-radius: 8px; display: flex; gap: 20px; position: relative; color: var(--text); box-shadow: 0 10px 25px rgba(0,0,0,0.8); }
     /* Info modal: always vertically + horizontally centered, grows with the content, scrolls only if taller than the screen */
     #modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0; max-height: 90vh; overflow-y: auto; box-sizing: border-box; scrollbar-width: thin; scrollbar-color: var(--line-3) transparent; }
     .close-btn { position: absolute; top: 10px; right: 15px; color: var(--text-2); font-size: 24px; cursor: pointer; transition: 0.2s; z-index: 10; }
@@ -298,7 +267,7 @@
     .sheet-actions button { flex: 1; min-width: 120px; background: var(--n-2); color: var(--text); border: 1px solid var(--line-3); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
     .sheet-actions button:hover { background: var(--n-3); }
     .sheet-actions .sheet-primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: bold; }
-    .sheet-actions .sheet-primary:hover { background: #ff2f35; }
+    .sheet-actions .sheet-primary:hover { filter: brightness(1.15); }
     /* Where to watch (compact) */
     .providers { margin: 12px 0 0; padding: 8px 12px; background: transparent; border-top: 1px solid var(--line-1); font-size: 0.85rem; }
     .prov-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 4px; }
@@ -324,7 +293,6 @@
     }
 @media (max-width: 600px) {
         body { padding: 10px; }
-        .edge-glow { box-shadow: inset 0 0 40px rgba(230, 36, 41, 0.25); }
         .doomsday-active .edge-glow { box-shadow: inset 0 0 60px rgba(46, 204, 113, 0.4); }
         .dashboard { gap: 14px; }
 
@@ -392,12 +360,13 @@
        THEME TOGGLE + LIGHT THEME
     ============================================================== */
     .header { padding: 0 52px; }
-    .theme-toggle { position: absolute; top: 0; right: 0; width: 40px; height: 40px; padding: 0; border-radius: 50%; background: var(--n-1); color: var(--text); border: 1px solid var(--line-3); cursor: pointer; font-size: 1.15rem; line-height: 1; transition: 0.2s; text-shadow: none; }
-    .theme-toggle:hover { border-color: var(--accent); transform: rotate(15deg); }
+    .settings-btn { position: absolute; top: 0; right: 0; width: 40px; height: 40px; padding: 0; border-radius: 50%; background: var(--n-1); color: var(--text); border: 1px solid var(--line-3); cursor: pointer; font-size: 1.15rem; line-height: 1; transition: 0.2s; text-shadow: none; }
+    .settings-btn:hover { border-color: var(--accent); transform: rotate(45deg); }
 
     :root[data-theme="light"] {
         color-scheme: light;
-        --bg: #f2f3f7; --card-bg: rgba(255, 255, 255, 0.88); --panel-bg: rgba(255, 255, 255, 0.96);
+        --bg: #f2f3f7; --card-bg: rgba(255, 255, 255, 0.72); --panel-bg: rgba(255, 255, 255, 0.8);
+        --modal-bg: #ffffff; --dot: rgba(30,40,80,0.45); --grid: rgba(20,30,60,0.08);
         --text: #1b1b24; --star-off: #cfd2da;
         --bg-page: #eceef4; --text-2: #5a5f6e; --text-3: #7a7f8e; --text-4: #3f4350;
         --n-0: #f7f8fb; --n-1: #e9ebf1; --n-2: #e0e3eb; --n-3: #d0d4df;
@@ -408,7 +377,6 @@
     :root[data-theme="light"] .panel,
     :root[data-theme="light"] .main-progress,
     :root[data-theme="light"] .section { box-shadow: 0 4px 14px rgba(30, 40, 70, 0.12); }
-    :root[data-theme="light"] .edge-glow { box-shadow: inset 0 0 80px rgba(230, 36, 41, 0.12); }
     :root[data-theme="light"] .doomsday-active .edge-glow { box-shadow: inset 0 0 100px rgba(46, 204, 113, 0.25); }
     :root[data-theme="light"] .stat-val,
     :root[data-theme="light"] .lb-score { color: #b7791f; }
@@ -439,7 +407,7 @@
     body.sandbox-on .edge-glow, :root[data-theme="light"] body.sandbox-on .edge-glow { box-shadow: inset 0 0 80px rgba(243, 156, 18, 0.38); }
     @media (max-width: 600px) {
         .header { padding: 0 46px; }
-        .theme-toggle { width: 36px; height: 36px; font-size: 1rem; }
+        .settings-btn { width: 36px; height: 36px; font-size: 1rem; }
         .dev-status { display: none; }
     }
     @media (max-width: 600px) and (max-height: 680px) {
@@ -535,7 +503,106 @@
     .wd-line { margin: 8px 0; font-size: 0.95rem; }
     .wd-hint { margin: 0 0 8px 0; font-size: 0.8rem; color: var(--text-3); }
     #wd-input { background: var(--n-1); color: var(--text); border: 1px solid var(--line-3); border-radius: 4px; padding: 3px 6px; font-family: inherit; }
-    #wd-today { background: var(--n-1); color: var(--text); border: 1px solid var(--line-3); border-radius: 4px; padding: 3px 9px; cursor: pointer; }
-    #wd-today:hover { border-color: var(--accent); }
+    #wd-today, #wd-clear { background: var(--n-1); color: var(--text); border: 1px solid var(--line-3); border-radius: 4px; padding: 3px 9px; cursor: pointer; }
+    #wd-today:hover, #wd-clear:hover { border-color: var(--accent); }
     @media (max-width: 600px) { .watch-date { margin-left: 0; } }
     .leaderboard-list .lb-score { white-space: nowrap; margin-left: 8px; }
+
+
+    /* ==============================================================
+       SETTINGS: THEMES (palettes), BACKGROUNDS, EDGE GLOW
+    ============================================================== */
+    :root[data-palette="asgard"]   { --accent: #2f7bf0; --accent-hover: #5593f5; --g1: 47,123,240;  --g2: 120,90,230;  --g3: 0,190,220; }
+    :root[data-palette="infinity"] { --accent: #8e4fe0; --accent-hover: #a672ee; --g1: 142,79,224;  --g2: 232,60,150;  --g3: 60,90,230; }
+    :root[data-palette="stark"]    { --accent: #d9480f; --accent-hover: #f2641f; --g1: 255,140,30;  --g2: 230,36,41;   --g3: 255,200,50; }
+    :root[data-palette="quantum"]  { --accent: #0f9d8a; --accent-hover: #1bbfa9; --g1: 20,184,166;  --g2: 59,130,246;  --g3: 132,204,22; }
+    :root[data-palette="asgard"]:not([data-theme="light"])   { --bg-page: #070b14; }
+    :root[data-palette="infinity"]:not([data-theme="light"]) { --bg-page: #0d0816; }
+    :root[data-palette="stark"]:not([data-theme="light"])    { --bg-page: #100a06; }
+    :root[data-palette="quantum"]:not([data-theme="light"])  { --bg-page: #061010; }
+
+    /* Soft glass panels */
+    .panel, .main-progress, .section { border-radius: 14px; -webkit-backdrop-filter: blur(16px) saturate(1.2); backdrop-filter: blur(16px) saturate(1.2); }
+    .panel { box-shadow: 0 6px 24px rgba(0, 0, 0, 0.32); }
+
+    /* Aurora (default): drifting colour glow + a little film grain */
+    :root:not([data-bg]) .multiverse-bg::after, :root[data-bg="aurora"] .multiverse-bg::after {
+        opacity: 0.06;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Grid: fine lines that fade out, lit by one spotlight */
+    :root[data-bg="grid"] .multiverse-bg::before {
+        opacity: 1;
+        background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+        background-size: 44px 44px;
+        -webkit-mask-image: radial-gradient(ellipse 85% 75% at 50% 0%, #000 15%, transparent 78%);
+        mask-image: radial-gradient(ellipse 85% 75% at 50% 0%, #000 15%, transparent 78%);
+    }
+    :root[data-bg="grid"] .glow.purple, :root[data-bg="grid"] .glow.blue { opacity: 0; }
+    :root[data-bg="grid"] .glow.red { width: 80vw; height: 60vh; left: 10vw; top: -30vh; animation: none; }
+
+    /* Stars: two layers of tiny stars, the second one twinkles */
+    :root[data-bg="stars"] .multiverse-bg::before, :root[data-bg="stars"] .multiverse-bg::after { opacity: 1; }
+    :root[data-bg="stars"] .multiverse-bg::before {
+        background-image:
+            radial-gradient(1px 1px at 23px 41px, var(--dot), transparent), radial-gradient(1px 1px at 131px 97px, var(--dot), transparent),
+            radial-gradient(1px 1px at 77px 173px, var(--dot), transparent), radial-gradient(1.5px 1.5px at 189px 22px, var(--dot), transparent);
+        background-size: 211px 211px, 257px 257px, 307px 307px, 353px 353px;
+        opacity: 0.7;
+    }
+    :root[data-bg="stars"] .multiverse-bg::after {
+        background-image:
+            radial-gradient(2px 2px at 61px 83px, var(--dot), transparent), radial-gradient(1.5px 1.5px at 240px 190px, var(--dot), transparent),
+            radial-gradient(2px 2px at 160px 310px, var(--dot), transparent);
+        background-size: 397px 397px, 449px 449px, 503px 503px;
+        animation: twinkle 5s ease-in-out infinite alternate;
+    }
+    @keyframes twinkle { from { opacity: 0.25; } to { opacity: 1; } }
+    :root[data-bg="stars"] .glow { opacity: calc(var(--glow-opacity) * 0.6); }
+
+    /* Plain: just the page colour */
+    :root[data-bg="plain"] .glow { display: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .multiverse-bg .glow, :root[data-bg="stars"] .multiverse-bg::after { animation: none; }
+    }
+
+    /* Screen edge glow (off by default; Doomsday and Sandbox still light the edges as status indicators) */
+    :where(:root[data-edge="on"]) .edge-glow { box-shadow: inset 0 0 90px rgba(var(--g1), 0.22); }
+    :where(:root[data-edge="on"][data-theme="light"]) .edge-glow { box-shadow: inset 0 0 90px rgba(var(--g1), 0.12); }
+
+    /* Settings pop-up */
+    .settings-sheet { gap: 16px; max-width: 520px; }
+    .set-section { display: flex; flex-direction: column; gap: 12px; }
+    .set-section + .set-section { border-top: 1px solid var(--line-1); padding-top: 16px; }
+    .set-section h3 { margin: 0; font-size: 1rem; color: var(--text); }
+    .set-group { display: flex; flex-direction: column; gap: 6px; }
+    .set-label { font-size: 0.8rem; color: var(--text-3); font-weight: 600; }
+    .seg { display: flex; gap: 3px; padding: 3px; background: var(--n-1); border: 1px solid var(--line-2); border-radius: 10px; }
+    .seg button { flex: 1; background: transparent; color: var(--text-2); border: none; padding: 8px 6px; border-radius: 7px; cursor: pointer; font: inherit; font-size: 0.85rem; transition: 0.15s; }
+    .seg button:hover { color: var(--text); }
+    .seg button.on { background: var(--accent); color: #fff; font-weight: 600; }
+    .swatches { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+    .swatch { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px 4px; background: var(--n-1); color: var(--text-2); border: 2px solid var(--line-2); border-radius: 10px; cursor: pointer; font: inherit; font-size: 0.72rem; transition: 0.15s; }
+    .swatch i { display: block; width: 100%; height: 30px; border-radius: 6px; background: linear-gradient(135deg, rgb(var(--s1)), rgb(var(--s2))); }
+    .swatch:hover { border-color: var(--line-3); }
+    .swatch.on { border-color: var(--accent); color: var(--text); font-weight: 600; }
+    .set-switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; font-size: 0.9rem; color: var(--text-4); position: relative; }
+    .set-switch input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .set-switch i { position: relative; flex-shrink: 0; width: 42px; height: 24px; border-radius: 12px; background: var(--n-3); transition: 0.2s; }
+    .set-switch i::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+    .set-switch input:checked + i { background: var(--accent); }
+    .set-switch input:checked + i::after { transform: translateX(18px); }
+    .set-switch input:focus-visible + i, .seg button:focus-visible, .swatch:focus-visible, .set-actions button:focus-visible, .date-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .set-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .set-actions button, .set-actions label { display: block; text-align: center; background: var(--n-2); color: var(--text); border: 1px solid var(--line-3); padding: 10px 8px; border-radius: 8px; cursor: pointer; font: inherit; font-size: 0.85rem; box-sizing: border-box; transition: 0.15s; }
+    .set-actions button:hover, .set-actions label:hover { background: var(--n-3); border-color: var(--accent); }
+    .set-actions input[type="file"] { display: none; }
+    @media (max-width: 460px) { .swatches { grid-template-columns: repeat(3, 1fr); } .set-actions { grid-template-columns: 1fr; } }
+
+    /* Watch-date button (next to the notes button) */
+    .date-icon { cursor: pointer; font-size: 1.2rem; opacity: 0.35; transition: 0.2s; user-select: none; }
+    .date-icon:hover, .date-icon.active { opacity: 1; }
+    .date-title { font-weight: 600; color: var(--text) !important; }
+    #date-modal .modal-content.sheet { max-width: 380px; }

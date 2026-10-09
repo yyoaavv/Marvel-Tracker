@@ -309,6 +309,8 @@ function refreshWatchDates() {
         const has = u && u.watched && u.watchedAt;
         el.textContent = has ? fmtWatchDate(u.watchedAt) : '';
         el.title = has ? 'Watched on ' + new Date(u.watchedAt).toLocaleDateString(undefined, { dateStyle: 'full' }) : '';
+        const di = w.querySelector('.date-icon');
+        if (di) { di.classList.toggle('active', !!has); di.title = has ? 'Watched ' + fmtWatchDate(u.watchedAt) + ' (tap to change)' : 'Set watch date'; }
     });
 }
 function updateRecentlyWatched() {
@@ -329,11 +331,17 @@ function setWatchDate(id, str) {
 function renderWatchDateBox(item) {
     const box = document.getElementById('watch-date-box'); if (!box || !item) return;
     const u = userData[item.id];
-    if (!u || !u.watched) { box.innerHTML = '<p class="wd-line">📅 <strong>Watched on:</strong> not watched yet</p>'; return; }
-    box.innerHTML = `<p class="wd-line">📅 <strong>Watched on:</strong> <input type="date" id="wd-input" value="${u.watchedAt ? toDateInputValue(u.watchedAt) : ''}" max="${toDateInputValue(Date.now())}"> <button type="button" id="wd-today">Today</button></p>`
+    if (!u || !u.watched) { box.innerHTML = '<p class="wd-hint">Tick this title as watched first, then you can set the date here.</p>'; return; }
+    box.innerHTML = `<p class="wd-line"><input type="date" id="wd-input" value="${u.watchedAt ? toDateInputValue(u.watchedAt) : ''}" max="${toDateInputValue(Date.now())}"> <button type="button" id="wd-today">Today</button>${u.watchedAt ? ' <button type="button" id="wd-clear">Clear</button>' : ''}</p>`
         + (u.watchedAt ? '' : '<p class="wd-hint">No date saved for this one yet. Pick the day you watched it, if you remember!</p>');
     document.getElementById('wd-input').addEventListener('change', e => setWatchDate(item.id, e.target.value));
     document.getElementById('wd-today').addEventListener('click', () => setWatchDate(item.id, toDateInputValue(Date.now())));
+    const clr = document.getElementById('wd-clear'); if (clr) clr.addEventListener('click', () => setWatchDate(item.id, ''));
+}
+function openDateModal(item) {
+    document.getElementById('date-title').textContent = item.title.replace(/\s\(\d{4}\)/, '');
+    renderWatchDateBox(item);
+    document.getElementById('date-modal').style.display = 'flex';
 }
 
 function save() { syncWatchDates(); persist(); updateDashboards(); }
@@ -992,11 +1000,9 @@ async function openInfo(title) {
             <p><strong>Release Date:</strong> ${title.includes("Encore") ? "2026-09-04" : releaseDate}</p>
             <p><strong>Length:</strong> ${exactRuntime > 0 ? exactRuntime + ' mins' : 'N/A'}</p>
             <p class="modal-overview">${details.overview || "No overview available."}</p>
-            <div id="watch-date-box"></div>
             ${trailerHtml}
             <div id="providers-box"></div>
         `;
-        renderWatchDateBox(dbItem);
         renderProviders();
     } catch (e) { textWrapper.innerHTML = "Error loading detailed information."; }
 }
@@ -1111,6 +1117,7 @@ function generateItemHTML(item, sectionColor) {
                     <span class="started-icon ${data.inProgress ? 'active' : ''}" title="Watching / In Progress">⏳</span>
                     <span class="info-icon" title="View Info" onclick="openInfo('${title.replace(/'/g, "\\'")}')">ℹ</span>
                     <span class="note-icon ${data.note ? 'active' : ''}" title="Review Notes">📝</span>
+                    <span class="date-icon" title="Set watch date">📅</span>
                     <div class="star-rating">${starsHTML}</div>
                     <span class="rating-value">${data.rating > 0 ? data.rating + '/10' : '-/10'}</span>
                 </div>
@@ -1133,6 +1140,8 @@ function attachItemListeners(wrapperDiv, item, sectionColor) {
     const noteBox = wrapperDiv.querySelector('.note-box');
     const textarea = wrapperDiv.querySelector('textarea');
     const startedIcon = wrapperDiv.querySelector('.started-icon');
+    const dateIcon = wrapperDiv.querySelector('.date-icon');
+    if (dateIcon) dateIcon.addEventListener('click', () => openDateModal(item));
     
     posterObserver.observe(wrapperDiv);
     
@@ -1529,26 +1538,71 @@ function devSandboxExit() {
     initializeData(); save(); render(); devSandboxUI();
 }
 
-/* ---------- Light / Dark theme ---------- */
-const THEME_KEY = 'marvelTrackerTheme';
-function currentTheme() { return document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark'; }
-function applyTheme(theme) {
-    if (theme === 'light') document.documentElement.setAttribute('data-theme', 'light');
-    else document.documentElement.removeAttribute('data-theme');
+/* ---------- Settings: mode, theme, background, edge glow ---------- */
+const SETTINGS_KEY = 'marvelTrackerSettings';
+const THEME_KEY = 'marvelTrackerTheme';   // old light/dark key, only read once to carry over your choice
+const PALETTES = [
+    { id: 'marvel',   name: 'Marvel',   s: ['230,36,41', '142,68,173'],  bg: '#0b090f' },
+    { id: 'asgard',   name: 'Asgard',   s: ['47,123,240', '0,190,220'],  bg: '#070b14' },
+    { id: 'infinity', name: 'Infinity', s: ['142,79,224', '232,60,150'], bg: '#0d0816' },
+    { id: 'stark',    name: 'Stark',    s: ['217,72,15', '255,170,40'],  bg: '#100a06' },
+    { id: 'quantum',  name: 'Quantum',  s: ['15,157,138', '59,130,246'], bg: '#061010' }
+];
+const BG_STYLES = ['aurora', 'grid', 'stars', 'plain'];
+const sysLight = window.matchMedia ? window.matchMedia('(prefers-color-scheme: light)') : null;
+
+function loadSettings() {
+    const d = { mode: 'dark', palette: 'marvel', bg: 'aurora', edge: false };
+    try {
+        const s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null');
+        if (s && typeof s === 'object') Object.assign(d, s);
+        else if (localStorage.getItem(THEME_KEY) === 'light') d.mode = 'light';
+    } catch (e) {}
+    if (!['dark', 'light', 'system'].includes(d.mode)) d.mode = 'dark';
+    if (!PALETTES.some(p => p.id === d.palette)) d.palette = 'marvel';
+    if (!BG_STYLES.includes(d.bg)) d.bg = 'aurora';
+    d.edge = !!d.edge;
+    return d;
+}
+let settings = loadSettings();
+function resolvedMode() { return settings.mode === 'system' ? (sysLight && sysLight.matches ? 'light' : 'dark') : settings.mode; }
+
+function applySettings() {
+    const r = document.documentElement, mode = resolvedMode();
+    if (mode === 'light') r.setAttribute('data-theme', 'light'); else r.removeAttribute('data-theme');
+    r.setAttribute('data-palette', settings.palette);
+    r.setAttribute('data-bg', settings.bg);
+    if (settings.edge) r.setAttribute('data-edge', 'on'); else r.removeAttribute('data-edge');
+    const p = PALETTES.find(x => x.id === settings.palette) || PALETTES[0];
     const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', theme === 'light' ? '#eceef4' : '#121212');
-    const btn = document.getElementById('theme-toggle');
-    if (btn) {
-        const label = theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
-        btn.textContent = theme === 'light' ? '🌙' : '☀️';
-        btn.title = label; btn.setAttribute('aria-label', label);
-    }
+    if (meta) meta.setAttribute('content', mode === 'light' ? '#eceef4' : p.bg);
+    syncSettingsUI();
 }
-function toggleTheme() {
-    const next = currentTheme() === 'light' ? 'dark' : 'light';
-    applyTheme(next);
-    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+function setSetting(key, val) {
+    settings[key] = val;
+    try { localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings)); } catch (e) {}
+    applySettings();
 }
+function syncSettingsUI() {
+    document.querySelectorAll('#settings-modal [data-key]').forEach(g => {
+        g.querySelectorAll('[data-val]').forEach(b => {
+            const on = b.dataset.val === String(settings[g.dataset.key]);
+            b.classList.toggle('on', on); b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+    });
+    const e = document.getElementById('set-edge'); if (e) e.checked = !!settings.edge;
+}
+function buildSettingsUI() {
+    const sw = document.getElementById('set-palettes');
+    if (sw) sw.innerHTML = PALETTES.map(p => `<button type="button" class="swatch" data-val="${p.id}" style="--s1:${p.s[0]};--s2:${p.s[1]}"><i></i>${p.name}</button>`).join('');
+    document.getElementById('settings-modal').addEventListener('click', e => {
+        const b = e.target.closest('[data-val]'); if (!b) return;
+        const g = b.closest('[data-key]'); if (g) setSetting(g.dataset.key, b.dataset.val);
+    });
+    document.getElementById('set-edge').addEventListener('change', e => setSetting('edge', e.target.checked));
+    if (sysLight && sysLight.addEventListener) sysLight.addEventListener('change', () => { if (settings.mode === 'system') applySettings(); });
+}
+function openSettings() { document.getElementById('settings-modal').style.display = 'flex'; }
 
 /* ==============================================================
    MARVEL WRAPPED (story-style recap + shareable image)
@@ -1945,7 +1999,8 @@ document.addEventListener('keydown', e => {
 
 
 window.onload = function() {
-    applyTheme(currentTheme());
+    buildSettingsUI();
+    applySettings();
     render();
     rebaseWatchSnap();
     initDoomsdayClock();

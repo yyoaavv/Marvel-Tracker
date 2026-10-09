@@ -9,8 +9,17 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#121212">
 <script>
-  // Apply the saved theme before the page paints (prevents a dark flash in light mode)
-  try { if (localStorage.getItem('marvelTrackerTheme') === 'light') document.documentElement.setAttribute('data-theme', 'light'); } catch (e) {}
+  // Apply saved appearance settings before the page paints (prevents a flash of the wrong theme)
+  (function () { try {
+    var s = JSON.parse(localStorage.getItem('marvelTrackerSettings') || 'null');
+    if (!s) s = { mode: localStorage.getItem('marvelTrackerTheme') === 'light' ? 'light' : 'dark' };
+    var r = document.documentElement, m = s.mode || 'dark';
+    if (m === 'system') m = matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    if (m === 'light') r.setAttribute('data-theme', 'light');
+    if (s.palette) r.setAttribute('data-palette', s.palette);
+    if (s.bg) r.setAttribute('data-bg', s.bg);
+    if (s.edge) r.setAttribute('data-edge', 'on');
+  } catch (e) {} })();
 </script>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,7 +45,7 @@
 </div>
 
 <div class="header">
-    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Switch to light mode" aria-label="Switch to light mode">☀️</button>
+    <button class="settings-btn" id="settings-btn" onclick="openSettings()" title="Settings" aria-label="Settings">⚙️</button>
     <h1>Marvel Tracker</h1>
     <p class="subtitle" onclick="handleSecretClick()">made by yyoaavv</p>
     <div class="top-controls">
@@ -60,13 +69,6 @@
         <div class="panel">
             <h3>🕒 Recently Watched</h3>
             <ul class="leaderboard-list" id="recent-list"></ul>
-        </div>
-        <div class="panel backup-controls">
-            <h3>💾 Backup Data</h3>
-            <button onclick="exportData()">⬇ Export Backup File</button>
-            <label>⬆ Import Backup File<input type="file" id="import-file" accept=".json" onchange="importData(event)"></label>
-            <button onclick="openSendProgress()">📤 Send Progress</button>
-            <button id="btn-shortcut" onclick="openShortcutHelp()">📲 Create Shortcut</button>
         </div>
     </div>
 
@@ -128,6 +130,62 @@
         <span class="close-btn" onclick="closeModal(null, 'info-modal', true)">&times;</span>
         <div class="modal-img-wrapper" id="modal-img"></div>
         <div class="modal-details" id="modal-text">Loading...</div>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="modal sheet-modal" onclick="closeModal(event, 'settings-modal')">
+    <div class="modal-content sheet settings-sheet" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal(null, 'settings-modal', true)">&times;</span>
+        <h2>⚙️ Settings</h2>
+
+        <section class="set-section">
+            <h3>Appearance</h3>
+            <div class="set-group">
+                <span class="set-label">Mode</span>
+                <div class="seg" data-key="mode">
+                    <button type="button" data-val="dark">🌙 Dark</button>
+                    <button type="button" data-val="light">☀️ Light</button>
+                    <button type="button" data-val="system">💻 System</button>
+                </div>
+            </div>
+            <div class="set-group">
+                <span class="set-label">Theme</span>
+                <div class="swatches" id="set-palettes" data-key="palette"></div>
+            </div>
+            <div class="set-group">
+                <span class="set-label">Background</span>
+                <div class="seg" data-key="bg">
+                    <button type="button" data-val="aurora">Aurora</button>
+                    <button type="button" data-val="grid">Grid</button>
+                    <button type="button" data-val="stars">Stars</button>
+                    <button type="button" data-val="plain">Plain</button>
+                </div>
+            </div>
+            <label class="set-switch"><span>Screen edge glow</span><input type="checkbox" id="set-edge"><i></i></label>
+        </section>
+
+        <section class="set-section">
+            <h3>Your data</h3>
+            <p class="sheet-note">Everything is stored on this device. Back it up, or move it to another device.</p>
+            <div class="set-actions">
+                <button type="button" onclick="exportData()">⬇ Export backup file</button>
+                <label>⬆ Import backup file<input type="file" id="import-file" accept=".json" onchange="importData(event)"></label>
+                <button type="button" onclick="openSendProgress()">📤 Send progress</button>
+                <button type="button" id="btn-shortcut" onclick="openShortcutHelp()">📲 Create shortcut</button>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Watch Date Modal (opened from the 📅 button next to the notes button) -->
+<div id="date-modal" class="modal sheet-modal" onclick="closeModal(event, 'date-modal')">
+    <div class="modal-content sheet" onclick="event.stopPropagation()">
+        <span class="close-btn" onclick="closeModal(null, 'date-modal', true)">&times;</span>
+        <h2>📅 Watch date</h2>
+        <p id="date-title" class="date-title"></p>
+        <div id="watch-date-box"></div>
+        <div class="sheet-actions"><button type="button" class="sheet-primary" onclick="closeModal(null, 'date-modal', true)">Done</button></div>
     </div>
 </div>
 
