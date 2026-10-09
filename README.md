@@ -1,61 +1,64 @@
-# Unplugged
+# Marvel Tracker
 
-A private, offline-first tracker for breaking a habit. One honest check-in a day, with tools for the moments that are hard. Everything stays on your device: no accounts, no servers, no analytics.
+[![Live Demo](https://img.shields.io/badge/Live-Website-e62429?style=for-the-badge)](https://yyoaavv.github.io/Marvel-Tracker/)
 
-**Live app:** https://yyoaavv.github.io/Unplugged/
+Marvel Tracker is a comprehensive, privacy-first web dashboard designed for hardcore Marvel fans. Track your journey through the MCU, Fox's X-Men, Sony's Spider-Man universe, and legacy TV shows without needing an account.
 
-## Features
+### 🚀 Live Website
+**Play with the live tracker here:** [https://yyoaavv.github.io/Marvel-Tracker/](https://yyoaavv.github.io/Marvel-Tracker/)
 
-- **Daily check-in:** log each day as clean or slipped, fix past days from the calendar, or fill in a whole range at once.
-- **Slip journal:** when you log a slip, an optional 2-second survey asks about the trigger (Stress, Boredom, Fatigue, Loneliness, Late night screen time), where you were, and when. Skip it any time, or add details later.
-- **Pattern insights:** the Stats tab turns your tags into plain-language insights, such as your most common trigger, setting and time of day.
-- **Urge support:** the "I need help now" panel offers guided breathing, a 10-minute ride-it-out timer, ideas to change the scene, and your own reasons.
-- **Your reasons:** pick built-in reasons or write your own; one is shown back to you when an urge hits.
-- **Streaks and achievements:** current and best streak, milestones from day one to a full year, and extra badges.
-- **Stats:** last 30 days, weekday breakdown, six-month trend and a year heatmap.
-- **Themes:** nine themes plus a custom one, each with light and dark mode.
-- **Backup:** export and import your data as a JSON file.
-- **Installable PWA:** add it to your home screen for a full-screen app that works offline.
+---
 
-## Privacy
+## ✨ Core Features
 
-All data is stored in your browser's `localStorage`. Nothing is sent anywhere. The only network request is the optional Google Font; the service worker caches it, and the app falls back to system fonts without it.
+*   **The Sacred Timeline & Release Order:** Toggle seamlessly between the in-universe chronological timeline and traditional release phases.
+*   **Complete Multiverse Coverage:** Includes the Infinity Saga, Multiverse Saga, Marvel One-Shots, The Defenders, Fox X-Men, Fox's Fantastic Four, Sony's Spider-Man (including Spider-Noir), Legacy Marvel Television, and animated series.
+*   **Deep TMDB Integration:** Click on any title to pull real-time release data, official synopses, high-quality posters, and playable YouTube trailers directly inside the app.
+*   **Where to Watch:** Every title's info window shows which streaming services carry it (plus rent/buy options) in your country, with a country picker. Streaming data provided by JustWatch via TMDB.
+*   **Dynamic Progress Bars:** A main progress bar with an animated gradient built from the colors of the phases you've watched, plus a mini progress bar for every phase. Hover (or tap) a mini bar to see exactly how many you've watched and how many are left, like `6 / 14 watched · 8 left`.
+*   **Started But Not Finished:** Mark anything you've begun watching with the ⏳ icon (it also turns on automatically when you've watched some episodes of a show), and use the **Started / Watching** filter to jump back to it.
+*   **Search & Filter:** Filter your list by All, Watched, Unwatched, Started, Doomsday Prep, and optional Non-Canon & Animation titles.
+*   **Up Next & Jump:** A quick panel that shows what you should watch next, with a **Jump to it** button that scrolls straight to that title (opening its phase and clearing any filters hiding it).
+*   **Nerd Stats & Hall of Fame:** Tracks your total watch time down to the minute, calculates your average rating, determines your favorite Phase, and builds a custom Top 10 Leaderboard based on your 1-10 star ratings.
+*   **Doomsday Prep Mode:** A specialized filter that isolates only the essential multiverse movies you need to watch before *Avengers: Doomsday*. Essential titles get a green glow, and a Doomsday countdown clock keeps you on track.
+*   **The Randomizer Wheel:** Can't decide what to watch? Spin the wheel to randomly select an unwatched movie or show based on your current filters.
+*   **Watch Dates:** The date is saved automatically when you tick a title (no streaks, no pressure). It shows next to the title, in a **Recently Watched** panel, and you can set or fix any date in the title's info window. Titles you watched before this feature can be dated by hand.
+*   **Marvel Wrapped:** A Spotify-style story built from your own progress: titles watched, total watch time (in Endgames), your home universe, where your time went, top 5, rating breakdown, harshest rating, Doomsday readiness, fun facts and a Marvel personality type. Tap through the slides, then share or save a ready-made image card. Everything is made on your device.
+*   **Light & Dark Mode:** One tap on the ☀️/🌙 button in the header switches themes. Your choice is remembered on that device.
+*   **Celebrations:** Confetti and a glow effect when you complete a Phase.
+*   **Privacy First (No Accounts Required):** All watch progress, ratings, and custom review notes are saved securely to your browser's `localStorage`.
+*   **Send Progress:** One tap creates a link containing your progress. Send it to yourself and open it on another device (phone to computer or computer to phone) and it offers to load everything (it always asks before replacing anything).
+*   **Create Shortcut:** Install the tracker as an app on your home screen or desktop. Works with one tap on Chrome/Edge/Android and with a short guide on iPhone.
+*   **Data Portability:** Export your watch history as a backup JSON file, and import it on your phone or another computer to bring your progress with you.
 
-Clearing your browser data erases your log, so use **Settings > Export backup** regularly.
-
-## Run it
-
-It's plain HTML, CSS and JavaScript with no build step.
-
-**Locally:** open `index.html` in a browser. The service worker and install option need `https` or `localhost`, so for those run a local server:
+## 📁 Project Structure
 
 ```
-python3 -m http.server 8000
+Marvel-Tracker/
+├── index.html    # Page markup
+├── style.css     # All styling (themes, progress bars, glows, tooltips)
+├── script.js     # Data, rendering, filters, stats, TMDB calls
+├── favicon.png   # Tab icon
+├── manifest.webmanifest, sw.js, icon-192.png, icon-512.png, apple-touch-icon.png  # Home-screen install support
+└── README.md
 ```
 
-then visit `http://localhost:8000`.
+## 🛠️ Built With
+*   **HTML5, CSS3, JavaScript (Vanilla)** - Client-side rendering and logic, no frameworks or build step.
+*   **The Movie Database (TMDB) API** - Live metadata, posters, and trailers.
+*   **Canvas Confetti** - Visual celebration effects for completing Phases.
+*   **GitHub Pages** - Hosting and deployment.
 
-**GitHub Pages:**
+## 💾 Local Setup (For Developers)
+If you want to download the code and run this locally:
+1. Clone this repository to your machine.
+2. Keep `index.html`, `style.css`, `script.js` and `favicon.png` together in the same folder.
+3. Open `script.js` and set `TMDB_API_KEY` (near the top) to your own free key from [TMDB](https://www.themoviedb.org/settings/api).
+4. Open `index.html` in any modern web browser. No local server is required for the base functionality.
 
-1. Push all the files to your repository.
-2. Go to **Settings > Pages**, choose your branch and the root folder, and save.
-3. Open the `https://<username>.github.io/<repo>/` link, then use your browser's Install or Add to Home Screen option.
+**Adding new titles:** give every item a unique 3-digit `id` (100-999) in `script.js`. Progress is saved by ID, so you can safely rename a title later without losing anyone's data. The developer audit checks for missing or duplicate IDs.
 
-## Files
+> **Note:** Your progress is stored in the browser's `localStorage`, which is tied to the address you open the site from. Use **Export Backup File** before moving to a new address or device, then import it there.
 
-| File | Purpose |
-| --- | --- |
-| `index.html` | The whole app |
-| `manifest.json` | PWA name, colors and icons |
-| `sw.js` | Service worker for offline use |
-| `favicon.svg` | Browser tab icon (adapts to light and dark mode) |
-| `icon.svg`, `icon-maskable.svg` | App icons (SVG) used when installing the app |
-| `apple-touch-icon.png` | iPhone and iPad home screen icon (iOS needs PNG) |
-
-## Updating
-
-After changing any file, bump the `CACHE` version at the top of `sw.js` (for example `unplugged-v2`) so installed copies pick up the new version and clean out the old cache.
-
-## Disclaimer
-
-Unplugged is a self-help tool, not medical or mental health care. If you're struggling, consider talking to a doctor, therapist or someone you trust.
+---
+*made by yyoaavv* | Featuring the custom progress-ring icon

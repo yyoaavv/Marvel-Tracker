@@ -276,10 +276,70 @@ function initializeData() {
     });
 }
 
-function save() { persist(); updateDashboards(); }
+/* ---------- Watch dates ----------
+   A title gets a date the moment it becomes "watched" and loses it when it is un-watched.
+   Titles that were already watched before this feature stay undated (you can add a date in their info window). */
+let watchSnap = {}, watchSnapRef = null;
+function rebaseWatchSnap() {
+    watchSnap = {};
+    allDbItems.forEach(i => { if (userData[i.id] && userData[i.id].watched) watchSnap[i.id] = true; });
+    watchSnapRef = userData;
+}
+function syncWatchDates() {
+    if (watchSnapRef !== userData) { rebaseWatchSnap(); return; }   // whole save was replaced (import, sync link, sandbox): do not stamp
+    const now = Date.now();
+    allDbItems.forEach(item => {
+        const u = userData[item.id]; if (!u) return;
+        if (u.watched && !watchSnap[item.id]) { if (!u.watchedAt) u.watchedAt = now; watchSnap[item.id] = true; }
+        else if (!u.watched && watchSnap[item.id]) { delete u.watchedAt; delete watchSnap[item.id]; }
+    });
+}
+function fmtWatchDate(ts) {
+    const d = new Date(ts), sameYear = d.getFullYear() === new Date().getFullYear();
+    return d.toLocaleDateString(undefined, sameYear ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function toDateInputValue(ts) {
+    const d = new Date(ts), p = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+function refreshWatchDates() {
+    document.querySelectorAll('.item-wrapper').forEach(w => {
+        const el = w.querySelector('.watch-date'); if (!el) return;
+        const u = userData[w.getAttribute('data-id')];
+        const has = u && u.watched && u.watchedAt;
+        el.textContent = has ? fmtWatchDate(u.watchedAt) : '';
+        el.title = has ? 'Watched on ' + new Date(u.watchedAt).toLocaleDateString(undefined, { dateStyle: 'full' }) : '';
+    });
+}
+function updateRecentlyWatched() {
+    const el = document.getElementById('recent-list'); if (!el) return;
+    const rec = allDbItems.filter(i => userData[i.id] && userData[i.id].watched && userData[i.id].watchedAt)
+        .sort((a, b) => userData[b.id].watchedAt - userData[a.id].watchedAt).slice(0, 5);
+    el.innerHTML = rec.length
+        ? rec.map(i => `<li><span>${escHtml(i.title.replace(/\s\(\d{4}\)/, ''))}</span> <span class="lb-score">${fmtWatchDate(userData[i.id].watchedAt)}</span></li>`).join('')
+        : '<li>Tick a title and it shows up here with its date.</li>';
+}
+function setWatchDate(id, str) {
+    const u = userData[id]; if (!u || !u.watched) return;
+    if (!str) delete u.watchedAt;
+    else { const [y, m, d] = str.split('-').map(Number); u.watchedAt = new Date(y, m - 1, d, 12).getTime(); }
+    save();
+    renderWatchDateBox(allDbItems.find(i => i.id === id));
+}
+function renderWatchDateBox(item) {
+    const box = document.getElementById('watch-date-box'); if (!box || !item) return;
+    const u = userData[item.id];
+    if (!u || !u.watched) { box.innerHTML = '<p class="wd-line">📅 <strong>Watched on:</strong> not watched yet</p>'; return; }
+    box.innerHTML = `<p class="wd-line">📅 <strong>Watched on:</strong> <input type="date" id="wd-input" value="${u.watchedAt ? toDateInputValue(u.watchedAt) : ''}" max="${toDateInputValue(Date.now())}"> <button type="button" id="wd-today">Today</button></p>`
+        + (u.watchedAt ? '' : '<p class="wd-hint">No date saved for this one yet. Pick the day you watched it, if you remember!</p>');
+    document.getElementById('wd-input').addEventListener('change', e => setWatchDate(item.id, e.target.value));
+    document.getElementById('wd-today').addEventListener('click', () => setWatchDate(item.id, toDateInputValue(Date.now())));
+}
+
+function save() { syncWatchDates(); persist(); updateDashboards(); }
 
 function updateDashboards() {
-    updateProgress(); updateLeaderboard(); updateUpNext(); updateNerdStats();
+    updateProgress(); updateLeaderboard(); updateUpNext(); updateNerdStats(); updateRecentlyWatched(); refreshWatchDates();
     if(!isChronoMode) updateMiniProgressBars();
     applyFilterToDOM();
 }
@@ -932,9 +992,11 @@ async function openInfo(title) {
             <p><strong>Release Date:</strong> ${title.includes("Encore") ? "2026-09-04" : releaseDate}</p>
             <p><strong>Length:</strong> ${exactRuntime > 0 ? exactRuntime + ' mins' : 'N/A'}</p>
             <p class="modal-overview">${details.overview || "No overview available."}</p>
+            <div id="watch-date-box"></div>
             ${trailerHtml}
             <div id="providers-box"></div>
         `;
+        renderWatchDateBox(dbItem);
         renderProviders();
     } catch (e) { textWrapper.innerHTML = "Error loading detailed information."; }
 }
@@ -1043,6 +1105,7 @@ function generateItemHTML(item, sectionColor) {
                     <input type="checkbox" class="main-checkbox" style="accent-color: ${sectionColor};" ${data.watched ? 'checked' : ''}>
                     <img class="poster-img" alt="Poster">
                     <span class="title">${cleanTitle}</span>
+                    <span class="watch-date"></span>
                 </div>
                 <div class="rating-container">
                     <span class="started-icon ${data.inProgress ? 'active' : ''}" title="Watching / In Progress">⏳</span>
@@ -1312,6 +1375,8 @@ function devSetWatched(item, shouldWatch) {
     userData[item.id].watched = shouldWatch;
     userData[item.id].inProgress = false;
     if (item.episodes) userData[item.id].watchedEps.fill(shouldWatch);
+    if (shouldWatch) { if (!userData[item.id].watchedAt) userData[item.id].watchedAt = Date.now() - Math.floor(Math.random() * 365 * 86400000); }
+    else delete userData[item.id].watchedAt;
 }
 
 function devSetScenario(type) {
@@ -1499,7 +1564,7 @@ function wrCat(c) { return c.replace('The Infinity Saga - ', 'Infinity Saga · '
 function computeWrapped() {
     const W = { year: new Date().getFullYear(), titles: 0, tracked: 0, movies: 0, shows: 0, episodes: 0, minutes: 0, showMin: 0,
         rated: [], hist: Array(11).fill(0), ratingSum: 0, notes: 0, started: 0, postCredits: 0, mcuWatched: 0, legacyWatched: 0,
-        secs: [], longestMovie: null, bingeShow: null, dd: { total: 0, watched: 0, next: null } };
+        secs: [], longestMovie: null, bingeShow: null, dd: { total: 0, watched: 0, next: null }, dated: [] };
     const LEGACY = ["Multiverse Legacy & Standalones", "Marvel Animated Legacy", "Legacy Marvel Television"];
 
     db.forEach(sec => {
@@ -1519,6 +1584,7 @@ function computeWrapped() {
                 if (/^The (Infinity|Multiverse) Saga/.test(sec.category)) W.mcuWatched++;
                 if (LEGACY.includes(sec.category)) W.legacyWatched++;
                 if (item.pc) W.postCredits += Number(item.pc) || 0;
+                if (u.watchedAt) W.dated.push({ ts: u.watchedAt, title: wrClean(item.title) });
                 if (!isShow && (!W.longestMovie || rt > W.longestMovie.mins)) W.longestMovie = { title: wrClean(item.title), mins: rt };
             } else if (u.inProgress || eps > 0) W.started++;
             if (isShow && mins > 0 && (!W.bingeShow || mins > W.bingeShow.mins)) W.bingeShow = { title: wrClean(item.title), mins, eps };
@@ -1541,15 +1607,46 @@ function computeWrapped() {
     W.fav = rs.length ? rs.reduce((b, s) => (s.rSum / s.rCount > b.rSum / b.rCount ? s : b)) : W.secs.reduce((b, s) => (s.minutes > b.minutes ? s : b));
     if (W.fav && W.fav.watched === 0 && W.fav.minutes === 0) W.fav = null;
     W.byTime = W.secs.filter(s => s.minutes > 0).sort((a, b) => b.minutes - a.minutes).slice(0, 6);
+    W.when = wrWhen(W.dated);
     W.archetype = wrArchetype(W);
     W.badges = wrBadges(W);
     return W;
+}
+
+function wrWhen(dated) {
+    if (dated.length < 3) return null;
+    const monthKey = d => d.getFullYear() * 12 + d.getMonth();
+    const months = {}, days = {}, dow = Array(7).fill(0);
+    dated.forEach(x => {
+        const d = new Date(x.ts);
+        months[monthKey(d)] = (months[monthKey(d)] || 0) + 1;
+        const dk = toDateInputValue(x.ts); days[dk] = (days[dk] || 0) + 1;
+        dow[d.getDay()]++;
+    });
+    const top = obj => Object.entries(obj).reduce((b, e) => (e[1] > b[1] ? e : b));
+    const [bm, bmN] = top(months), [bd, bdN] = top(days);
+    const sorted = [...dated].sort((a, b) => a.ts - b.ts);
+    const now = new Date(), series = [];
+    for (let k = 11; k >= 0; k--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - k, 1);
+        series.push({ label: d.toLocaleDateString(undefined, { month: 'narrow' }), n: months[monthKey(d)] || 0 });
+    }
+    const fd = dow.indexOf(Math.max(...dow));
+    return {
+        count: dated.length,
+        busiestMonth: new Date(Math.floor(bm / 12), bm % 12, 1).toLocaleDateString(undefined, { month: 'long', year: 'numeric' }), busiestMonthN: bmN,
+        favDay: new Date(2024, 0, 7 + fd).toLocaleDateString(undefined, { weekday: 'long' }), weekendShare: (dow[0] + dow[6]) / dated.length,
+        bigDay: new Date(bd + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' }), bigDayN: bdN,
+        first: sorted[0], series
+    };
 }
 
 function wrArchetype(W) {
     const t = W.titles;
     if (W.tracked && t / W.tracked >= 0.9) return { emoji: '🏆', name: 'The Completionist', line: 'You never leave a title behind.' };
     if (t >= 10 && (t - W.mcuWatched) / t >= 0.45) return { emoji: '🌌', name: 'The Multiverse Wanderer', line: 'One universe was never enough.' };
+    if (W.when && W.when.bigDayN >= 4) return { emoji: '🏃', name: 'The Marathon Runner', line: 'Whole days vanish once you start.' };
+    if (W.when && W.when.count >= 10 && W.when.weekendShare >= 0.6) return { emoji: '🛋️', name: 'The Weekend Warrior', line: 'Saturdays were made for this.' };
     if (W.minutes > 0 && W.showMin / W.minutes >= 0.6) return { emoji: '📺', name: 'The Binge Master', line: 'Episodes are your love language.' };
     if (W.rated.length >= 5 && W.avg <= 6.2) return { emoji: '🧐', name: 'The Tough Critic', line: 'Hard to impress, harder to fool.' };
     if (W.rated.length >= 5 && W.avg >= 8.3) return { emoji: '🤩', name: 'The True Believer', line: 'Everything is a banger to you.' };
@@ -1623,6 +1720,19 @@ function wrSlides(W) {
                 <div class="row rise" ${r(i + 1)}><div class="lbl"><span>${escHtml(wrCat(s.category))}</span><span>${wrHours(s.minutes)}h</span></div>
                 <div class="tr"><div class="fl" style="--w:${Math.max(4, Math.round((s.minutes / max) * 100))}%;--d:${(0.3 + i * 0.12).toFixed(2)}s;background:${s.color}"></div></div></div>`).join('')}
             </div>` });
+    }
+
+    if (W.when) {
+        const wn = W.when, max = Math.max(...wn.series.map(m => m.n), 1);
+        S.push({ g1: '#0984e3', g2: '#00b894', html: `
+            <div class="wr-kicker rise" ${r(0)}>When you watched</div>
+            <div class="wr-name rise" ${r(1)}>${escHtml(wn.busiestMonth)}</div>
+            <div class="wr-sub rise" ${r(2)}>was your busiest month · ${wn.busiestMonthN} title${wn.busiestMonthN > 1 ? 's' : ''}</div>
+            <div class="wr-hist">${wn.series.map((m, i) => `<div><i style="--h:${Math.round((m.n / max) * 80) + 2}px;--d:${(0.3 + i * 0.06).toFixed(2)}s"></i><em>${m.label}</em></div>`).join('')}</div>
+            <div class="wr-line rise" ${r(4)}>Favorite day to watch: <b>${escHtml(wn.favDay)}</b></div>
+            <div class="wr-line rise" ${r(5)}>Biggest day: <b>${escHtml(wn.bigDay)}</b> (${wn.bigDayN} title${wn.bigDayN > 1 ? 's' : ''})</div>
+            <div class="wr-line rise" ${r(6)}>First on record: <b>${escHtml(wn.first.title)}</b>, ${fmtWatchDate(wn.first.ts)}</div>
+            <div class="wr-sub rise" ${r(7)} style="font-size:.75rem;opacity:.55">Based on ${wn.count} dated title${wn.count > 1 ? 's' : ''}</div>` });
     }
 
     if (W.topRated.length) {
@@ -1837,6 +1947,7 @@ document.addEventListener('keydown', e => {
 window.onload = function() {
     applyTheme(currentTheme());
     render();
+    rebaseWatchSnap();
     initDoomsdayClock();
     checkIncomingSync();
     setupInstallUI();

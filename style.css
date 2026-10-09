@@ -526,3 +526,16 @@
     .wr-actions button { pointer-events: auto; border: none; border-radius: 24px; padding: 10px 14px; font-weight: 700; cursor: pointer; font-size: 0.9rem; background: rgba(255,255,255,0.18); color: #fff; }
     .wr-actions button.main { background: linear-gradient(90deg, #e62429, #8e44ad); }
     @media (max-height: 700px) { .wr-emoji { font-size: 4rem; } .wr-slide { padding-top: 64px; } .wr-body { gap: 8px; } .wr-big { font-size: clamp(4rem, 24vw, 6rem); } }
+
+    /* ==============================================================
+       WATCH DATES
+    ============================================================== */
+    .watch-date { font-size: 0.72rem; color: var(--text-3); white-space: nowrap; margin-left: -6px; }
+    .watch-date:empty { display: none; }
+    .wd-line { margin: 8px 0; font-size: 0.95rem; }
+    .wd-hint { margin: 0 0 8px 0; font-size: 0.8rem; color: var(--text-3); }
+    #wd-input { background: var(--n-1); color: var(--text); border: 1px solid var(--line-3); border-radius: 4px; padding: 3px 6px; font-family: inherit; }
+    #wd-today { background: var(--n-1); color: var(--text); border: 1px solid var(--line-3); border-radius: 4px; padding: 3px 9px; cursor: pointer; }
+    #wd-today:hover { border-color: var(--accent); }
+    @media (max-width: 600px) { .watch-date { margin-left: 0; } }
+    .leaderboard-list .lb-score { white-space: nowrap; margin-left: 8px; }
