@@ -1595,7 +1595,7 @@ function syncSettingsUI() {
 function buildSettingsUI() {
     const sw = document.getElementById('set-palettes');
     if (sw) sw.innerHTML = PALETTES.map(p => `<button type="button" class="swatch" data-val="${p.id}" style="--s1:${p.s[0]};--s2:${p.s[1]}"><i></i>${p.name}</button>`).join('');
-    document.getElementById('settings-modal').addEventListener('click', e => {
+    document.querySelector('#settings-modal .settings-sheet').addEventListener('click', e => {
         const b = e.target.closest('[data-val]'); if (!b) return;
         const g = b.closest('[data-key]'); if (g) setSetting(g.dataset.key, b.dataset.val);
     });
